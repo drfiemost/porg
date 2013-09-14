@@ -1,0 +1,122 @@
+.\"----------------------------------------------------------------
+.\" porgrc.8 - porgrc man page
+.\"----------------------------------------------------------------
+.\" This file is part of the package porg
+.\" Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.\" For more information visit  http://porg.sourceforge.net
+.\"----------------------------------------------------------------
+.\"
+.TH porgrc "5" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
+.SH NAME
+porgrc - configuration file for porg
+.SH SYNOPSIS
+\fB@sysconfdir@/porgrc\fR
+.SH DESCRIPTION
+.PP
+\fBporgrc\fR is the system-wide configuration file for \fBporg(8)\fR,
+the source code package organizer.
+.SH SYNTAX
+.PP
+The file consists of comments and key-value pairs. Comments are on separate
+lines that start with a \fB#\fR symbol. The key-value pairs are on the form:
+.RS
+.br
+\fBkey=value\fR
+.RE
+.br
+where \fBkey\fR contains no whitespace and no equal signs.
+.br
+\fBvalue\fR will be all of the text after the equal sign until (but not
+including) the ending newline.
+.br
+Occurences of $HOME and ${HOME} in \fBvalue\fR are expanded to the value of
+the environment variable HOME.
+.SH OPTIONS
+The following options can be set. The equivalent command line options (if any),
+are listed in brackets:
+.TP
+\fBLOGDIR\fR [-L|--logdir]
+.br
+Base porg logs directory. Default is '@LOGDIR@'.
+.TP
+\fBMAX_DB_AGE\fR
+.br
+Maximmum database age (maximmum number of days since the last update of the
+whole database). When this limit is reached porg prints a warning message.
+If set to zero, the database is never considered too old. Default is 7.
+.TP
+\fBINCLUDE\fR [-I|--include]
+.br
+Colon-separated list of paths to scan when logging the installation of a
+package. Default is '@INCLUDE@'.
+.br
+Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
+more details.
+.TP
+\fBEXCLUDE\fR [-E|--exclude]
+.br
+Colon-separated list of paths to skip when logging the installation of a
+package. Default is '@EXCLUDE@'.
+.br
+Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
+more details.
+.TP
+\fBBLOCK_SIZE\fR
+.br
+File sizes in the logs are rounded up to the nearest multiple
+of this value. This should be set to the block size of the file system. For
+most systems this is 4096. If set to zero, porg retrieves the block size of
+the file system for each file, which is the most accurate but time consuming
+choice. Default is 0.
+.br
+Note: This is \fBnot\fR the same as the command line option \fB\-b\fR (or
+\fB\-\-block\-size\fR).
+.TP
+\fBAPPARENT_SIZE\fR
+.br
+Like BLOCK_SIZE=1.
+.TP
+\fBLOG_IGNORE_ERRORS\fR [--ignore-errors]
+.br
+Setting this variable to 1 makes porg log packages even if the install command
+fails. This allows for logging uncomplete installations, or clean the filesystem
+after an installation failure. Default is 0.
+.TP
+\fBLOG_IGNORE_SHARED\fR [--ignore-shared]
+.br
+Setting this variable to 1 makes porg skip shared files when logging packages.
+Default is 0.
+.TP
+\fBCASE_SENSITIVE\fR
+.br
+Setting this variable to 1 makes porg behave case-sensitively when matching the
+package names given by the command line against the logged packages. Default is 0.
+.SH PATH MATCHING
+Variables \fB\INCLUDE\fR and \fBEXCLUDE\fR accept a colon-separated list of
+paths, each of which may contain shell-like wildcards (*, ? and [..]).
+Files are matched against each of those paths, following the standard
+shell-like expansion, but with the following exception: If a path in the list
+does not contain any wildcard, and it is a directory, it matches any file
+within that directory.
+.SH ENVIRONMENT
+Porg honours the following environment variable:
+.TP
+\fBPORG_DEBUG\fR
+If set to "yes", porg produces debugging messages, like the command line
+option '\fB\-vv\fR'.
+.SH FILES
+.PP
+\fI@sysconfdir@/porgrc\fR - active configuration file
+.br
+\fI@prefix@/share/porg/porgrc\fR - sample configuration file
+.SH WEB SITE
+The latest version of porg should be always available at:
+.br
+	http://porg.sourceforge.net
+.SH COPYRIGHT
+Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH SEE ALSO
+porg(8), porgball(8), superporg(8), rpm2porg(8)

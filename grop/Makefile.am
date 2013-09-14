@@ -1,0 +1,59 @@
+.PHONY: \
+	logme
+
+noinst_HEADERS = \
+	opt.h \
+	db.h \
+	find.h \
+	util.h \
+	mainwindow.h \
+	removepkg.h \
+	properties.h \
+	porgball.h \
+	preferences.h \
+	filestreeview.h \
+	maintreeview.h \
+	pkg.h
+
+if ENABLE_GROP
+
+bin_PROGRAMS = \
+	grop
+
+grop_SOURCES = \
+	main.cc \
+	pkg.cc \
+	find.cc \
+	util.cc \
+	porgball.cc \
+	removepkg.cc \
+	filestreeview.cc \
+	properties.cc \
+	mainwindow.cc \
+	preferences.cc \
+	maintreeview.cc \
+	db.cc \
+	opt.cc
+
+grop_CXXFLAGS = \
+	-I$(top_srcdir)/lib \
+	-DDATADIR='"$(DESTDIR)$(datadir)"' \
+	$(MY_CXXFLAGS) \
+	$(GTKMM_CFLAGS)
+
+grop_LDADD = \
+	$(GTKMM_LIBS) \
+	$(top_srcdir)/lib/porg/libporg.a
+
+logme_files = \
+    $(DESTDIR)$(bindir)/grop
+
+logme:
+	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
+
+else
+
+logme:
+
+endif
+

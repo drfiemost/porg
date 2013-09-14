@@ -1,0 +1,56 @@
+.\"----------------------------------------------------------------
+.\" rpm2porg.8 - rpm2porg-@PACKAGE_VERSION@ man page
+.\"----------------------------------------------------------------
+.\" Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.\" For more information visit  http://porg.sourceforge.net
+.\"----------------------------------------------------------------
+.\"
+.TH RPM2PORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
+.SH NAME
+rpm2porg - create porg logs from a local RPM database
+.SH SYNOPSIS
+\fBrpm2porg\fR [OPTIONS] <packages>
+.SH DESCRIPTION
+.PP
+\fBrpm2porg\fR is a shell script that create \fBporg(8)\fR logs from
+\fBrpm(8)\fR ones. The newly created logs are placed into
+the porg log directory automatically.
+.PP
+Is not mandatory to add the version suffix to the input packages, since
+rpm adds it automatically.
+.SH OPTIONS
+.TP
+\fB\-a, \-\-all\fR
+Read the whole rpm database of the system, and create a porg log for
+each logged package. Warning: for more than a few packages, this may take
+a long time.
+.TP
+\fB\-q, \-\-quiet\fR
+Be quiet, except for errors.
+.TP
+\fB\-f, \-\-force\fR
+Force overwrite of any already logged package. By default they are skipped.
+.TP
+\fB\-j, \-\-sync\-version\fR
+Remove obsolete versions of the packages from the porg database. For
+instance, if foo-1.0 is beeing imported, and foo-2.4 is logged by porg
+but not by rpm, remove foo-2.4 from the porg database.
+.TP
+\fB\-s, \-\-strip\-release\fR
+Remove the release suffix from the name of the package
+(e.g. 'foo-1.0.2-2.1' --> 'foo-1.0.2').
+.TP
+\fB\-h, \-\-help\fR
+Print a usage message and exit.
+.TP
+\fB\-v, \-\-version\fR
+Print version information and exit.
+.SH WEB SITE
+http://porg.sourceforge.net
+.SH COPYRIGHT
+Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH SEE ALSO
+porg(8), porgrc(5), superporg(8), porgball(8)

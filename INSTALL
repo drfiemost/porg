@@ -1,0 +1,80 @@
++------------------------------+
+| Building and installing porg |
++------------------------------+
+
+
+Configure options
+=================
+You can get a summary of all configuration options with './configure --help'.
+Some of them are explained below:
+
+
+The prefix
+----------
+By default, porg is installed in prefix /usr/local. If you prefer a different
+one, like /usr, use the '--prefix' configure option. For example like this:
+
+    ./configure --prefix=/usr
+
+
+The system-wide configuration directory
+---------------------------------------
+By default, the configuration file porgrc is installed in directory PREFIX/etc.
+If you prefer a different one, like /etc, use the '--sysconfdir' configure
+option.
+
+
+The default log directory
+-------------------------
+By default, porg will store its logs in directory /var/log/porg. If you prefer a
+different location, use the configure option '--with-porg-logdir=DIR'.
+This will be the default log directory, but it's possible to specify a different
+one in runtime, by setting the LOGDIR variable in the configuration file, or
+using the porg command line option '--logdir=DIR'.
+
+
+The GUI
+-------
+The GUI of porg (grop) can be disabled with the option '--disable-grop'.
+Use this option if your system lacks GTKMM >= 2.12, or you don't want to use the
+GUI.
+
+
+The auxiliary scripts
+---------------------
+A set of helper scripts are installed by default (see README). The configure
+option '--disable-scripts' may be used to skip script installation.
+
+
+Compiling and installing porg
+=============================
+Once you have choosen the appropiate options, just type the following to install
+porg:
+
+   ./configure [OPTIONS]
+   make
+   make install           # as root
+
+
+
+Logging the installation of porg itself
+=======================================
+To log the own installation of porg, type the following command as root,
+right after "make install":
+
+	make logme
+
+Don't try this:
+
+    porg -lp porg-x.y.z "make install"
+
+from the porg sources directory, because the install process will fail,
+printing an error message, more or less like this:
+
+    error while loading shared libraries: /usr/lib/libporg-log.so: cannot open
+    shared object file: No such file or directory
+
+
+~~
+You may contact me at icnelis*, where * = @gmail.com
+

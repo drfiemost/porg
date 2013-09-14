@@ -1,0 +1,21 @@
+##----------------------------------------------------------------------
+## @sysconfdir@/porgrc: configuration file for porg-@PACKAGE_VERSION@.
+##
+## See the man page of porgrc(5) for more information.
+##----------------------------------------------------------------------
+## Note: For those variables that can be also set by the command line,
+## the equivalent command line options are specified in brackets.
+##----------------------------------------------------------------------
+
+# Log directory.
+# [-L|--logdir]
+#LOGDIR=@LOGDIR@
+
+# Paths to scan when logging installations.
+# [-I|--include]
+#INCLUDE=@INCLUDE@
+
+# Paths to skip when logging installations.
+# [-E|--exclude]
+#EXCLUDE=@EXCLUDE@
+

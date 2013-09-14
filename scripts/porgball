@@ -1,0 +1,254 @@
+#!/usr/bin/perl
+#----------------------------------------------------------------------
+# porgball - Binary package support for porg.
+#----------------------------------------------------------------------
+# This file is part of the package porg
+# Copyright (C) 2004-2012 David Ricart
+# For more information visit http://porg.sourceforge.net
+#----------------------------------------------------------------------
+# vim:ts=4
+
+use Cwd;
+use warnings;
+use strict;
+use Getopt::Long;
+
+Getopt::Long::Configure("no_ignore_case", "bundling");
+
+my $me = "porgball";
+my $verbose = '';
+my $zip = "gzip";
+my $level = 9;
+my $force = '';
+my $all = '';
+my $tmp = "/tmp/$me.$$";
+my $logdir = '';
+my ($version, $root, $dir, $extract, $use_porg, $test);
+
+
+sub help
+{
+print <<EOF;
+$me - Creates binary packages from installed (and logged by porg) packages
+
+Usage:
+  $me [-bgxftv] [-d DIR] [-1..9] [-a|<packages>]
+  $me -e [-ltv] [-C DIR] <porgballs>
+  $me [-Vh]
+
+General options:
+  -t, --test           Test compressed file integrity
+  -v, --verbose        Increase output messages
+  -V, --version        Display version information
+  -h, --help           Display this help message
+  
+Package creation options:
+  -a, --all            Create a porgball for each logged package
+  -d, --directory=DIR  Create the porgballs in directory DIR (default is '.')
+  -g, --gzip           Compress with gzip (default)
+  -b, --bzip2          Compress with bzip2
+  -x, --xz             Compress with xz
+  -<1..9>              Compression level (speed/quality balance)
+      --fast           Like -1: Compress faster
+      --best           Like -9: Compress better (default)
+  -f, --force          Force overwrite of existing output files
+  
+Package extraction options:
+  -e, --extract        Extract the porgballs, into directory / by default
+  -C, --root=DIR       Extract the files into DIR (as the -C tar option)
+  -l, --log            Log the extraction with porg
+
+Note:
+  Leading '/' are stripped from the filenames in the porgballs
+EOF
+exit(0);
+}
+
+
+sub checkdir
+{
+	my $dir = shift;
+	$$dir =~ s/(.)\/*$/$1/;
+	
+	(-f $$dir) and die("$me: $$dir: not a directory.\n");
+	
+	if (!-d $$dir) { 
+		mkdir($$dir) or die("$me: mkdir(\"$$dir\"): $!\n"); 
+	}
+	
+	(-w $$dir) or die("$me: $$dir is not writable.\n");
+}
+
+
+sub check_arg
+{
+	my $opt = shift;
+	my $switch = shift;
+	(defined $opt && !$opt)
+		and &help("option -$switch requires an argument");
+	return $opt;
+}
+
+
+sub get_logdir
+{
+	my $porgrc = "";
+	
+	for ("", "/usr", "/usr/local") {
+		if (-e "$_/etc/porgrc") {
+			$porgrc = "$_/etc/porgrc";
+			last;
+		}
+	}
+	
+	if (open(PORGRC, "< $porgrc")) {
+		while (<PORGRC>) {
+			if (/^LOGDIR=(.+[^\n])/) {
+				# Call echo, because LOGDIR may contain shell 
+				# variables like $HOME or ${HOME}
+				$logdir = `echo $1`;
+				last;
+			}
+		}
+		close(PORGRC);
+	}
+	
+	($logdir) or $logdir = "/var/log/porg";
+	chomp($logdir);
+	(-d $logdir) or die("$me: $logdir: no such directory.\n");
+}
+
+
+# Check for porg, and get the version
+$version = `porg --version`	or exit(1);
+$version =~ s/^porg-//;
+
+# Command line arguments
+GetOptions(
+	'h|help'			=> \&help,
+	'd|directory:s',	=> \$dir,
+	'C|root|prefix:s',	=> \$root,
+	'e|extract',		=> \$extract,
+	'l|log',			=> \$use_porg,
+	't|test'			=> \$test,
+	'V|version'			=> sub { print("$me-$version");	exit(0); },
+	'v|verbose'			=> sub { $verbose = "--verbose"; },
+	'b|bzip2'			=> sub { $zip = "bzip2"; },
+	'g|gzip'			=> sub { $zip = "gzip"; },
+	'x|xz'				=> sub { $zip = "xz"; },
+	'f|force'			=> sub { $force = "--force"; },
+	'a|all'				=> sub { $all = "--all"; },
+	'1|fast'			=> sub { $level = 1; },
+	'2'					=> sub { $level = 2; },
+	'3'					=> sub { $level = 3; },
+	'4'					=> sub { $level = 4; },
+	'5'					=> sub { $level = 5; },
+	'6'					=> sub { $level = 6; },
+	'7'					=> sub { $level = 7; },
+	'8'					=> sub { $level = 8; },
+	'9|best'			=> sub { $level = 9; }
+) or &help;
+
+&check_arg($dir, "d") or $dir = getcwd();
+&check_arg($root, "C") or $root = "/";
+&get_logdir;
+
+$SIG{'INT'} = $SIG{'QUIT'} = sub { unlink("$tmp"); exit(1); };
+
+
+#-------------------#
+# Extract porgballs #
+#-------------------#
+
+if ($extract) {
+	
+	@ARGV or &help;	
+	&checkdir(\$root);
+	
+	foreach (@ARGV) {
+		if (!-e $_) {
+			warn("$me: $_: no such file.\n");
+			next;
+		}
+		elsif (!/([^\/]*).porg\.tar\.(bz2|gz|xz)$/ || !$1) {
+			warn("$me: $_: this does not look like a porgball. Skipping.\n");
+			next;
+		}
+		elsif ($test) {
+			if (/\.gz$/) {
+				$zip = "gzip";
+			}
+			elsif (/\.bz2$/) {
+				$zip = "bzip2";
+			}
+			else {
+				$zip = "xz";
+			}
+			system("$zip --test $_") == 0 or last;
+		}
+		my $exclude = "";
+		if (!$use_porg and !/^porg-/) {
+			$exclude = "--exclude=" . substr($logdir, 1) . "/*";
+		}
+		my $cmd = "tar -C $root $verbose $exclude -xf $_";
+		if ($use_porg) {
+			$cmd = "porg --log --logdir=$logdir --append --package=$1 \"$cmd\"";
+		}
+		system("$cmd");
+	}
+}
+
+
+#------------------#
+# Create porgballs #
+#------------------#
+
+else {
+
+	(@ARGV || $all) or &help;
+
+	my @pkgs = `porg $verbose $all @ARGV` or exit(1);
+	chomp(@pkgs);
+
+	&checkdir(\$dir);
+
+	for (@pkgs) {
+		my @files = `porg --no-package-name --files $_`;
+		chomp(@files);
+		open(TMP, "> $tmp") or die("$me: open(\"$tmp\"): $!\n");
+		my $empty = 1;
+		for (@files) {
+			if (-l $_ || -e _) {
+				print(TMP "$_\n");
+				$empty = 0;
+			}
+		}
+		print(TMP "$logdir/$_\n");
+		close(TMP);
+		if ($empty) {
+			warn("$me: $_: no files installed.\n");
+			next;
+		}
+
+		my $tar = "$dir/$_.porg.tar";
+		my $ball = "";
+		if ($zip eq "gzip") {
+			$ball = "$tar.gz";
+		} 
+		elsif ($zip eq "bzip2") {
+			$ball = "$tar.bz2";
+		}
+		elsif ($zip eq "xz") {
+			$ball = "$tar.xz";
+		}
+
+		system("tar -cf $tar --files-from=$tmp 2>/dev/null");
+		system("$zip -$level $verbose $force $tar");
+
+		if ($test) {
+			system("$zip --test $ball") == 0 or last;
+		}
+	}
+}
+
+unlink("$tmp");

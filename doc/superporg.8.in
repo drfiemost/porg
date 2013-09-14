@@ -1,0 +1,50 @@
+.\"----------------------------------------------------------------
+.\" superporg.8 - superporg-@PACKAGE_VERSION@ man page
+.\"----------------------------------------------------------------
+.\" Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.\" For more information visit  http://porg.sourceforge.net
+.\"----------------------------------------------------------------
+.\"
+.TH SUPERPORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
+.SH NAME
+superporg - Debian, RPM or Slackware package installation support for porg(8).
+.SH SYNOPSIS
+\fBsuperporg\fR [OPTIONS] <packages>
+.SH DESCRIPTION
+.PP
+\fBsuperporg\fR performs the installation of Debian, RPM or Slackware
+binary packages, without requiring the use of \fBdpkg(8)\fR, \fBrpm(8)\fR
+or \fBpkgtool(8)\fR. The installations are logged by porg (but see option
+\fB\-n\fR below),
+.PP
+To install RPM packages, \fBcpio(1)\fR and ( \fBrpm2cpio(1)\fR or
+\fBrpmunpack\fR ) are required.
+.SH OPTIONS
+.TP
+\fB\-h, \-\-help\fR
+Display a brief usage message and exit.
+.TP
+\fB\-v, \-\-version\fR
+Display version information and exit.
+.TP
+\fB\-q, \-\-quiet\fR
+Be silent, except for errors.
+.TP
+\fB\-n, \-\-no\-porg\fR
+Do not use porg to log the installation.
+.TP
+\fB\-\-root\fR=\fIPATH\fR
+When installing the files, use PATH as the root directory.
+.TP
+\fB\-s, \-\-strip\-release\fR
+Remove the release suffix from the name of the package
+(e.g. 'foo-1.0.2-2.1' --> 'foo-1.0.2').
+.SH WEB SITE
+http://porg.sourceforge.net
+.SH COPYRIGHT
+Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH SEE ALSO
+porg(8), porgrc(5), porgball(8), rpm2porg(8)

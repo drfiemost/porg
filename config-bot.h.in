@@ -1,0 +1,18 @@
+/***********************************************************************
+ * config-bot.h
+ ***********************************************************************
+ * This file is part of the package porg
+ * Copyright (C) 2004-2012 David Ricart
+ * For more information visit http://porg.sourceforge.net
+ ***********************************************************************/
+
+#ifdef __cplusplus
+#	include <iostream>
+#endif
+
+#include <assert.h>
+#include <errno.h>
+#include <time.h>
+
+@ac_includes_default@
+

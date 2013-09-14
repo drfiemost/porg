@@ -1,0 +1,96 @@
+.\"----------------------------------------------------------------
+.\" porgball.8 - porgball-@PACKAGE_VERSION@ man page
+.\"----------------------------------------------------------------
+.\" Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.\" For more information visit  http://porg.sourceforge.net
+.\"----------------------------------------------------------------
+.\"
+.TH PORGBALL "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
+.SH NAME
+porgball - Binary package support for porg(8).
+.SH SYNOPSIS
+\fBporgball\fR [-bgftv] [-d DIR] [-1..9] [-a|<packages>]
+.br
+\fBporgball\fR -e [-ltv] [-C DIR] <porgballs>
+.SH DESCRIPTION
+.PP
+By default, \fBporgball\fR may be given one or more
+package names as arguments, and for each of those packages it creates
+a binary tarball (.tar.bz2 or .tar.gz) containing all the currently
+installed files. For this to work the input packages have to be
+registered in the porg database.
+.br
+Leading slashes ('/') are stripped from the paths of the files in the
+tarballs.
+.PP
+With option \fB\-e\fR, \fBporgball\fR admits one or more previously
+created tarballs ("porgballs") as arguments, and installs them into the
+system, optionally logging the installation with porg.
+.PP
+Mandatory arguments to long options are mandatory for short options too.
+.SH GENERAL OPTIONS
+.TP
+\fB\-t, \-\-test\fR
+Test compressed file integrity.
+.TP
+\fB\-h, \-\-help\fR
+Show usage information and exit.
+.TP
+\fB\-v, \-\-verbose\fR
+Verbose output.
+.TP
+\fB\-V, \-\-version\fR
+Display version information and exit.
+.SH PACKAGE CREATION OPTIONS
+.TP
+\fB\-a, \-\-all\fR
+Create a porgball for each package logged in the porg database.
+.TP
+\fB\-d, \-\-directory\fR=\fIDIR\fR
+Create the porgballs in directory DIR (default is '.').
+.TP
+\fB\-b, \-\-bzip2\fR
+Compress with bzip2 (this is the default).
+.TP
+\fB\-g, \-\-gzip\fR
+Compress with gzip.
+.TP
+\fB\-#\fR
+Set the compression level (speed/quality balance). '#' is a number between 1
+(faster compression) and 9 (best compression).
+.TP
+\fB\-\-fast\fR
+An alias for -1.
+.TP
+\fB\-\-best\fR
+An alias for -9.
+.TP
+\fB\-f, \-\-force\fR
+Force overwrite of existing output files.
+.SH PACKAGE EXTRACTION OPTIONS
+.TP
+\fB\-e, \-\-extract\fR
+Extract (install) the given <porgballs>, in directory '/' by default.
+.TP
+\fB\-l, \-\-log\fR
+Log the file extraction with porg(8), retrieving the appropiate
+package name from the name of the porgball.
+.TP
+\fB\-C, \-\-root\fR=\fIDIR\fR
+Extract the files into directory DIR (as the -C option in tar).
+.SH FILES
+.PP
+\fI@sysconfdir@/porgrc\fR - porg configuration file
+.br
+\fI@LOGDIR@\fR - default porg log directory
+.SH WEB SITE
+The latest version of porgball should be always available at:
+.br
+	http://porg.sourceforge.net
+.SH COPYRIGHT
+Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH SEE ALSO
+porg(8), porgrc(5), superporg(8), rpm2porg(8)

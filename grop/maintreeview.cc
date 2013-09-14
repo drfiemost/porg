@@ -1,0 +1,162 @@
+//=======================================================================
+// maintreeview.cc
+//-----------------------------------------------------------------------
+// This file is part of the package porg
+// Copyright (C) 2004-2012 David Ricart
+// For more information visit http://porg.sourceforge.net
+//=======================================================================
+
+#include "config.h"
+#include "db.h"
+#include "opt.h"
+#include "pkg.h"
+#include "maintreeview.h"
+
+using std::string;
+using sigc::mem_fun;
+using namespace Grop;
+
+
+MainTreeView::MainTreeView()
+:
+	Gtk::TreeView(),
+	m_columns(),
+	m_model(Gtk::ListStore::create(m_columns))
+{
+	// DB should have been initialized before
+	g_assert(DB::initialized());
+
+	set_rules_hint();
+	set_vexpand();
+
+	get_selection()->signal_changed().connect(
+		mem_fun(this, &MainTreeView::on_selection_changed));
+
+	add_columns();
+	set_opts();
+	fill_model();
+
+	set_model(m_model);
+}
+
+
+void MainTreeView::fill_model()
+{
+	m_model->clear();
+
+	for (uint p = 0; p < DB::pkgs().size(); ++p) {
+		Pkg* pkg = DB::pkgs()[p];
+		iterator i = m_model->append();
+		(*i)[m_columns.m_pkg] 		= pkg;
+		(*i)[m_columns.m_name] 		= pkg->name();
+		(*i)[m_columns.m_size] 		= pkg->size();
+		(*i)[m_columns.m_nfiles] 	= pkg->nfiles();
+		(*i)[m_columns.m_date] 		= pkg->date();
+		(*i)[m_columns.m_summary] 	= pkg->summary();
+	}
+}
+
+
+void MainTreeView::remove_pkg(string const& pkg_name)
+{
+	Gtk::TreeModel::Children children = m_model->children();
+
+	for (iterator it = children.begin(); it != children.end(); ++it) {
+		if ((*it)[m_columns.m_name] == pkg_name) {
+			m_model->erase(it);
+			break;
+		}
+	}
+}
+
+
+void MainTreeView::add_columns()
+{
+	int id;
+	Gtk::CellRenderer* cell;
+
+	append_column("Name", m_columns.m_name);
+
+	id = append_column("Size", m_columns.m_size) - 1;
+	cell = get_column_cell_renderer(id);
+	cell->set_alignment(1, 0.5);
+	get_column(id)->set_cell_data_func(*cell, mem_fun(*this, &MainTreeView::size_cell_func));
+
+	id = append_column("Files", m_columns.m_nfiles) - 1;
+	cell = get_column_cell_renderer(id);
+	cell->set_alignment(1, 0.5);
+
+	id = append_column("Date", m_columns.m_date) - 1;
+	cell = get_column_cell_renderer(id);
+	cell->set_alignment(1, 0.5);
+	get_column(id)->set_cell_data_func(*cell, mem_fun(*this, &MainTreeView::date_cell_func));
+
+	append_column("Summary", m_columns.m_summary);
+
+	for (int i = 0; i < NCOLS; ++i) {
+		get_column(i)->set_resizable();
+		get_column(i)->set_sort_column(i);
+	}
+}
+
+
+void MainTreeView::size_cell_func(Gtk::CellRenderer* cell, iterator const& it)
+{
+	static_cast<Gtk::CellRendererText*>(cell)
+		->property_text() = Porg::fmt_size((*it)[m_columns.m_size]);
+}
+
+
+void MainTreeView::date_cell_func(Gtk::CellRenderer* cell, iterator const& it)
+{
+	static_cast<Gtk::CellRendererText*>(cell)
+		->property_text() = Porg::fmt_date((*it)[m_columns.m_date], Opt::hour());
+}
+
+
+void MainTreeView::set_opts()
+{
+	for (int i = 0; i < NCOLS; ++i)
+		get_column(i)->set_visible(Opt::columns()[i]);
+
+	fill_model(); // so that changes in Opt::hour() will be applied
+}
+
+
+void MainTreeView::on_selection_changed()
+{
+	iterator it = get_selection()->get_selected();
+	if (it)
+		signal_pkg_selected.emit((*it)[m_columns.m_pkg]);
+	else
+		signal_pkg_selected.emit(0);
+}
+
+
+bool MainTreeView::on_button_press_event(GdkEventButton* event)
+{
+	// call base class, to allow normal handler
+	bool handled = Gtk::TreeView::on_button_press_event(event);
+
+	// right click
+	if (event->button == 3)
+		signal_popup_menu.emit(event);
+	
+	// double left click
+	else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
+		signal_2button_press.emit(event);
+
+	return handled;
+}
+
+
+bool MainTreeView::on_key_press_event(GdkEventKey* event)
+{
+	// call base class, to allow normal handler
+	bool handled = Gtk::TreeView::on_key_press_event(event);
+	
+	signal_key_press.emit(event);
+
+	return handled;
+}
+

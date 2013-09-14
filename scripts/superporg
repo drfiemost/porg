@@ -1,0 +1,302 @@
+#!/bin/sh
+# vim:ts=4:ft=sh
+#-----------------------------------------------------------------------
+# SuperPorg - installs Debian, RPM or Slackware binary packages without
+#             dpkg, RPM or pkgtool; and optionally logs them with porg.
+#
+# To install RPM packages, cpio and (rpm2cpio or rpmunpack) are required.
+#-----------------------------------------------------------------------
+# AUTHOR
+#--------
+# SuperPorg is part of the package porg
+# Copyright (C) 2005-2009 David Ricart
+# For more information visit http://porg.sourceforge.net
+#-----------------------------------------------------------------------
+
+me=`basename $0`
+
+
+warn()		{ echo "$me: $*" >&2; }
+die()		{ warn "$*"; exit 1; }
+say()		{ echo "$*" >&6; }
+sayf()		{ printf "$*" >&6; }
+version()	{ porg --version | sed "s@^porg@$me@"; exit 0; }
+
+help()
+{
+cat << EOF
+$me - installs Debian, RPM or Slackware binary packages with porg.
+
+Usage:
+  $me [OPTIONS] <packages>
+
+Options:  [default values listed in brackets]
+  -h, --help           Display this usage message and exit.
+  -v, --version        Display version information and exit.
+      --root=PATH      Use PATH as the root directory  [$root].
+  -n, --no-porg        Do not use porg to log the installation.
+  -q, --quiet          Be silent.
+  -s, --strip-release  Remove the release suffix from the name of the package
+                        (e.g. 'foo-1.0.2-2.1' --> 'foo-1.0.2').
+
+Note:
+  To install rpm packages, cpio and ( rpm2cpio or rpmunpack ) are required.
+
+EOF
+	exit 0
+}
+
+
+#---------------------------------------#
+# Initialize and parse the command line #
+#---------------------------------------#
+
+# Remove tmp stuff on exit
+trap 'rm -rf $tmpdir' 0
+
+# Defaults
+root=/
+quiet=
+strip=
+pkgs=
+use_porg=1
+
+# Parse the command line
+while [ "$1" ]; do
+	case $1 in
+	
+		-n|--no-porg)				use_porg=;;
+		-q|--quiet)					quiet=1;;
+		-s|--strip-release|--strip)	strip=1;;
+		-v|--version)				version;;
+
+		--root|--root=*)	
+			root=`expr $1 : '[^=]*=\(.*\)'` \
+				|| die "Option '$1' requires an argument"
+			;;
+			
+		-*)	help;;
+		
+		*)	pkgs="$pkgs $1";;
+	esac
+	shift
+done
+
+[ "$pkgs" ] || help
+
+[ "$quiet" ] && exec 6>/dev/null || exec 6>&1
+
+# Absolutize and remove repeated package names
+__pkgs=""
+for pkg in $pkgs; do
+	expr $pkg : / >/dev/null || pkg=`pwd`/$pkg
+	pkg=`expr $pkg : '\(.*[^/]\)' '|' '/' | tr -s '/'`
+	__pkgs="$__pkgs $pkg"
+done
+pkgs=`for pkg in $__pkgs; do echo $pkg; done | sort -u`
+
+
+# "Absolutize" root, and remove trailing and duplicate slashes
+expr "$root" : '/' >/dev/null || root=`pwd`/$root
+root=`expr "$root" : '\(.*[^/]\)' '|' '/' | tr -s '/'`
+[ -f "$root" ] && die "$root: Not a directory"
+
+for prog in porg cpio rpm2cpio rpmunpack; do
+	eval $prog=`which $prog`
+done
+[ "$use_porg" -a -z "$porg" ] && die "Cannot find the porg program"
+			
+# Tmp dir to store intermediate files
+tmpdir=`mktemp -dt ${me}XXXXXX 2>/dev/null || echo /tmp/$me.$$`
+rm -rf $tmpdir
+install -d $tmpdir
+
+# Process the packages
+for pkg in $pkgs; do
+
+	# Check that the package exists and it's a regular file
+	[ -f $pkg ] || {
+		warn "$pkg: No such regular file"
+		continue
+	}
+	
+	sayf "Processing $pkg: "
+	
+	# Get the type of the package and the basename. Strip suffixes.
+	# In Debian packages, also strip the architecture suffix and convert
+	# underscores ('_') to hyphens ('-').
+	
+	case "`file $pkg`" in
+	
+		*\.deb:\ Debian\ binary\ package*)
+			pkg_type=Debian
+			name=`basename $pkg .deb | sed 's@_[a-zA-Z].*@@; y@_@-@'`
+			;;
+			
+		*\.rpm:\ RPM*\ src\ *)
+			die "Can't install source RPM packages (only binary)"
+			;;
+			
+		*\.rpm:\ RPM*\ bin\ *)
+			# RPM packages require cpio and rpm2cpio or rpmunpack.
+			if [ -z "$cpio" -o -z "$rpm2cpio$rpmunpack" ]; then
+				die "*** cpio and (rpm2cpio or rpmunpack) are required to install RPM packages"
+			fi
+			pkg_type=RPM
+			name=`basename $pkg .rpm`
+			;;
+			
+		*\.tgz:\ gzip\ compressed\ data*)
+			pkg_type=Slackware
+			name=`basename $pkg .tgz`
+			;;
+			
+		*)
+			say "Unsupported format"
+			continue
+			;;
+	esac
+	
+	say "$pkg_type package"
+	
+	# Strip the release suffix, if needed.
+	if [ "$strip" ]; then
+		name=`echo $name | awk '{ 						\
+			out = $0;									\
+			cnt = gsub(/-[0-9][^-]*/, "&");				\
+			if (cnt > 1)  								\
+				out = gensub(/-[0-9][^-]*/, "", cnt);	\
+			print out;									\
+		}'`
+	fi
+
+	say "  Name: $name"
+	
+	
+	#----------------#
+	# Debian package #
+	#----------------#
+
+	if [ $pkg_type = Debian ]; then
+	
+		sayf "  Converting .deb package to .tar.gz... "
+		
+		# Extract the control portion
+		( ar p $pkg control.tar.gz > $tmpdir/control.tar.gz ) || continue
+		( cd $tmpdir && gzip -cd control.tar.gz | tar xf - ) || continue
+		
+		# Extract the data portion
+		( ar p $pkg data.tar.gz > $tmpdir/$name.tar.gz ) || continue
+		( gzip -d $tmpdir/$name.tar.gz ) || continue
+		
+		(
+		cd $tmpdir
+		
+		# Take into account the preinst script
+		[ -x preinst ] && cmd="./preinst &&" || cmd=
+
+		# Install destdir
+		[ -d $root ] || install -d $root
+		
+		if [ "$use_porg" ]; then
+			sayf "ok\n  Installing the package with porg... "
+			# Create an artificial .spec file to be read by porg
+			sed -ne "{ \
+				/^[Dd]escription:/,/^$/h;		\
+				s@^[Pp]ackage:@Name:@p;			\
+				/^[Vv]ersion:/p;				\
+				s@^[Dd]escription:@Summary:@p;	\
+				s@^[Mm]aintainer:@Vendor:@p;	\
+				g; {s,^ *,,; s,^.$,,; s,^[Dd]escription:.*,%description,; p} \
+			}" control > $name.spec
+			porg -lp $name "$cmd tar -C $root -xf $tmpdir/$name.tar"
+		else
+			sayf "ok\n  Installing the package... "
+			$cmd tar -C $root -xf $tmpdir/$name.tar
+		fi
+		
+		)
+	
+	
+	#-------------#
+	# RPM package #
+	#-------------#
+
+	elif [ $pkg_type = RPM ]; then
+	
+		sayf "  Converting the RPM package to cpio... "
+		
+		(
+		cd $tmpdir &&
+		
+		if [ "$rpmunpack" ]; then
+			( rpmunpack < $pkg > $name.cpio.gz ) || continue
+			gunzip $name.cpio.gz || continue
+		else
+			( rpm2cpio $pkg > $name.cpio ) || continue
+		fi
+		
+		sayf " ok\n  Extracting files from the cpio package... "
+		cpio --extract --make-directories --quiet < $name.cpio
+		rm -f $name.cpio
+		find . -type d -perm 700 -exec chmod 755 '{}' \;
+		
+		[ -d $root ] || install -d $root
+		
+		if [ "$use_porg" ]; then
+			sayf "ok\n  Installing the package with porg... "
+			porg -lp $name "tar -cf - . | tar -C $root/ -xf -"
+		else
+			sayf "ok\n  Installing the package... "
+			tar -cf - . | tar -C $root/ -xf -
+		fi
+
+		)
+	
+	#-------------------#
+	# Slackware package #
+	#-------------------#
+
+	else
+		sayf "  Converting the .tgz package to .tar... "
+		
+		base=`basename $pkg`
+		cp $pkg $tmpdir/$base || continue
+		
+		(
+		cd $tmpdir &&
+		
+		( gzip -fcd $base | tar xf - ) || continue
+		( tar cf pkg.tar `ls | grep -wv install` ) || continue
+		
+		aux_cmd=
+		if [ -f install/doinst.sh ]; then
+			aux_cmd="&& /bin/sh $tmpdir/install/doinst.sh"
+		fi
+		if [ -f install/slack-desc ]; then
+			echo "%description" > $name.spec
+			sed '1,/----/d;s@^[^:]*: *@@' install/slack-desc >> $name.spec
+		fi
+		[ -d $root ] || install -d $root
+
+		if [ "$use_porg" ]; then
+			sayf "ok\n  Installing the package with porg... "
+			porg -lp $name "tar -C $root -xf $tmpdir/pkg.tar $aux_cmd"
+		else
+			sayf "ok\n  Installing the package... "
+			tar -C $root -xf $tmpdir/pkg.tar $aux_cmd
+		fi
+		
+		)
+	fi
+	
+	[ $? -eq 0 ] && say "ok" || exit 1
+
+	# Remove tmp files
+	rm -rf $tmpdir/*
+	
+done
+
+# Nice job SuperPorg!
+exit 0
+

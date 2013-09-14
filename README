@@ -1,0 +1,145 @@
+*========================================*
+|  porg - source code PACkage Organizer  |
+*========================================*
+
+
+Motivation
+==========
+
+After the installation of a source package with "./configure && make && make
+install", one is usually left with having no idea of what it was installed and
+where it all went, making it difficult to uninstall the package in the future.
+
+Porg was written to solve this problem in a quite simple fashion.
+
+
+Description
+===========
+
+When installing a package from sources, porg wraps the "make install" command
+(or whatever command or group of commands are needed to install the files 
+into the system), and saves installation information into a text database.
+
+How does it perform this magic? It is accomplished using the LD_PRELOAD method,
+which preloads a shared library before installation using the environment
+variable LD_PRELOAD. During installation, this library catches the system calls
+that cause filesystem alterations (such as open, link, rename, ...), and logs
+the created files.
+
+This method is very simple to use and it does not require a "pre-install" phase
+because it monitors processes while they run.
+
+Since the preloaded library is used by the specific installation process, the
+created logs are not contaminated with any file created by other processes
+making filesystem alteration calls. Thus you can even use porg to track parallel
+installations.
+
+Porg has many usage options for removing packages, looking at package files,
+file counts, sorting, missing files, etc. Run "porg -h" on the command line,
+or "man porg" for more information.
+
+The system-wide configuration file for porg is /etc/porgrc. Type "man porgrc"
+for more details.
+
+
+Usage
+=====
+
+Typical usage of porg is as follows:
+
+1) Unpack the tarball of the package you want to install from sources, 
+   configure and build it as usual:
+
+	$ tar xjf foo.tar.bz2
+	$ cd foo
+	$ ./configure
+	$ make
+
+Become superuser and install the package with porg:
+
+	$ sudo porg -lp foo "make install"
+
+See the man page for more information.
+
+
+GPorg
+=====
+
+GPorg is the graphic interface of porg. GPorg uses and depends on the GTKMM
+library. It's not meant to be a replacement of porg, since it lacks some 
+important features like logging package installations, but it allows for 
+manipulating the installed packages in a more comfortable way.
+
+GPorg requires GTKMM >= 2.12
+
+
+Supported architectures and operative systems
+=============================================
+
+Porg has been successfully tested on the following platforms:
+
+    -------------------------------
+    OS      Version   Architectures
+    -------------------------------
+    Linux   2.*       x86, x86_64
+	Linux   3.*       x86
+
+	--> your system here! (please send me feedback)
+    -------------------------------
+
+Note: Porg does not work on systems in which binaries are linked statically, 
+      like FreeBSD or OpenBSD.
+
+
+Scripts
+=======
+
+The porg distribution provides the following auxiliary scripts. Except 
+porg_bash_completion, which has to be installed by hand, all scripts are 
+automatically installed, unless the option '--disable-scripts' is passed to 
+configure.
+
+porgball
+--------
+Porgball is a PERL script that creates binary tarballs (or "porgballs") from
+packages that are logged in the porg database.
+It can be used also to reinstall packages by extracting the files from
+previously created porgballs.
+Note that porgballs may be created using GPorg as well.
+
+superporg
+---------
+Superporg is a shell script that installs Debian, RPM or Slackware binary
+packages without requiring dpkg, rpm or pkgtool, and optionally logs their
+installation with porg.
+To install RPM packages, cpio and ( rpm2cpio or rpmunpack ) are required.
+
+rpm2porg
+--------
+A bourne shell script that converts RPM databases into porg ones. Either
+the whole local RPM database or only a given number of RPM packages may be
+converted.
+
+porg_bash_completion
+--------------------
+This file provides bash completion support for porg, in systems that have
+programmable bash completion enabled.
+Look at the header of the file for more information.
+
+
+License
+=======
+Copyright (C) 2004-2012 David Ricart
+Porg is protected by the GNU General Public License.
+Look at the COPYING file for more details.
+
+
+URLs
+====
+Home page:          http://porg.sourceforge.net
+At Freshmeat.net:   http://freshmeat.net/projects/porg
+At SourceForge.net: http://sourceforge.net/projects/porg
+
+
+You may contact me at icnelis*, where * = @gmail.com
+
