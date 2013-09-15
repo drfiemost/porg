@@ -1,5 +1,5 @@
 *========================================*
-|  porg - source code PACkage Organizer  |
+|  porg - source code package organizer  |
 *========================================*
 
 
@@ -35,8 +35,8 @@ making filesystem alteration calls. Thus you can even use porg to track parallel
 installations.
 
 Porg has many usage options for removing packages, looking at package files,
-file counts, sorting, missing files, etc. Run "porg -h" on the command line,
-or "man porg" for more information.
+file counts, sorting, etc. Run "porg -h" on the command line, or "man porg" for 
+more information.
 
 The system-wide configuration file for porg is /etc/porgrc. Type "man porgrc"
 for more details.
@@ -62,15 +62,15 @@ Become superuser and install the package with porg:
 See the man page for more information.
 
 
-GPorg
-=====
+Grop
+====
 
-GPorg is the graphic interface of porg. GPorg uses and depends on the GTKMM
+Grop is the graphic interface of porg. Grop uses and depends on the GTKMM
 library. It's not meant to be a replacement of porg, since it lacks some 
 important features like logging package installations, but it allows for 
 manipulating the installed packages in a more comfortable way.
 
-GPorg requires GTKMM >= 2.12
+Grop requires GTKMM >= 3.4.0
 
 
 Supported architectures and operative systems
@@ -82,7 +82,8 @@ Porg has been successfully tested on the following platforms:
     OS      Version   Architectures
     -------------------------------
     Linux   2.*       x86, x86_64
-	Linux   3.*       x86
+    Linux   3.*       x86
+    Linux   3.*       ARM v7
 
 	--> your system here! (please send me feedback)
     -------------------------------
@@ -105,7 +106,7 @@ Porgball is a PERL script that creates binary tarballs (or "porgballs") from
 packages that are logged in the porg database.
 It can be used also to reinstall packages by extracting the files from
 previously created porgballs.
-Note that porgballs may be created using GPorg as well.
+Note that porgballs may be created using Grop as well.
 
 superporg
 ---------
@@ -129,16 +130,14 @@ Look at the header of the file for more information.
 
 License
 =======
-Copyright (C) 2004-2012 David Ricart
+Copyright (C) 2004-2013 David Ricart
 Porg is protected by the GNU General Public License.
 Look at the COPYING file for more details.
 
 
 URLs
 ====
-Home page:          http://porg.sourceforge.net
-At Freshmeat.net:   http://freshmeat.net/projects/porg
-At SourceForge.net: http://sourceforge.net/projects/porg
+Home page: http://porg.sourceforge.net
 
 
 You may contact me at icnelis*, where * = @gmail.com

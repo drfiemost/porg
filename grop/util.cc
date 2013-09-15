@@ -27,7 +27,7 @@ bool Grop::run_question_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
 	Gtk::MessageDialog dialog(msg, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
 	if (parent)
 		dialog.set_transient_for(*parent);
-	dialog.set_title("GPorg :: Question");
+	dialog.set_title("Grop :: Question");
 	return dialog.run() == Gtk::RESPONSE_YES;
 }
 
@@ -37,7 +37,7 @@ void Grop::run_error_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
 	Gtk::MessageDialog dialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
 	if (parent)
 		dialog.set_transient_for(*parent);
-	dialog.set_title("GPorg :: Error");
+	dialog.set_title("Grop :: Error");
 	dialog.run();
 }
 

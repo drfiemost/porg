@@ -39,7 +39,7 @@ Porgball::Last Porgball::s_last = { Glib::get_home_dir(), GZIP, 6, false };
 
 Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("GPorg :: Porgball", parent, true),
+	Gtk::Dialog("Grop :: Porgball", parent, true),
 	m_pkg(pkg),
 	m_label("", 0.02, 0.5),
 	m_label_tarball("", 0.0, 0.0),

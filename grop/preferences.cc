@@ -24,7 +24,7 @@ Preferences* Preferences::s_prefs = 0;
 
 Preferences::Preferences(Gtk::Window& parent)
 :
-	Gtk::Dialog("GPorg :: Preferences", parent, true),
+	Gtk::Dialog("Grop :: Preferences", parent, true),
 	m_buttons(),
 	m_button_hour("Show _hour in date", true)
 {

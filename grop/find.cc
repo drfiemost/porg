@@ -25,7 +25,7 @@ Find* Find::s_find = 0;
 
 Find::Find(Gtk::Window& parent)
 :
-	Gtk::Dialog("GPorg :: Find file", parent, true),
+	Gtk::Dialog("Grop :: Find file", parent, true),
 	m_entry(),
 	m_treeview()
 {

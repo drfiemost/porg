@@ -21,7 +21,7 @@ using namespace Grop;
 
 Properties::Properties(Pkg const& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("GPorg :: Properties", parent),
+	Gtk::Dialog("Grop :: Properties", parent),
 	m_notebook()
 {
 	set_border_width(4);

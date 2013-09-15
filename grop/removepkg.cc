@@ -28,7 +28,7 @@ using namespace Grop;
 
 RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("GPorg :: Remove", parent, true),
+	Gtk::Dialog("Grop :: Remove", parent, true),
 	m_removed(false),
 	m_label(),
 	m_progressbar(),

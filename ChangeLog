@@ -10,12 +10,12 @@ svn
 
 2.0.9
 ^^^^^
-	+ Fixed minor bug in GPorg.
+	+ Fixed minor bug in Grop.
 
 
 2.0.8 [26 June 2010]
 ^^^^^^^^^^^^^^^^^^^^
-	+ GPorg: Change column visibility when clicking on Preferences
+	+ Grop: Change column visibility when clicking on Preferences
 	  buttons. Changed some icons for some menu items, to a more
 	  intuitive ones.
 	+ Porgball: Removed option --fakeroot (too cryptic).
