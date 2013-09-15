@@ -7,8 +7,7 @@ Q1: I can't use porg to log it's own installation: "error while loading shared
     libraries: /usr/lib/libporg-log.so: cannot open shared object file: No such
     file or directory"
 
-R1: As of porg-1.10.4 it is possible to log the own porg's installation: Just
-    type "make logme" after "make install".
+R1: To log the own porg's installation, type "make logme" after "make install".
 
 
 Q2: When building LFS, porg does not properly log the installation of glibc
@@ -71,11 +70,4 @@ R5: No. For example the command:
     installed, but porg would not be able to monitor the installation and no
     files would be logged.
     This is due to LD_PRELOAD limitations on suid programs like sudo.
-
-
-Q6: How can I stay informed about new releases of porg?
-
-R6: The best way is to subscribe to new releases in the porg project page at
-    freshmeat.net (http://freshmeat.net/projects/porg/).
-    You have to be a freshmeat registered user to be allowed to do so.
 
