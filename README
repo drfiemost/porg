@@ -115,12 +115,6 @@ packages without requiring dpkg, rpm or pkgtool, and optionally logs their
 installation with porg.
 To install RPM packages, cpio and ( rpm2cpio or rpmunpack ) are required.
 
-rpm2porg
---------
-A bourne shell script that converts RPM databases into porg ones. Either
-the whole local RPM database or only a given number of RPM packages may be
-converted.
-
 porg_bash_completion
 --------------------
 This file provides bash completion support for porg, in systems that have

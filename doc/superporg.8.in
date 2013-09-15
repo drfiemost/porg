@@ -47,4 +47,4 @@ Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .SH SEE ALSO
-porg(8), porgrc(5), porgball(8), rpm2porg(8)
+porg(8), porgrc(5), porgball(8)

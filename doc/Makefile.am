@@ -25,12 +25,10 @@ if ENABLE_SCRIPTS
 
 man_MANS += \
 	porgball.8 \
-	rpm2porg.8 \
 	superporg.8
 	
 logme_files += \
 	$(DESTDIR)$(man8dir)/superporg.8 \
-	$(DESTDIR)$(man8dir)/rpm2porg.8 \
 	$(DESTDIR)$(man8dir)/porgball.8
 
 endif

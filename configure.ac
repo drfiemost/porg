@@ -28,7 +28,6 @@ AC_CONFIG_FILES([ \
 	doc/porgrc.5 \
 	doc/porg.8 \
 	doc/porgball.8 \
-	doc/rpm2porg.8 \
 	doc/superporg.8 \
 ])
 
