@@ -36,7 +36,7 @@ using the porg command line option '--logdir=DIR'.
 The GUI
 -------
 The GUI of porg (grop) can be disabled with the option '--disable-grop'.
-Use this option if your system lacks GTKMM >= 2.12, or you don't want to use the
+Use this option if your system lacks GTKMM >= 3.4.0, or you don't want to use the
 GUI.
 
 
