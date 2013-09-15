@@ -4,7 +4,6 @@ svn
 	  package, both in porg and grop. Now shared files are never removed,
 	  as it ougth to be.
 	+ Disabled support for missing files.
-	+ Removed command line option alias --owner
 	+ grop: Removed support for gzip/bzip and stripping of libraries.
 	+ grop: Replaced menu option "Unselect all" by the more standard 
 	  "Invert selection" on the files popup menu.

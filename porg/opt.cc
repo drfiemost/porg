@@ -274,7 +274,7 @@ cout <<
 "  -i, --info               Print package information.\n"
 "  -o, --configure-options  Print the options passed to configure when the\n"
 "                           package was installed.\n"
-"  -q, --query, --owner     Query for the packages that own one or more files.\n\n"
+"  -q, --query              Query for the packages that own one or more files.\n\n"
 "Remove options:\n"
 "  -r, --remove             Remove the (non shared) files of the package.\n"
 "  -B, --batch              Do not ask for confirmation when removing.\n"
