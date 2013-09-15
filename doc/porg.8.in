@@ -27,8 +27,8 @@ Once some packages are installed and properly logged, porg can be used in list
 mode, which is the default, to display package information. Several options
 are provided to print the information in different formats.
 .PP
-There are also options to remove packages, query for the owner of
-files, or maintain the package database.
+There are also options for removing packages, printing the configure options the
+package was installed with, or querying for the package that owns one or more files.
 .PP
 Mandatory arguments to long options are mandatory for short options too.
 .PP
@@ -54,11 +54,6 @@ Verbose output. \fB\-vv\fR prints also debugging messages
 \fB\-\-version\fR
 Display version information and exit.
 .SH DATABASE MAINTENANCE OPTIONS
-.TP
-\fB\-u, \-\-update\fR
-Synchronize the log of the package with the current status of the filesystem,
-calculating the size of the logged files and checking whether they are missing.
-Use along with \fB\-a\fR to update the whole database.
 .TP
 \fB\-U, \-\-unlog\fR
 Remove the log of the package from the database.
@@ -89,40 +84,16 @@ List one package per line.
 \fB\-F\fR
 Print the number of installed files.
 .TP
-\fB\-M\fR
-Print the number of missing files.
-.TP
-\fB\-C\fR
-Print the number of shared files (both installed and missing).
-.TP
 \fB\-d, \-\-date\fR
 Show installation date (\fB\-dd\fR shows the hour too).
 .TP
 \fB\-s, \-\-size\fR
-Show the currently installed size of each package; in human readable format by
+Show the installed size of each package; in human readable format by
 default (e.g. 1.2M, 13k).
-.TP
-\fB\-n, \-\-missing\-size\fR
-Print the missing size of each package (= original size - current size).
 .SH FILE LIST OPTIONS
 .TP
 \fB\-f, \-\-files\fR
-List currently installed files of the package.
-.TP
-\fB\-m, \-\-missing-files\fR
-List missing files (those files removed after the installation of the package).
-\fB\-f\fR and \fB\-m\fR options can be used together.
-.TP
-\fB\-c, \-\-shared\fR
-With \fB\-f\fR and/or \fB\-m\fR, list only the shared files (those files also
-logged by other packages).
-.TP
-\fB\-N, \-\-non\-shared\fR
-With \fB\-f\fR and/or \fB\-m\fR, list only the non shared files (those files
-not logged by any other package).
-.TP
-\fB\-w, \-\-who\-shares\fR
-With \fB\-c\fR, print the names of the packages that share each file.
+List installed files of the package.
 .TP
 \fB\-y, \-\-symlinks\fR
 Print the contents of symbolic links.
@@ -258,8 +229,7 @@ log. For instance, the following command:
 .PP
     porg -lp+ foo-1.0 "rm /bin/foo"
 .PP
-would not unlog the file /bin/foo from the log of foo-1.0, but it
-would mark it as missing instead.
+would not remove the file /bin/foo from the log of foo-1.0.
 .PP
 To avoid such behaviour it is sometimes useful to join up composed
 install commands into one single command and run porg once. For instance,
@@ -270,8 +240,7 @@ be installed in /usr/bin/foo. If one runs this:
 .br
     porg -lp+ foo-1.0 "mv /bin/foo /usr/bin/foo"
 .PP
-Both files, /bin/foo and /usr/bin/foo remain in the log. /usr/bin/foo
-is marked as installed, and /bin/foo is marked as missing. This is
+Both files, /bin/foo and /usr/bin/foo remain in the log. This is
 usually not the desired behaviour. As a workaround one can join up
 both commands in one single porg run:
 .PP
@@ -297,11 +266,11 @@ ending with ".conf":
 .PP
     porg -r -e '/var/log:*.conf' foo-3.3
 .PP
-We have installed the package 'bubble-1.9' in prefix '/opt/bubble-1.9', but
+We have installed the package 'boo-1.9' in prefix '/opt/boo-1.9', but
 we haven't logged the installation with porg. No problem! Just create a log
 for it thusly:
 .PP
-    find /opt/bubble-1.9 | porg -lp bubble-1.9
+    find /opt/boo-1.9 | porg -lp boo-1.9
 
 .SH BUGS
 Due to LD_PRELOAD limitations, porg can't follow the trace of suid programs.
