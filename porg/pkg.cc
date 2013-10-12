@@ -237,7 +237,7 @@ bool Pkg::remove(PkgSet const& pset)
 
 		// skip excluded
 		if (in_paths((*f)->name(), Opt::remove_exclude()))
-			Out::vrb((*f)->name() + ": skipped\n");
+			Out::vrb((*f)->name() + ": excluded (skipped)\n");
 
 		// skip shared files
 		else if (is_shared(*f, pset))

@@ -42,8 +42,6 @@ Find::Find(Gtk::Window& parent)
 
 	Gtk::ScrolledWindow* scrolled_window = Gtk::manage(new Gtk::ScrolledWindow());
 	scrolled_window->add(m_treeview);
-	// if I don't do this, the treeview doesn't show up!
-	m_treeview.m_model->append();
 
 	Gtk::Box* box = get_content_area();
 	box->set_spacing(8);
@@ -69,6 +67,7 @@ void Find::instance(Gtk::Window& parent)
 		s_find = new Find(parent);
 
 	s_find->m_entry.set_text("");
+	s_find->reset_treeview();
 	s_find->run();
 }
 
@@ -78,26 +77,35 @@ void Find::on_response(int id)
 	if (id == Gtk::RESPONSE_APPLY)
 		find();
 	else
-		s_find->hide();
+		hide();
+}
+
+
+Gtk::TreeModel::iterator Find::reset_treeview()
+{
+	m_treeview.m_model->clear();
+	return m_treeview.m_model->append();
 }
 
 
 void Find::find()
 {
+	Gtk::TreeModel::iterator it = reset_treeview();
+	//XXX italic:
+	(*it)[m_treeview.m_columns.m_name] = "(file not found)";
+
 	Glib::ustring path(m_entry.get_text());
 	if (path[0] != '/')
 		return;
 	
-	m_treeview.m_model->clear();
-	// append a fake row so that the treeview shows up
-	Gtk::TreeModel::iterator it = m_treeview.m_model->append();
 	int cnt = 0;
 
 	for (DB::pkg_it p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
 		if ((*p)->has_file(path)) {
 			if (cnt++ > 0)
 				it = m_treeview.m_model->append();
-//			(*it)[m_treeview.m_columns.m_pkg] = *p;
+			// XXX show package files on double click:
+			// (*it)[m_treeview.m_columns.m_pkg] = *p;
 			(*it)[m_treeview.m_columns.m_name] = (*p)->name();
 		}
 	}

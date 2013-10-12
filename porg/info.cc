@@ -30,6 +30,8 @@ Info::Info(Pkg* pkg)
 	m_dirs(),
 	m_pkg(pkg)
 {
+	assert(pkg != NULL);
+
 	Out::dbg_title("information");
 
 	get_dirs();
@@ -38,7 +40,9 @@ Info::Info(Pkg* pkg)
 	get_info_pc();
 	get_info_desktop();
 
+#if HAVE_REGEX_H
 	get_icon_path();
+#endif
 	get_config_opts();
 }
 
@@ -198,7 +202,7 @@ void Info::get_info_pc()
 
 string Info::search_file(string const& name) const
 {
-	Out::dbg("searching " + name);
+	Out::dbg("searching for " + name);
 	
 	glob_t g;
 	memset(&g, 0, sizeof(g));
@@ -233,11 +237,13 @@ void Info::get_config_opts()
 	string buf;
 	string::size_type p;
 
-	while (getline(f, buf) && m_pkg->m_conf_opts.empty()) {
+	while (getline(f, buf)) {
 		if ((p = buf.find("$")) != string::npos
 		&&	(p = buf.find("/configure", p)) != string::npos
-		&&	(p = buf.find("-", p)) != string::npos)
+		&&	(p = buf.find("-", p)) != string::npos) {
 			m_pkg->m_conf_opts = buf.substr(p);
+			break;
+		}
 	}
 }
 
@@ -246,19 +252,16 @@ void Info::get_icon_path()
 {
 	string& path(m_pkg->m_icon_path);
 
-	if (path.empty() && (path = m_pkg->m_base_name).empty())
-		return;
-
-	// If it's an absolute path, we're done
+	if (path.empty())
+		path = m_pkg->m_base_name;
 	
-	if (path.at(0) == '/')
+	// If it's an absolute path, we're done	
+	else if (path.at(0) == '/')
 		return;
 
 	// otherwise search for the icon file in the list of files installed by
 	// the package
 	
-#if HAVE_REGEX_H
-
 	string exp("/" + path), suf(".(png|xpm|jpg|ico|gif|svg)$");
 
 	// if path does not have any image format suffix, add 'suf' to the expression
@@ -269,15 +272,15 @@ void Info::get_icon_path()
 
 	// Search the logged files for the path of the icon
 	
-	path.clear();
-
 	Regexp re2(exp, true);
 
-	for (uint i(0); path.empty() && i < m_pkg->m_files.size(); ++i) {
-		if (re2.run(m_pkg->m_files[i]->name()))
+	for (uint i(0); i < m_pkg->m_files.size(); ++i) {
+		if (re2.run(m_pkg->m_files[i]->name())) {
 			path = m_pkg->m_files[i]->name();
+			if (!access(path.c_str(), F_OK))
+				break;
+		}
 	}
-#endif
 }
 
 

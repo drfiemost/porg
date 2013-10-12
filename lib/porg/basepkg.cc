@@ -38,6 +38,8 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_conf_opts(),
 	m_author()
 {
+	assert(!m_name.empty());
+
 	if (!logged)
 		return;
 	

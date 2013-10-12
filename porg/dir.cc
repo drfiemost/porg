@@ -2,12 +2,12 @@
 // dir.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2012 David Ricart
+// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
 #include "config.h"
-#include "porg/common.h"	// XErrno
+#include "porg/common.h"	// Error
 #include "dir.h"
 
 using std::string;

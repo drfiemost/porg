@@ -61,6 +61,7 @@ class Find : public Gtk::Dialog
 
 	static Find* s_find;
 
+	Gtk::TreeModel::iterator reset_treeview();
 	void browse();
 	void find();
 	virtual void on_response(int id);
