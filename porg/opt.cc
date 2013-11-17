@@ -41,7 +41,7 @@ namespace Porg
 	bool Opt::s_print_date = false;
 	bool Opt::s_print_hour = false;
 	bool Opt::s_expand = false;
-	sort_t Opt::s_sort_type = NO_SORT;
+	sort_t Opt::s_sort_type = SORT_BY_NAME;
 	int Opt::s_size_unit = HUMAN_READABLE;
 	string Opt::s_log_pkg_name = string();
 	Mode Opt::s_mode = LIST_PKGS;

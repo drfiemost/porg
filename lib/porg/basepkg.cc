@@ -185,10 +185,8 @@ void BasePkg::sort_files(	sort_t type,	// = SORT_BY_NAME
 		m_sort_type = type;
 	}
 	// reverse only if needed
-	if (m_sort_reverse != reverse) {
+	if (reverse)
 		std::reverse(m_files.begin(), m_files.end());
-		m_sort_reverse = reverse;
-	}
 }
 
 

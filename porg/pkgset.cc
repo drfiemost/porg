@@ -222,13 +222,11 @@ void PkgSet::del_pkg(string const& name)
 
 void PkgSet::list()
 {
-	// sort list of packages, if needed
+	// sort list of packages
 	
-	if (Opt::sort_type() != NO_SORT) {
-		std::sort(begin(), end(), Sorter());
-		if (Opt::reverse_sort())
-			std::reverse(begin(), end());
-	}
+	std::sort(begin(), end(), Sorter());
+	if (Opt::reverse_sort())
+		std::reverse(begin(), end());
 
 	// get widths for printing pkg sizes and number of files
 	

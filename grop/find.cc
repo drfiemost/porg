@@ -91,10 +91,14 @@ Gtk::TreeModel::iterator Find::reset_treeview()
 void Find::find()
 {
 	Gtk::TreeModel::iterator it = reset_treeview();
+	Glib::ustring path(m_entry.get_text());
+
+	if (path.empty())
+		return;
+	
 	//XXX italic:
 	(*it)[m_treeview.m_columns.m_name] = "(file not found)";
 
-	Glib::ustring path(m_entry.get_text());
 	if (path[0] != '/')
 		return;
 	
