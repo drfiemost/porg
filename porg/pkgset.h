@@ -10,6 +10,7 @@
 #define PORG_PKGSET_H
 
 #include "config.h"
+#include "porg/common.h"	// sort_t
 #include <vector>
 
 
@@ -28,17 +29,17 @@ class PkgSet : public std::vector<Pkg*>
 	void get_all_pkgs();
 
 	Pkg* find_pkg(std::string const& name) const;
-	PkgSet& get_files();
 	void list();
 	void list_files();
 	void unlog() const;
 	void print_conf_opts() const;
-	void query() const;
+	void query();
 	void remove();
 	void print_info() const;
 
 	protected:
 
+	void get_files();
 	void get_pkg_list_widths(int& size_w, int& nfiles_w);
 	int get_file_size_width();
 	bool add_pkg(std::string const& name);
@@ -48,7 +49,7 @@ class PkgSet : public std::vector<Pkg*>
 	{
 		public:
 
-		Sorter();
+		Sorter(sort_t const& = SORT_BY_NAME);
 		bool operator()(Pkg* left, Pkg* right) const;
 
 		private:

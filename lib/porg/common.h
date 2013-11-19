@@ -24,11 +24,10 @@ namespace Porg
 	ulong const GIGABYTE		= 1073741824;
 
 	typedef enum {
-		NO_SORT			= 0,
-		SORT_BY_NAME	= 1,
-		SORT_BY_SIZE	= 2,
-		SORT_BY_NFILES	= 3,
-		SORT_BY_DATE	= 4
+		SORT_BY_NAME	= 0,
+		SORT_BY_SIZE	= 1,
+		SORT_BY_NFILES	= 2,
+		SORT_BY_DATE	= 3
 	} sort_t;
 
 

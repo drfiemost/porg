@@ -81,6 +81,7 @@ AM_CONDITIONAL([ENABLE_SCRIPTS], [test "$enable_scripts" = yes])
 # Check programs
 #================
 
+AM_PROG_AR
 AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_PROG_CXX

@@ -7,7 +7,6 @@
 //=======================================================================
 
 #include "config.h"
-#include "porg/common.h"
 #include "porg/file.h"
 #include "pkgset.h"
 #include "dir.h"
@@ -53,6 +52,8 @@ void PkgSet::get_all_pkgs()
 
 	for (string name; dir.read(name); add_pkg(name)) ;
 
+	std::sort(begin(), end(), Sorter());
+
 	if (empty())
 		Out::vrb("porg: No packages logged in '" + Opt::logdir() + "'\n");
 }
@@ -80,6 +81,8 @@ void PkgSet::get_pkgs(vector<string> const& args)
 			g_exit_status = EXIT_FAILURE;
 		}
 	}
+
+	std::sort(begin(), end(), Sorter());
 }
 
 
@@ -134,10 +137,9 @@ int PkgSet::get_file_size_width()
 }
 
 
-PkgSet& PkgSet::get_files()
+void PkgSet::get_files()
 {
 	for (iterator p(begin()); p != end(); (*p++)->get_files()) ;
-	return *this;
 }
 
 
@@ -169,8 +171,10 @@ void PkgSet::unlog() const
 }
 
 
-void PkgSet::query() const
+void PkgSet::query()
 {
+	get_files();
+
 	g_exit_status = EXIT_FAILURE;
 
 	for (uint i(0); i < Opt::args().size(); ++i) {
@@ -198,6 +202,8 @@ void PkgSet::print_info() const
 
 void PkgSet::remove()
 {
+	get_files();
+
 	PkgSet all;
 	all.get_all_pkgs();
 	all.get_files();
@@ -224,7 +230,7 @@ void PkgSet::list()
 {
 	// sort list of packages
 	
-	std::sort(begin(), end(), Sorter());
+	std::sort(begin(), end(), Sorter(Opt::sort_type()));
 	if (Opt::reverse_sort())
 		std::reverse(begin(), end());
 
@@ -259,6 +265,8 @@ void PkgSet::list()
 
 void PkgSet::list_files()
 {
+	get_files();
+
 	int size_w(get_file_size_width());
 
 	for (iterator p(begin()); p != end(); ++p) {
@@ -279,11 +287,11 @@ void PkgSet::list_files()
 //----------------//
 
 
-PkgSet::Sorter::Sorter()
+PkgSet::Sorter::Sorter(sort_t const& t /* = SORT_BY_NAME */)
 :
 	m_sort_func()
 {
-	switch (Opt::sort_type()) {
+	switch (t) {
 		case SORT_BY_SIZE: 		m_sort_func = &Sorter::sort_by_size; 	break;
 		case SORT_BY_NFILES:	m_sort_func = &Sorter::sort_by_nfiles;	break;
 		case SORT_BY_DATE: 		m_sort_func = &Sorter::sort_by_date; 	break;

@@ -42,13 +42,13 @@ int main(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 
 		switch (Opt::mode()) {
-			case UNLOG:			pset.unlog();					break;
-			case CONF_OPTS:		pset.print_conf_opts();			break;
-			case INFO:			pset.print_info();				break;
-			case LIST_PKGS:		pset.list();					break;
-			case LIST_FILES:	pset.get_files().list_files();	break;
-			case QUERY:			pset.get_files().query();		break;
-			case REMOVE:		pset.get_files().remove();		break;
+			case UNLOG:			pset.unlog();			break;
+			case CONF_OPTS:		pset.print_conf_opts();	break;
+			case INFO:			pset.print_info();		break;
+			case LIST_PKGS:		pset.list();			break;
+			case LIST_FILES:	pset.list_files();		break;
+			case QUERY:			pset.query();			break;
+			case REMOVE:		pset.remove();			break;
 			default: 			assert(0);
 		}
 	}

@@ -91,8 +91,6 @@ class BasePkg
 	ulong m_size;
 	ulong m_nfiles;
 	std::string const m_log;
-	sort_t m_sort_type;
-	bool m_sort_reverse;
 	std::string m_base_name;
 	std::string m_version;
 	std::string m_icon_path;

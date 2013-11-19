@@ -26,8 +26,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_size(0),
 	m_nfiles(0),
 	m_log(Porgrc::logdir() + "/" + name_),
-	m_sort_type(NO_SORT),
-	m_sort_reverse(false),
 	m_base_name(get_base(m_name)),
 	m_version(get_version(m_name)),
 	m_icon_path(),
@@ -179,12 +177,7 @@ bool BasePkg::has_file(string const& path) const
 void BasePkg::sort_files(	sort_t type,	// = SORT_BY_NAME
 							bool reverse)	// = false
 {
-	// sort only if the list is not already sorted
-	if (m_sort_type != type) {
-		std::sort(m_files.begin(), m_files.end(), Sorter(type));
-		m_sort_type = type;
-	}
-	// reverse only if needed
+	std::sort(m_files.begin(), m_files.end(), Sorter(type));
 	if (reverse)
 		std::reverse(m_files.begin(), m_files.end());
 }
@@ -235,6 +228,6 @@ inline bool BasePkg::Sorter::sort_by_name(File* left, File* right) const
 
 inline bool BasePkg::Sorter::sort_by_size(File* left, File* right) const
 {
-	return left->size() > right->size();
+	return left->size() < right->size();
 }
 
