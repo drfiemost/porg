@@ -42,11 +42,14 @@ class MainWindow : public Gtk::Window
 	void on_2button_press(GdkEventButton*);
 	void on_key_press(GdkEventKey*);
 	void on_pkg_selected(Pkg*);
+	void unlog_pkg(Pkg*);
+	void set_actions_sensitivity();
 
 	MainTreeView					m_treeview;
 	Gtk::Statusbar					m_statusbar;
 	Glib::RefPtr<Gtk::UIManager>	m_uimanager;
 	Glib::RefPtr<Gtk::ActionGroup>	m_action_group;
+	Glib::RefPtr<Gtk::Action>		m_action_find;
 	Glib::RefPtr<Gtk::Action>		m_action_properties;
 	Glib::RefPtr<Gtk::Action>		m_action_porgball;
 	Glib::RefPtr<Gtk::Action>		m_action_remove;

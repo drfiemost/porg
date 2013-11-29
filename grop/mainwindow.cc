@@ -39,6 +39,7 @@ MainWindow::MainWindow()
 	m_statusbar(),
 	m_uimanager(Gtk::UIManager::create()),
 	m_action_group(Gtk::ActionGroup::create()),
+	m_action_find(Action::create("FindFile", Gtk::Stock::FIND)),
 	m_action_properties(Action::create("Properties", Gtk::Stock::PROPERTIES)),
 	m_action_porgball(Action::create("Porgball", "Create porgball")),
 	m_action_remove(Action::create("RemovePkg", Gtk::Stock::REMOVE)),
@@ -63,6 +64,7 @@ MainWindow::MainWindow()
 	}
 
 	build_menu_bar();
+	set_actions_sensitivity();
 
 	m_treeview.signal_popup_menu.connect(mem_fun(this, &MainWindow::on_popup_menu));
 	m_treeview.signal_2button_press.connect(mem_fun(this, &MainWindow::on_2button_press));
@@ -98,7 +100,7 @@ MainWindow::~MainWindow()
 void MainWindow::update_statusbar()
 {
 	std::ostringstream os;
-	os 	<< "  " << DB::pkgs().size() << " packages | " 
+	os 	<< "  " << DB::pkg_cnt() << " packages | " 
 		<< Porg::fmt_size(DB::total_size(), Porg::HUMAN_READABLE);
 	m_statusbar.push(os.str());
 }
@@ -111,8 +113,7 @@ void MainWindow::build_menu_bar()
 		mem_fun(this, &MainWindow::hide));
 
 	m_action_group->add(Action::create("MenuEdit", "_Edit"));
-	m_action_group->add(Action::create("FindFile", Gtk::Stock::FIND), 
-		mem_fun(this, &MainWindow::on_find_file));
+	m_action_group->add(m_action_find, mem_fun(this, &MainWindow::on_find_file));
 	m_action_group->add(Action::create("Preferences", Gtk::Stock::PREFERENCES), 
 		mem_fun(this, &MainWindow::on_preferences));
 
@@ -166,7 +167,7 @@ void MainWindow::build_menu_bar()
 
 void MainWindow::on_popup_menu(GdkEventButton* event)
 {
-	if (m_popup_menu)
+	if (m_selected_pkg && m_popup_menu)
 		m_popup_menu->popup(event->button, event->time);
 }
 
@@ -201,13 +202,19 @@ void MainWindow::on_key_press(GdkEventKey* event)
 void MainWindow::on_pkg_selected(Pkg* pkg)
 {
 	m_selected_pkg = pkg;
+	set_actions_sensitivity();
+}
 
+
+void MainWindow::set_actions_sensitivity()
+{
 	// set allowed actions
 
-	m_action_properties->set_sensitive(pkg);
-	m_action_porgball->set_sensitive(pkg);
-	m_action_remove->set_sensitive(pkg && Opt::logdir_writable());
-	m_action_unlog->set_sensitive(pkg && Opt::logdir_writable());
+	m_action_find->set_sensitive(DB::pkg_cnt() > 0);
+	m_action_properties->set_sensitive(m_selected_pkg);
+	m_action_porgball->set_sensitive(m_selected_pkg);
+	m_action_remove->set_sensitive(m_selected_pkg && Opt::logdir_writable());
+	m_action_unlog->set_sensitive(m_selected_pkg && Opt::logdir_writable());
 }
 
 
@@ -248,31 +255,6 @@ void MainWindow::on_properties()
 }
 
 
-void MainWindow::on_unlog()
-{
-	if (!Opt::logdir_writable() || !m_selected_pkg)
-		return;
-
-	string pkg_name = m_selected_pkg->name();
-
-	if (!run_question_dialog("Remove package '" + pkg_name + "' from database ?", this))
-		return;
-
-	try
-	{
-		m_selected_pkg->unlog();
-		DB::remove_pkg(m_selected_pkg);
-		// remove by name (not by Pkg*), to avoid dangling pointer issues
-		m_treeview.remove_pkg(pkg_name);
-		update_statusbar();
-	}
-	catch (Porg::Error const& x)
-	{
-		run_error_dialog(x.what(), this);
-	}
-}
-
-
 void MainWindow::on_porgball()
 {
 	if (m_selected_pkg)
@@ -280,21 +262,42 @@ void MainWindow::on_porgball()
 }
 
 
+void MainWindow::on_unlog()
+{
+	if (!(Opt::logdir_writable() && m_selected_pkg))
+		return;
+
+	if (run_question_dialog("Remove package '" + m_selected_pkg->name() + "' from database ?", this))
+		unlog_pkg(m_selected_pkg);
+}
+
+
 void MainWindow::on_remove()
 {
-	if (!Opt::logdir_writable() || !m_selected_pkg)
+	if (!(Opt::logdir_writable() && m_selected_pkg))
 		return;
 
-	string pkg_name = m_selected_pkg->name();
-	
-	if (!run_question_dialog("Remove package '" + pkg_name + "' ?", this))
+	if (!run_question_dialog("Remove package '" + m_selected_pkg->name() + "' ?", this))
 		return;
 
-	if (RemovePkg::instance(*m_selected_pkg, *this)) {
-		DB::remove_pkg(m_selected_pkg);
-		// remove by name (not by Pkg*), to avoid dangling pointer issues
-		m_treeview.remove_pkg(pkg_name);
+	if (RemovePkg::instance(*m_selected_pkg, *this))
+		unlog_pkg(m_selected_pkg);
+}
+
+
+void MainWindow::unlog_pkg(Pkg* pkg)
+{
+	g_assert(pkg != 0);
+
+	try
+	{
+		DB::remove_pkg(pkg);
+		m_treeview.remove_pkg(pkg);
 		update_statusbar();
+	}
+	catch (Porg::Error const& x)
+	{
+		run_error_dialog(x.what(), this);
 	}
 }
 

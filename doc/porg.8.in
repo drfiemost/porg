@@ -38,7 +38,7 @@ specially useful when entering the install command in log mode.
 .TP
 \fB\-a, \-\-all\fR
 Apply the specified action to all logged packages. This doesn't work with
-option \fB\-r\fR.
+options \fB\-r\fR or \fB\-U\fR.
 .TP
 \fB\-h, \-\-help\fR
 Display a help message and exit.

@@ -206,7 +206,7 @@ Opt::Opt(int argc, char* argv[])
 	if (s_args.empty()) {
 		if (s_mode == QUERY)
 			die_help("No input files");
-		else if ((!s_all_pkgs && s_mode != LOG) || s_mode == REMOVE)
+		else if ((!s_all_pkgs && s_mode != LOG) || s_mode == REMOVE || s_mode == UNLOG)
 			die_help("No input packages");
 	}
 
@@ -248,7 +248,7 @@ cout <<
 "  porg [OPTIONS] <packages|files|command>\n\n"
 "General options:\n"
 "  -L, --logdir=DIR         Use DIR as the log directory.\n"
-"  -a, --all                Apply to all logged packages (not with -r).\n"
+"  -a, --all                Apply to all logged packages (not with -r or -U).\n"
 "  -v, --verbose            Verbose output (-vv produces debugging messages).\n"
 "  -h, --help               Display this help message.\n"
 "  -V, --version            Display version information.\n"

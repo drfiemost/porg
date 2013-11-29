@@ -35,7 +35,6 @@ MainTreeView::MainTreeView()
 	add_columns();
 	set_opts();
 	fill_model();
-
 	set_model(m_model);
 }
 
@@ -44,25 +43,24 @@ void MainTreeView::fill_model()
 {
 	m_model->clear();
 
-	for (uint p = 0; p < DB::pkgs().size(); ++p) {
-		Pkg* pkg = DB::pkgs()[p];
+	for (DB::pkg_cit p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
 		iterator i = m_model->append();
-		(*i)[m_columns.m_pkg] 		= pkg;
-		(*i)[m_columns.m_name] 		= pkg->name();
-		(*i)[m_columns.m_size] 		= pkg->size();
-		(*i)[m_columns.m_nfiles] 	= pkg->nfiles();
-		(*i)[m_columns.m_date] 		= pkg->date();
-		(*i)[m_columns.m_summary] 	= pkg->summary();
+		(*i)[m_columns.m_pkg] 		= (*p);
+		(*i)[m_columns.m_name] 		= (*p)->name();
+		(*i)[m_columns.m_size] 		= (*p)->size();
+		(*i)[m_columns.m_nfiles] 	= (*p)->nfiles();
+		(*i)[m_columns.m_date] 		= (*p)->date();
+		(*i)[m_columns.m_summary] 	= (*p)->summary();
 	}
 }
 
 
-void MainTreeView::remove_pkg(string const& pkg_name)
+void MainTreeView::remove_pkg(Pkg const* const pkg)
 {
 	Gtk::TreeModel::Children children = m_model->children();
 
 	for (iterator it = children.begin(); it != children.end(); ++it) {
-		if ((*it)[m_columns.m_name] == pkg_name) {
+		if ((*it)[m_columns.m_pkg] == pkg) {
 			m_model->erase(it);
 			break;
 		}

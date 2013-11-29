@@ -68,7 +68,7 @@ class MainTreeView : public Gtk::TreeView
 	sigc::signal<void, Pkg*> signal_pkg_selected;
 
 	void set_opts();
-	void remove_pkg(std::string const&);
+	void remove_pkg(Pkg const* const);
 
 	private:
 

@@ -70,7 +70,7 @@ class BasePkg
 	static std::string get_base(std::string const& name);
 	static std::string get_version(std::string const& name);
 
-	template <typename T>
+	template <typename T>	// T = {Porg,Grop}::Pkg
 	bool is_shared(File* file, std::vector<T*> const& pkgs) const
 	{
 		for (typename std::vector<T*>::const_iterator p(pkgs.begin()); p != pkgs.end(); ++p) {

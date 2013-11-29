@@ -37,7 +37,7 @@ class RemovePkg : public Gtk::Dialog
 	void remove_parent_dir(std::string const&);
 	void report(std::string const&, Glib::RefPtr<Gtk::TextTag> const&);
 
-	bool 							m_removed;
+	bool 							m_error;
 	Gtk::Label						m_label;
 	Gtk::ProgressBar				m_progressbar;
 	Gtk::Expander					m_expander;

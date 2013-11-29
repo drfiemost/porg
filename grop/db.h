@@ -30,6 +30,7 @@ class DB
 	static ulong total_size()			{ return s_total_size; }
 	static std::vector<Pkg*>& pkgs()	{ return s_pkgs; }
 	static bool initialized()			{ return s_initialized; }
+	static int pkg_cnt()				{ return s_pkgs.size(); }
 
 	static void remove_pkg(Pkg*);
 

@@ -27,8 +27,10 @@ Properties::Properties(Pkg const& pkg, Gtk::Window& parent)
 	set_border_width(4);
 	set_default_size(500, 500);
 
+	Gtk::Label* label = Gtk::manage(new Gtk::Label());
 	Gtk::Box* label_box = Gtk::manage(new Gtk::Box());
-	label_box->pack_start(*(Gtk::manage(new Gtk::Label("Package " + pkg.name()))), Gtk::PACK_SHRINK);
+	label->set_markup("Package <b>" + pkg.name() + "</b>");
+	label_box->pack_start(*label, Gtk::PACK_SHRINK);
 
 	Gtk::Box* box = get_content_area();
 	box->set_spacing(4);

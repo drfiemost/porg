@@ -29,7 +29,7 @@ using namespace Grop;
 RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 :
 	Gtk::Dialog("Grop :: Remove", parent, true),
-	m_removed(false),
+	m_error(false),
 	m_label(),
 	m_progressbar(),
 	m_expander("Details"),
@@ -105,7 +105,7 @@ bool RemovePkg::instance(Pkg& pkg, Gtk::Window& parent)
 	
 	remove_pkg.hide();
 	
-	return remove_pkg.m_removed;
+	return !remove_pkg.m_error;
 }
 
 
@@ -119,7 +119,6 @@ void RemovePkg::report(string const& msg, Glib::RefPtr<Gtk::TextTag> const& tag)
 
 void RemovePkg::remove()
 {
-	bool error = false;
 	int cnt = 1;
 
 	for (Pkg::file_it f(m_pkg.files().begin()); f != m_pkg.files().end(); ++f) {
@@ -131,7 +130,7 @@ void RemovePkg::remove()
 
 		// skip excluded
 		if (Porg::in_paths(file, Opt::remove_exclude()))
-			report("'" + file + "': skipped", m_tag_skipped);
+			report("'" + file + "': excluded (skipped)", m_tag_skipped);
 
 		// skip shared files
 		else if (m_pkg.is_shared(*f, DB::pkgs()))
@@ -145,17 +144,15 @@ void RemovePkg::remove()
 
 		// an error occurred
 		else {
-			error = true;
+			m_error = true;
 			report("unlink(\"" + file + "\"): " + Glib::strerror(errno), m_tag_error);
 		}
 	}
 
-	if (error)
+	if (m_error)
 		m_label.set_markup("<span fgcolor=\"darkred\"><b>Completed with errors (see Details)</b></span>");
-	else {		
+	else
 		m_label.set_markup("<span fgcolor=\"darkgreen\"><b>Done</b></span>");
-		m_removed = true;
-	}
 
 	m_button_close.set_sensitive();
 }

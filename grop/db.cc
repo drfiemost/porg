@@ -81,13 +81,16 @@ void DB::remove_pkg(Pkg* pkg)
 {
 	g_assert(pkg != 0);
 
-	for (pkg_it p = s_pkgs.begin(); p != s_pkgs.end(); ++p) {
+	pkg->unlog();
+
+	for (pkg_it p(s_pkgs.begin()); p != s_pkgs.end(); ++p) {
 		if (*p == pkg) {
 			s_total_size -= pkg->size();
 			s_pkgs.erase(p);
-			delete pkg;
 			break;
 		}
 	}
+			
+	delete pkg;
 }
 
