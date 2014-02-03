@@ -23,7 +23,7 @@ When installing a package, porg can be used in log mode (with option \fB\-l\fR)
 to wrap the installation command (e.g. "make install"), and log the created
 files. By default the log is stored in directory '@LOGDIR@'.
 .PP
-Once some packages are installed and properly logged, porg can be used in list
+Once some packages are installed and properly registered, porg can be used in list
 mode, which is the default, to display package information. Several options
 are provided to print the information in different formats.
 .PP
@@ -32,13 +32,9 @@ package was installed with, or querying for the package that owns one or more fi
 .PP
 Mandatory arguments to long options are mandatory for short options too.
 .PP
-The special option \fB-\-\fR forces and end of option-scanning. This is
+The special option \fB\-\-\fR forces and end of option-scanning. This is
 specially useful when entering the install command in log mode.
 .SH GENERAL OPTIONS
-.TP
-\fB\-a, \-\-all\fR
-Apply the specified action to all logged packages. This doesn't work with
-options \fB\-r\fR or \fB\-U\fR.
 .TP
 \fB\-h, \-\-help\fR
 Display a help message and exit.
@@ -48,74 +44,69 @@ Base log directory. Default is '@LOGDIR@', unless variable LOGDIR is set
 in the configuration file (type 'man porgrc' for more information).
 .TP
 \fB\-v, \-\-verbose\fR
-Verbose output. \fB\-vv\fR prints also debugging messages
-(only meaningful with option \fB\-l\fR).
+Verbose output. \fB\-vv\fR prints also debugging messages.
 .TP
-\fB\-\-version\fR
+\fB\-V, \-\-version\fR
 Display version information and exit.
-.SH DATABASE MAINTENANCE OPTIONS
 .TP
-\fB\-U, \-\-unlog\fR
-Remove the log of the package from the database.
-.SH GENERAL LIST OPTIONS
+\fB\-x, \-\-expand-version\fR
+By default package names given in the command line must match both 
+the base name and the version of any  installed package. Instead, 
+using this option porg tries to expand the  version suffix to include all 
+available versions that it matches. Partial expansion of the version is allowed.
+See \fIEXAMPLES\fR below.
+.SH PACKAGE INFORMATION OPTIONS
+.TP
+\fB\-a, \-\-all\fR
+Apply to all installed packages.
 .TP
 \fB\-b, \-\-block\-size\fR=\fISIZE\fR
-Use blocks of SIZE bytes for the sizes. SIZE may be an integer, optionally followed
-by one of the following: k, K, m, M.
+With \fB\-s\fR, use blocks of SIZE bytes for the sizes. SIZE may be an integer, 
+optionally followed by one of the following: k, K, m, M.
 .TP
-\fB\-k, \-\-kilobytes\fR
-Like '--block-size=1k', or '--block-size=1024'.
+\fB\-d, \-\-date\fR
+Print the installation date of the package. Double it ('\fB\-dd\fR') to print
+also the hour.
 .TP
-\fB\-\-sort\fR=\fIWORD\fR
-Sort the list by WORD: When listing files, meaningful values for WORD
-are: 'name' and 'size'. When listing packages, WORD may be
-also: 'date' (or 'time'), 'files', 'missing-files' or 'missing-size'.
-.TP
-\fB\-R, \-\-reverse\fR
-Reverse order while sorting.
-.TP
-\fB\-t, \-\-total\fR
-Print totals at the bottom of the list.
-.SH PACKAGE LIST OPTIONS
-.TP
-\fB\-1, \-\-one\-column\fR
-List one package per line.
+\fB\-f, \-\-files\fR
+Print the installed files of the package.
 .TP
 \fB\-F\fR
 Print the number of installed files.
 .TP
-\fB\-d, \-\-date\fR
-Show installation date (\fB\-dd\fR shows the hour too).
-.TP
-\fB\-s, \-\-size\fR
-Show the installed size of each package; in human readable format by
-default (e.g. 1.2M, 13k).
-.SH FILE LIST OPTIONS
-.TP
-\fB\-f, \-\-files\fR
-List installed files of the package.
-.TP
-\fB\-y, \-\-symlinks\fR
-Print the contents of symbolic links.
-.TP
-\fB\-s, \-\-size\fR
-Print the size of each file; in human readable format by
-default (e.g. 1.2M, 13k).
-.TP
-\fB\-z, \-\-no\-package\-name\fR
-Do not print the name of the package. Useful for scripts.
-.SH INFORMATION OPTIONS
-.TP
-Note: Information may be not available for all packages.
-.TP
 \fB\-i, \-\-info\fR
-Print package information.
+Print package information. Note that information may be not available 
+for all packages.
+.TP
+\fB\-k, \-\-kilobytes\fR
+Like '--block-size=1k', or '--block-size=1024'.
 .TP
 \fB\-o, \-\-configure\-options\fR
 Print the configure options the package was built with.
 .TP
 \fB\-q, \-\-query\fR
 Query for the packages that own one or more files.
+.TP
+\fB\-R, \-\-reverse\fR
+Reverse order while sorting.
+.TP
+\fB\-s, \-\-size\fR
+Show the size of each package or file; in human readable format by
+default (e.g. 1.2M, 13k).
+.TP
+\fB\-\-sort\fR=\fIWORD\fR
+Sort the list by WORD: When listing files, meaningful values for WORD
+are: 'name' and 'size'. When listing packages, WORD may be
+also: 'date' (or 'time') or 'files'.
+.TP
+\fB\-t, \-\-total\fR
+Print totals at the bottom of the list, when appliable.
+.TP
+\fB\-y, \-\-symlinks\fR
+With \fB\-f\fR, print the contents of symbolic links.
+.TP
+\fB\-z, \-\-no\-package\-name\fR
+With \fB\-f\fR, do not print the name of the package. Useful for scripts.
 .SH LOG OPTIONS
 .TP
 \fB\-l, \-\-log\fR
@@ -166,7 +157,9 @@ LOG_IGNORE_ERRORS is set to 1 in the configuration file (type 'man
 porgrc' for more information).
 .TP
 \fB\-\-log\-missing\fR
-Log also the missing files (they are skipped by default). See \fIEXAMPLES\fR
+By default, when installing a package porg registers only those files 
+that exist in the filesystem right after the installation. Using this
+option, porg registers also the missing files. See \fIEXAMPLES\fR
 below.
 .TP
 \fB\-+, \-\-append\fR
@@ -187,6 +180,9 @@ Don't remove files in these paths.
 .br
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
+.TP
+\fB\-U, \-\-unlog\fR
+Remove the log of the package from the database, without removing any file.
 .SH PATH MATCHING
 Options \fB\-I\fR, \fB\-E\fR and \fB\-e\fR accept a colon-separated list of
 paths, each of which may contain shell-like wildcards (*, ? and [..]).
@@ -204,16 +200,15 @@ with the command 'make -C src install':
     porg -lp foo-1.0 "make -C src install"
 .PP 
 Note that in this example the quotes are required to prevent
-porg to treat '-C' as a command line option.
-.br
+porg to consider '-C' as a command line option.
+The special end-of-option argument '--' may be used for the same purpose:
+.PP
+    porg -lp foo-1.0 -- make -C src install
+.PP
 Use single quotes if the command already contains double quotes:
 .PP
 	porg -lp foo-1.0 'echo "hello world" > /var/log/foo.log'
 .PP
-The special end-of-option argument '--' may be used for the same purpose:
-.PP
-    porg -lp foo-1.0 -- make -C src install
-.PP  
 Alternatively, we can use the basename of the current directory as the name of
 the package to log, using the option \fB\-D\fR instead of \fB\-p\fR:
 .PP
@@ -248,7 +243,7 @@ both commands in one single porg run:
 .PP
 In this case only /usr/bin/foo is logged.
 .PP
-The understand the meaning of the option \fB\-\-log\-missing\fR, consider
+To understand the meaning of the option \fB\-\-log\-missing\fR, consider
 the following example, where the file /foo/bar does not exist:
 .PP
     echo /foo/bar | porg --log-missing -lp foo
@@ -256,15 +251,27 @@ the following example, where the file /foo/bar does not exist:
 This would log the file /foo/bar, even if it is missing. Without the
 option --log-missing /foo/bar is skipped.
 .PP
-To remove all versions of the package foo, keeping the files in /etc
-and /root, and without asking for confirmation:
+The behaviour of the option \fB\-x\fR is shown in the following example.
+Imagine that both foo-1.0.0 and foo-1.2.0 are installed. Then
 .PP
-    porg -r --batch -e /etc:/root foo
+    porg -f foo
 .PP
-To remove the package foo-3.3, keeping the files in /var/log and the files
+would not print anything.
+.PP
+    porg -f -x foo
+.PP
+Would print the files installed by both packages, and
+.PP
+    porg -f -x foo-1.2
+.PP
+would print the files installed only by foo-1.2.0.
+.PP
+Note that the option \fB\-x\fR is not meaningful when logging package installations.
+.PP
+To remove the package foo-3.3, keeping the files in /etc and the files
 ending with ".conf":
 .PP
-    porg -r -e '/var/log:*.conf' foo-3.3
+    porg -r -e '/etc:*.conf' foo-3.3
 .PP
 We have installed the package 'boo-1.9' in prefix '/opt/boo-1.9', but
 we haven't logged the installation with porg. No problem! Just create a log
