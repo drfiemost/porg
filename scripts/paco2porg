@@ -1,0 +1,53 @@
+#!/bin/sh
+# vim:ts=4:ft=sh
+#-----------------------------------------------------------------------
+# paco2porg - imports paco logs into a porg database.
+#-----------------------------------------------------------------------
+# AUTHOR
+#--------
+# paco2porg is part of the package porg
+# Copyright (C) 2014 David Ricart
+# For more information visit http://porg.sourceforge.net
+#-----------------------------------------------------------------------
+
+me=`basename $0`
+
+version()	{ porg --version | sed "s@^porg@$me@"; exit 0; }
+
+help()
+{
+cat << EOF
+$me - imports paco logs into a porg database.
+
+Usage:
+  $me [OPTIONS]
+
+Options:  [default values listed in brackets]
+  -h, --help           Display this usage message and exit.
+  -v, --version        Display version information and exit.
+
+EOF
+	exit 0
+}
+
+
+#---------------------------------------#
+# Initialize and parse the command line #
+#---------------------------------------#
+
+# Parse the command line
+while [ "$1" ]; do
+	case $1 in
+		-v|--version)	version;;
+		*)	help;;
+	esac
+	shift
+done
+
+# Process the packages
+
+for pkg in `paco -av`; do
+	paco --files --no-package-name $pkg | porg --log --package $pkg
+done
+
+

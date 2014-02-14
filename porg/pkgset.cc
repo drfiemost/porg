@@ -350,9 +350,6 @@ inline static int get_width(long size)
 
 static bool match_pkg(string const& str, string const& pkg)
 {
-	if (!Opt::expand())
-		return str == pkg;
-
 	string str_base = Pkg::get_base(str);
 	string pkg_base = Pkg::get_base(pkg);
 	string str_version = Pkg::get_version(str);

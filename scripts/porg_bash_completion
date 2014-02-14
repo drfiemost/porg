@@ -73,26 +73,19 @@ _porg()
 		--kilobytes \
 		--log \
 		--logdir=DIR \
-		--missing-files \
-		--missing-size \
 		--no-package-name \
-		--one-column \
 		--package=PKG \
 		--query \
 		--remove \
-		--remove-shared \
 		--reverse \
-		--shared \
 		--size \
 		--skip=DIR \
 		--sort=WORD \
 		--symlinks \
 		--total \
 		--unlog \
-		--update \
 		--verbose \
-		--version \
-		--who-shares'
+		--version'
 
 	# long options with an equals
 	longopts_eq='--block-size= \
@@ -109,8 +102,6 @@ _porg()
 		-a \
 		-b \
 		-B \
-		-c \
-		-C \
 		-d \
 		-D \
 		-e \
@@ -123,9 +114,6 @@ _porg()
 		-k \
 		-l \
 		-L \
-		-m \
-		-M \
-		-n \
 		-o \
 		-p \
 		-q \
@@ -133,17 +121,15 @@ _porg()
 		-R \
 		-s \
 		-t \
-		-u \
 		-U \
 		-v \
 		-V \
-		-w \
 		-y \
 		-z'
 
 
 	# parameters for the --sort option
-	sorts="name date time size files missing-size missing-files"
+	sorts="name date time size files"
 
 	COMPREPLY=()
 	prev=${COMP_WORDS[COMP_CWORD-1]}
@@ -180,15 +166,15 @@ _porg()
 				;;
 
 			# This parameters expect a package
-			update | unlog | date | size | missing-size | \
-			files | missing-files | shared | who-shares | symlings | size | \
+			unlog | date | size | \
+			files | symlinks | size | \
 			info | configure-options | package)
 				pkgs=$(porg -a 2>/dev/null)
 				COMPREPLY=( $(compgen -W "$pkgs" $cur) )
 				return 0
 				;;
 
-			query | who-shares)
+			query)
 				_filedir
 				return 0
 				;;
@@ -201,12 +187,8 @@ _porg()
 		# expand according to prev parameter
 		case "${prev#-}" in
 			
-			*u* | *U* | \
-			*F* | *M* | *C* | *d* | *d* | *n* | \
-			*f* | *m* | *c* | *y* | \
-			*i* | *o* | *V* | \
-			*r* | \
-			*p*)
+			*U* | *F* | *d* | *f* | *y* | \
+			*i* | *o* | *V* | *r* | *p*)
 				pkgs=$(porg -a 2>/dev/null)
 				COMPREPLY=( $(compgen -W "$pkgs" $cur) )
 				return 0

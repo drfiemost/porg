@@ -40,7 +40,6 @@ namespace Porg
 	bool Opt::s_reverse_sort = false;
 	bool Opt::s_print_date = false;
 	bool Opt::s_print_hour = false;
-	bool Opt::s_expand = false;
 	sort_t Opt::s_sort_type = SORT_BY_NAME;
 	int Opt::s_size_unit = HUMAN_READABLE;
 	string Opt::s_log_pkg_name = string();
@@ -69,8 +68,6 @@ Opt::Opt(int argc, char* argv[])
 		{ "logdir",	1, 0, 'L' },
 		{ "verbose", 0, 0, 'v' },
 		{ "all", 0, 0, 'a' },
-		{ "unlog", 0, 0, 'U' },
-		{ "expand", 0, 0, 'x' },
 	 	// List options
 		{ "date", 0, 0, 'd' },
 		{ "sort", 1, 0, 'S' },
@@ -83,14 +80,14 @@ Opt::Opt(int argc, char* argv[])
 		{ "total", 0, 0, 't' },
 		{ "symlinks", 0, 0, 'y' },
 		{ "no-package-name", 0, 0, 'z' },
-		// Info options
 		{ "info", 0, 0, 'i' },
 		{ "query", 0, 0, 'q' },
 		{ "configure-options", 0, 0, 'o' },
 		// Remove options
 		{ "remove", 0, 0, 'r' },
 		{ "batch", 0, 0, 'B' },
-		{ "remove-exclude", 1, 0, 'e' },
+		{ "skip", 1, 0, 'e' },
+		{ "unlog", 0, 0, 'U' },
 		// Log options
 		{ "log", 0, 0, 'l' },
 		{ "package", 1, 0, 'p' },
@@ -134,15 +131,11 @@ Opt::Opt(int argc, char* argv[])
 			case 'L': s_logdir = optarg; break;
 			case 'v': Out::inc_verbosity(); break;
 			case 'a': s_all_pkgs = true; break;
-			case 'U': set_mode(UNLOG, op); break;
-			case 'x': s_expand = true; break;
 
-			// Info options
+			// List options
 			case 'i': set_mode(INFO, op); break;
 			case 'o': set_mode(CONF_OPTS, op); break;
 			case 'q': set_mode(QUERY, op); break;
-
-			// General list options
 			case 'S': s_sort_type = get_sort_type(optarg); break;
 			case 'R': s_reverse_sort = true; break;
 			case 't': s_print_totals = true; break;
@@ -173,10 +166,11 @@ Opt::Opt(int argc, char* argv[])
 				break;
 			
 			// Remove options
+			case 'U': set_mode(UNLOG, op); break;
 			case 'r': case 'e': case 'B':
 				set_mode(REMOVE, op);
 				switch (op) {
-					case 'e': s_remove_exclude = optarg; break;
+					case 'e': s_remove_skip = optarg; break;
 					case 'B': s_remove_batch = true; break;
 				}
 				break;
@@ -243,7 +237,7 @@ void Opt::set_mode(Mode m, char optchar)
 static void help()
 {
 cout <<
-"porg - a source code PACkage Organizer\n\n"
+"porg - a source code package organizer\n\n"
 "Usage:\n"
 "  porg [OPTIONS] <packages|files|command>\n\n"
 "General options:\n"
@@ -251,24 +245,19 @@ cout <<
 "  -a, --all                Apply to all logged packages (not with -r or -U).\n"
 "  -v, --verbose            Verbose output (-vv produces debugging messages).\n"
 "  -h, --help               Display this help message.\n"
-"  -V, --version            Display version information.\n"
-"  -U, --unlog              Remove the log of the package.\n"
-"  -x, --expand             Expand package names given in the command line.\n\n"
-"General list options:\n"
+"  -V, --version            Display version information.\n\n"
+"List options:\n"
 "  -b, --block-size=SIZE    Use blocks of SIZE bytes for the sizes.\n"
 "  -k, --kilobytes          Like '--block-size=1024'.\n"
 "  -R, --reverse            Reverse order while sorting.\n"
 "  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n"
-"  -t, --total              Print totals.\n\n"
-"Package list options:\n"
 "  -F, --nfiles             Print the number of installed files.\n"
 "  -d, --date               Print the installation day (-dd prints the hour too).\n"
-"  -s, --size               Print the installed size of each package.\n\n"
-"File list options:\n"
+"  -s, --size               Print the installed size of each packagei or file.\n"
 "  -f, --files              List installed files.\n"
-"  -y, --symlinks           Print the contents of symbolic links.\n"
-"  -z, --no-package-name    Don't print the name of the package.\n"
-"  -s, --size               Show the size of each file.\n\n"
+"  -z, --no-package-name    Don't print the name of the package (with -f).\n"
+"  -t, --total              Print totals.\n"
+"  -y, --symlinks           Print the contents of symbolic links (with -f).\n\n"
 "Information options:\n"
 "  Note: Information may be not available for all packages.\n"
 "  -i, --info               Print package information.\n"
@@ -278,7 +267,8 @@ cout <<
 "Remove options:\n"
 "  -r, --remove             Remove the (non shared) files of the package.\n"
 "  -B, --batch              Do not ask for confirmation when removing.\n"
-"  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n\n"
+"  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n"
+"  -U, --unlog              Remove the log of the package.\n\n"
 "Log options:\n"
 "  -l, --log                Enable log mode. See the man page.\n"
 "  -p, --package=PKG        Name of the package to log.\n" 

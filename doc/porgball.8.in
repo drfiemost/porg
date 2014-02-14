@@ -16,7 +16,7 @@ porgball - Binary package support for porg(8).
 .PP
 By default, \fBporgball\fR may be given one or more
 package names as arguments, and for each of those packages it creates
-a binary tarball (.tar.bz2 or .tar.gz) containing all the currently
+a binary tarball containing all the currently
 installed files. For this to work the input packages have to be
 registered in the porg database.
 .br
@@ -49,11 +49,14 @@ Create a porgball for each package logged in the porg database.
 \fB\-d, \-\-directory\fR=\fIDIR\fR
 Create the porgballs in directory DIR (default is '.').
 .TP
-\fB\-b, \-\-bzip2\fR
-Compress with bzip2 (this is the default).
-.TP
 \fB\-g, \-\-gzip\fR
-Compress with gzip.
+Compress with gzip (this is the default).
+.TP
+\fB\-b, \-\-bzip2\fR
+Compress with bzip2.
+.TP
+\fB\-x, \-\-xz\fR
+Compress with xz.
 .TP
 \fB\-#\fR
 Set the compression level (speed/quality balance). '#' is a number between 1

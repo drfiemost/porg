@@ -21,7 +21,7 @@ class Porgrc
 	static std::string const& logdir()	{ return s_logdir; }
 	static std::string const& include()	{ return s_include; }
 	static std::string const& exclude()	{ return s_exclude; }
-	static std::string const& remove_exclude()	{ return s_remove_exclude; }
+	static std::string const& remove_skip()	{ return s_remove_skip; }
 	
 	static bool logdir_writable();
 
@@ -33,7 +33,7 @@ class Porgrc
 	static std::string s_logdir;
 	static std::string s_include;
 	static std::string s_exclude;
-	static std::string s_remove_exclude;
+	static std::string s_remove_skip;
 
 };	// class Porgrc
 

@@ -39,12 +39,6 @@ are listed in brackets:
 .br
 Base porg logs directory. Default is '@LOGDIR@'.
 .TP
-\fBMAX_DB_AGE\fR
-.br
-Maximmum database age (maximmum number of days since the last update of the
-whole database). When this limit is reached porg prints a warning message.
-If set to zero, the database is never considered too old. Default is 7.
-.TP
 \fBINCLUDE\fR [-I|--include]
 .br
 Colon-separated list of paths to scan when logging the installation of a
@@ -61,49 +55,21 @@ package. Default is '@EXCLUDE@'.
 Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
 more details.
 .TP
-\fBBLOCK_SIZE\fR
+\fBREMOVE_SKIP\fR [-e|--skip]
 .br
-File sizes in the logs are rounded up to the nearest multiple
-of this value. This should be set to the block size of the file system. For
-most systems this is 4096. If set to zero, porg retrieves the block size of
-the file system for each file, which is the most accurate but time consuming
-choice. Default is 0.
+Colon-separated list of paths to skip when removing a
+package. Default is '' (all logged files are removed).
 .br
-Note: This is \fBnot\fR the same as the command line option \fB\-b\fR (or
-\fB\-\-block\-size\fR).
-.TP
-\fBAPPARENT_SIZE\fR
-.br
-Like BLOCK_SIZE=1.
-.TP
-\fBLOG_IGNORE_ERRORS\fR [--ignore-errors]
-.br
-Setting this variable to 1 makes porg log packages even if the install command
-fails. This allows for logging uncomplete installations, or clean the filesystem
-after an installation failure. Default is 0.
-.TP
-\fBLOG_IGNORE_SHARED\fR [--ignore-shared]
-.br
-Setting this variable to 1 makes porg skip shared files when logging packages.
-Default is 0.
-.TP
-\fBCASE_SENSITIVE\fR
-.br
-Setting this variable to 1 makes porg behave case-sensitively when matching the
-package names given by the command line against the logged packages. Default is 0.
+Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
+more details.
 .SH PATH MATCHING
-Variables \fB\INCLUDE\fR and \fBEXCLUDE\fR accept a colon-separated list of
+Variables \fB\INCLUDE\fR, \fBEXCLUDE\fR and \fBREMOVE_SKIP\fR accept a 
+colon-separated list of
 paths, each of which may contain shell-like wildcards (*, ? and [..]).
 Files are matched against each of those paths, following the standard
 shell-like expansion, but with the following exception: If a path in the list
 does not contain any wildcard, and it is a directory, it matches any file
 within that directory.
-.SH ENVIRONMENT
-Porg honours the following environment variable:
-.TP
-\fBPORG_DEBUG\fR
-If set to "yes", porg produces debugging messages, like the command line
-option '\fB\-vv\fR'.
 .SH FILES
 .PP
 \fI@sysconfdir@/porgrc\fR - active configuration file

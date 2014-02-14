@@ -21,7 +21,7 @@ namespace Porg
 	string Porgrc::s_logdir = LOGDIR;
 	string Porgrc::s_include = INCLUDE;
 	string Porgrc::s_exclude = EXCLUDE;
-	string Porgrc::s_remove_exclude = "";
+	string Porgrc::s_remove_skip = "";
 }
 
 			
@@ -49,8 +49,8 @@ Porgrc::Porgrc()
    			s_include = expand_var(val, "HOME");
 		else if (buf == "EXCLUDE")
    			s_exclude = expand_var(val, "HOME");
-		else if (buf == "REMOVE_EXCLUDE")
-   			s_remove_exclude = expand_var(val, "HOME");
+		else if (buf == "REMOVE_SKIP")
+   			s_remove_skip = expand_var(val, "HOME");
 	}
 }
 

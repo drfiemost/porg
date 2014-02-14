@@ -50,7 +50,6 @@ class Opt : public Porgrc
 	static bool reverse_sort() 		{ return s_reverse_sort; }
 	static bool print_date() 		{ return s_print_date; }
 	static bool print_hour() 		{ return s_print_hour; }
-	static bool expand()			{ return s_expand; }
 	static sort_t sort_type()		{ return s_sort_type; }
 	static int size_unit()			{ return s_size_unit; }
 	static Mode mode()				{ return s_mode; };
@@ -76,7 +75,6 @@ class Opt : public Porgrc
 	static bool s_reverse_sort;
 	static bool s_print_date;
 	static bool s_print_hour;
-	static bool s_expand;
 	static sort_t	s_sort_type;
 	static int s_size_unit;
 	static std::string s_log_pkg_name;

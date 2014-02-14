@@ -19,3 +19,7 @@
 # [-E|--exclude]
 #EXCLUDE=@EXCLUDE@
 
+# Paths to skip when removing packages.
+# [-e|--skip]
+#REMOVE_SKIP=
+

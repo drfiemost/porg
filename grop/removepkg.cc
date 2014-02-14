@@ -129,7 +129,7 @@ void RemovePkg::remove()
 		main_iter();
 
 		// skip excluded
-		if (Porg::in_paths(file, Opt::remove_exclude()))
+		if (Porg::in_paths(file, Opt::remove_skip()))
 			report("'" + file + "': excluded (skipped)", m_tag_skipped);
 
 		// skip shared files

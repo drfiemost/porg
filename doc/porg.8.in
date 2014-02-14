@@ -48,13 +48,6 @@ Verbose output. \fB\-vv\fR prints also debugging messages.
 .TP
 \fB\-V, \-\-version\fR
 Display version information and exit.
-.TP
-\fB\-x, \-\-expand-version\fR
-By default package names given in the command line must match both 
-the base name and the version of any  installed package. Instead, 
-using this option porg tries to expand the  version suffix to include all 
-available versions that it matches. Partial expansion of the version is allowed.
-See \fIEXAMPLES\fR below.
 .SH PACKAGE INFORMATION OPTIONS
 .TP
 \fB\-a, \-\-all\fR
@@ -152,9 +145,7 @@ more details.
 \fB\-\-ignore\-errors\fR
 Do not exit if the install command fails. This allows for logging
 uncomplete installations, and cleanup the system upon an installation
-failure. Errors are not ignored by default, unless variable 
-LOG_IGNORE_ERRORS is set to 1 in the configuration file (type 'man
-porgrc' for more information).
+failure. Errors are not ignored by default.
 .TP
 \fB\-\-log\-missing\fR
 By default, when installing a package porg registers only those files 
@@ -176,7 +167,10 @@ successfully removed, the package is removed from the database.
 Don't prompt for confirmation when removing (and assume yes to all questions).
 .TP
 \fB\-e, \-\-skip\fR=\fIPATH1:PATH2:...\fR
-Don't remove files in these paths.
+Colon-separated list of paths to skip when removing a package. 
+Default is '' (all logged files are removed),
+unless variable REMOVE_SKIP is set in the
+configuration file (type 'man porgrc' for more information).
 .br
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
@@ -250,23 +244,6 @@ the following example, where the file /foo/bar does not exist:
 .PP
 This would log the file /foo/bar, even if it is missing. Without the
 option --log-missing /foo/bar is skipped.
-.PP
-The behaviour of the option \fB\-x\fR is shown in the following example.
-Imagine that both foo-1.0.0 and foo-1.2.0 are installed. Then
-.PP
-    porg -f foo
-.PP
-would not print anything.
-.PP
-    porg -f -x foo
-.PP
-Would print the files installed by both packages, and
-.PP
-    porg -f -x foo-1.2
-.PP
-would print the files installed only by foo-1.2.0.
-.PP
-Note that the option \fB\-x\fR is not meaningful when logging package installations.
 .PP
 To remove the package foo-3.3, keeping the files in /etc and the files
 ending with ".conf":
