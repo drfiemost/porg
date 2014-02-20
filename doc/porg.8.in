@@ -62,14 +62,13 @@ Print the installation date of the package. Double it ('\fB\-dd\fR') to print
 also the hour.
 .TP
 \fB\-f, \-\-files\fR
-Print the installed files of the package.
+List the installed files of the package.
 .TP
 \fB\-F\fR
 Print the number of installed files.
 .TP
 \fB\-i, \-\-info\fR
-Print package information. Note that information may be not available 
-for all packages.
+Print package information, if available.
 .TP
 \fB\-k, \-\-kilobytes\fR
 Like '--block-size=1k', or '--block-size=1024'.
@@ -87,10 +86,10 @@ Reverse order while sorting.
 Show the size of each package or file; in human readable format by
 default (e.g. 1.2M, 13k).
 .TP
-\fB\-\-sort\fR=\fIWORD\fR
+\fB\-S, \-\-sort\fR=\fIWORD\fR
 Sort the list by WORD: When listing files, meaningful values for WORD
 are: 'name' and 'size'. When listing packages, WORD may be
-also: 'date' (or 'time') or 'files'.
+also: 'date' (or 'time') and 'files'.
 .TP
 \fB\-t, \-\-total\fR
 Print totals at the bottom of the list, when appliable.
@@ -109,7 +108,7 @@ to log is read from the standard input.
 .br
 The list of logged files is printed to the standard output, unless
 any of \fB\-p\fR or \fB\-D\fR options is used, in which case is assumed
-that a package is to be logged in the porg database.
+that a package is to be logged into the porg database.
 .br
 When a shell comand is monitorized, porg returns the exit code of that
 command.
@@ -142,7 +141,7 @@ configuration file (type 'man porgrc' for more information).
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
-\fB\-\-ignore\-errors\fR
+\fB\-g, \-\-ignore\-errors\fR
 Do not exit if the install command fails. This allows for logging
 uncomplete installations, and cleanup the system upon an installation
 failure. Errors are not ignored by default.
@@ -160,8 +159,7 @@ of files to its log.
 .TP
 \fB\-r, \-\-remove\fR
 Remove a package, keeping the shared files and asking for confirmation by
-default. If the option is doubled (\fB\-rr\fR), or all logged files are
-successfully removed, the package is removed from the database.
+default.
 .TP
 \fB\-B, \-\-batch\fR
 Don't prompt for confirmation when removing (and assume yes to all questions).
@@ -223,7 +221,7 @@ would not remove the file /bin/foo from the log of foo-1.0.
 To avoid such behaviour it is sometimes useful to join up composed
 install commands into one single command and run porg once. For instance,
 imagine that a package installs the file /bin/foo, but we want it to
-be installed in /usr/bin/foo. If one runs this:
+be installed in /usr/bin/foo instead. If one runs this:
 .PP
     porg -lp foo-1.0 make install
 .br

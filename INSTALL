@@ -40,12 +40,6 @@ Use this option if your system lacks GTKMM >= 3.4.0, or you don't want to use th
 GUI.
 
 
-The auxiliary scripts
----------------------
-A set of helper scripts are installed by default (see README). The configure
-option '--disable-scripts' may be used to skip script installation.
-
-
 Compiling and installing porg
 =============================
 Once you have choosen the appropiate options, just type the following to install

@@ -7,8 +7,6 @@ EXTRA_DIST = \
 	paco2porg \
 	porgball
 
-if ENABLE_SCRIPTS
-
 bin_SCRIPTS = \
 	superporg \
 	paco2porg \
@@ -29,10 +27,4 @@ logme_files = \
 
 logme:
 	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
-
-else
-
-logme:
-
-endif
 

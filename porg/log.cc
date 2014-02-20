@@ -166,18 +166,21 @@ void Log::filter_files()
 	for (set<string>::iterator p = m_files.begin(); p != m_files.end(); ++p) {
 
 		// get absolute path
-
 		string real(realdir((*p)));
 
 		// skip excluded (or not included) files
-		
 		if (in_paths(real, Opt::exclude()) || !in_paths(real, Opt::include()))
 			continue;
 	
-		// skip missing files or directories
-		
-		else if (!lstat(real.c_str(), &s) && !S_ISDIR(s.st_mode))
-			aux.push_back(real);
+		// skip missing files, if needed
+		else if (lstat(real.c_str(), &s) && !Opt::log_missing())
+			continue;
+
+		// skip directories
+		else if (S_ISDIR(s.st_mode))
+			continue;
+
+		aux.push_back(real);
 	}
 
 	m_files.clear();

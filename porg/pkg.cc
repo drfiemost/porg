@@ -115,10 +115,12 @@ void Pkg::write_log() const
 	for (string::size_type p(0); (p = desc.find('\n', p)) != string::npos; )
 		desc.insert(p + 1, code);
 	
-	// write info header
-	
+	// Create log file
+
 	FileStream<std::ofstream> of(m_log);
 
+	// write info header
+	
 	of	<< "#!porg-" PACKAGE_VERSION "\n"
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
 		<< '#' << CODE_NFILES 		<< ':' << m_nfiles << '\n'

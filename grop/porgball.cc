@@ -34,7 +34,7 @@ using namespace Grop;
 
 static void unlink_async(string const&);
 
-Porgball::Last Porgball::s_last = { Glib::get_home_dir(), GZIP, 6, false };
+Porgball::Last Porgball::s_last = { Glib::get_home_dir(), USE_GZIP, 6, false };
 
 
 Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
@@ -152,9 +152,9 @@ void Porgball::create_porgball()
     string zip = tar + ".";
 	int prog = m_combo_prog.get_active_row_number();
 	switch (prog) {
-		case GZIP: 	zip += "gz";	break;
-		case BZIP2:	zip += "bz2";	break;
-		case XZ:	zip += "xz";	break;
+		case USE_GZIP: 	zip += "gz";	break;
+		case USE_BZIP2:	zip += "bz2";	break;
+		case USE_XZ:	zip += "xz";	break;
 		default:	g_assert_not_reached();
 	}
 	g_assert(Glib::path_get_basename(zip) == m_label_tarball.get_text());
@@ -209,9 +209,9 @@ void Porgball::create_porgball()
 	
 	string prog_str;
 	switch (prog) {
-		case GZIP:	prog_str = "gzip";	break;
-		case BZIP2:	prog_str = "bzip2";	break;
-		case XZ:	prog_str = "xz";	break;
+		case USE_GZIP:	prog_str = "gzip";	break;
+		case USE_BZIP2:	prog_str = "bzip2";	break;
+		case USE_XZ:	prog_str = "xz";	break;
 	}
 	argv.push_back(prog_str);
 
@@ -262,9 +262,9 @@ void Porgball::on_change_prog()
 	string txt = m_pkg.name() + ".porg.tar.";
 
 	switch (m_combo_prog.get_active_row_number()) {
-		case GZIP:	m_label_tarball.set_text(txt + "gz");	break;
-		case BZIP2:	m_label_tarball.set_text(txt + "bz2");	break;
-		case XZ:	m_label_tarball.set_text(txt + "xz");	break;
+		case USE_GZIP:	m_label_tarball.set_text(txt + "gz");	break;
+		case USE_BZIP2:	m_label_tarball.set_text(txt + "bz2");	break;
+		case USE_XZ:	m_label_tarball.set_text(txt + "xz");	break;
 		default:	g_assert_not_reached();
 	}
 }

@@ -71,11 +71,6 @@ AC_ARG_ENABLE([grop],
 	[enable_grop=$enableval], [enable_grop=yes])
 AM_CONDITIONAL([ENABLE_GROP], [test "$enable_grop" = yes])
 
-AC_ARG_ENABLE([scripts],
-	[AC_HELP_STRING([--disable-scripts],
-		[disable installation of auxiliary scripts (see README)])],
-	[enable_scripts=$enableval], [enable_scripts=yes])
-AM_CONDITIONAL([ENABLE_SCRIPTS], [test "$enable_scripts" = yes])
 
 #================
 # Check programs

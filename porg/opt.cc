@@ -37,20 +37,24 @@ namespace Porg
 	bool Opt::s_remove_batch = false;
 	bool Opt::s_log_append = false;
 	bool Opt::s_log_ignore_errors = false;
+	bool Opt::s_log_missing = false;
 	bool Opt::s_reverse_sort = false;
 	bool Opt::s_print_date = false;
 	bool Opt::s_print_hour = false;
 	sort_t Opt::s_sort_type = SORT_BY_NAME;
 	int Opt::s_size_unit = HUMAN_READABLE;
 	string Opt::s_log_pkg_name = string();
-	Mode Opt::s_mode = LIST_PKGS;
+	Mode Opt::s_mode = MODE_LIST_PKGS;
 	vector<string> Opt::s_args = vector<string>();
 }
 
 
 void Opt::init(int argc, char* argv[])
 {
-	static Opt opt(argc, argv);;
+	if (argc == 1)
+		die_help("No arguments provided");
+
+	static Opt opt(argc, argv);
 }
 
 
@@ -58,9 +62,8 @@ Opt::Opt(int argc, char* argv[])
 :
 	Porgrc()
 {
-	if (argc == 1)
-		die_help("No arguments provided");
-
+	enum { OPT_LOG_MISSING = 1 };
+	
 	struct option opt[] = {
 		// General options
 		{ "help", 0, 0, 'h' },
@@ -96,10 +99,12 @@ Opt::Opt(int argc, char* argv[])
 		{ "append", 0, 0, '+' },
 		{ "dirname", 0, 0, 'D' },
 		{ "ignore-errors", 0, 0, 'g' },
+		{ "log-missing", 0, 0, OPT_LOG_MISSING },
 		{ NULL ,0, 0, 0 },
 	};
 	
-	// Deal with the weird non-getopt-friendly '-p+' option 
+	// Deal with the weird non-getopt-friendly '-p+' option
+	// (convert it to '-+p')
 	
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-' && argv[i][1] != '-') {
@@ -126,16 +131,16 @@ Opt::Opt(int argc, char* argv[])
 		switch (op) {
 			
 			// General options
-			case 'V': version();
-			case 'h': help();
+			case 'V': version(); break;
+			case 'h': help(); break;
 			case 'L': s_logdir = optarg; break;
 			case 'v': Out::inc_verbosity(); break;
 			case 'a': s_all_pkgs = true; break;
 
 			// List options
-			case 'i': set_mode(INFO, op); break;
-			case 'o': set_mode(CONF_OPTS, op); break;
-			case 'q': set_mode(QUERY, op); break;
+			case 'i': set_mode(MODE_INFO, op); break;
+			case 'o': set_mode(MODE_CONF_OPTS, op); break;
+			case 'q': set_mode(MODE_QUERY, op); break;
 			case 'S': s_sort_type = get_sort_type(optarg); break;
 			case 'R': s_reverse_sort = true; break;
 			case 't': s_print_totals = true; break;
@@ -145,7 +150,7 @@ Opt::Opt(int argc, char* argv[])
 			
 			// Package list options
 			case 'd': case 'F':
-				set_mode(LIST_PKGS, op);
+				set_mode(MODE_LIST_PKGS, op);
 				switch (op) {
 					case 'd':
 						s_print_hour = s_print_date; 
@@ -157,7 +162,7 @@ Opt::Opt(int argc, char* argv[])
 
 			// File list options
 			case 'f': case 'y': case 'z':
-				set_mode(LIST_FILES, op);
+				set_mode(MODE_LIST_FILES, op);
 				switch (op) {
 					case 'f': s_print_files = true; break;
 					case 'y': s_print_symlinks = true; break;
@@ -165,10 +170,10 @@ Opt::Opt(int argc, char* argv[])
 				}
 				break;
 			
-			// Remove options
-			case 'U': set_mode(UNLOG, op); break;
+			// Remove / unlog options
+			case 'U': set_mode(MODE_UNLOG, op); break;
 			case 'r': case 'e': case 'B':
-				set_mode(REMOVE, op);
+				set_mode(MODE_REMOVE, op);
 				switch (op) {
 					case 'e': s_remove_skip = optarg; break;
 					case 'B': s_remove_batch = true; break;
@@ -177,7 +182,8 @@ Opt::Opt(int argc, char* argv[])
 			
 			// Log options
 			case 'l': case 'p': case 'D': case 'I': case 'E': case '+': case 'g':
-				set_mode(LOG, op);
+			case OPT_LOG_MISSING:
+				set_mode(MODE_LOG, op);
 				switch (op) {
 					case 'p': s_log_pkg_name = optarg; break;
 					case 'D': s_log_pkg_name = get_dir_name(); break;
@@ -185,6 +191,7 @@ Opt::Opt(int argc, char* argv[])
 					case 'E': s_exclude = optarg; break;
 					case '+': s_log_append = true; break;
 					case 'g': s_log_ignore_errors = true; break;
+					case OPT_LOG_MISSING: s_log_missing = true; break;
 				}
 				break;
 			
@@ -198,16 +205,16 @@ Opt::Opt(int argc, char* argv[])
 	s_args.assign(argv + optind, argv + argc);
 
 	if (s_args.empty()) {
-		if (s_mode == QUERY)
+		if (s_mode == MODE_QUERY)
 			die_help("No input files");
-		else if ((!s_all_pkgs && s_mode != LOG) || s_mode == REMOVE || s_mode == UNLOG)
+		else if ((!s_all_pkgs && s_mode != MODE_LOG) || s_mode == MODE_REMOVE || s_mode == MODE_UNLOG)
 			die_help("No input packages");
 	}
 
 	if (!logdir_writable()) {
-		if (s_mode == UNLOG || s_mode == REMOVE)
+		if (s_mode == MODE_REMOVE || s_mode == MODE_UNLOG)
 			throw Error(s_logdir, errno);
-		else if (s_mode == LOG && !s_log_pkg_name.empty()) {
+		else if (s_mode == MODE_LOG && !s_log_pkg_name.empty()) {
 			if (errno != ENOENT || mkdir(s_logdir.c_str(), 0755) < 0)
 				throw Error(s_logdir, errno);
 		}
@@ -268,7 +275,7 @@ cout <<
 "  -r, --remove             Remove the (non shared) files of the package.\n"
 "  -B, --batch              Do not ask for confirmation when removing.\n"
 "  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n"
-"  -U, --unlog              Remove the log of the package.\n\n"
+"  -U, --unlog              Unlog the package, without removing any file.\n\n"
 "Log options:\n"
 "  -l, --log                Enable log mode. See the man page.\n"
 "  -p, --package=PKG        Name of the package to log.\n" 
@@ -277,6 +284,7 @@ cout <<
 "  -+, --append             With -p or -D: If the package is already logged,\n"
 "                           append the list of files to its log.\n"
 "  -g, --ignore-errors      Do not exit if the install command fails.\n"
+"      --log_missing        Do not skip missing files.\n"
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"
 "Note: The package list mode is enabled by default.\n\n"

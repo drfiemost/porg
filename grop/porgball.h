@@ -39,7 +39,7 @@ class Porgball : public Gtk::Dialog
 		bool		test;
 	} Last;
 		
-	enum { GZIP, BZIP2, XZ };
+	enum { USE_GZIP, USE_BZIP2, USE_XZ };
 
 	static Last s_last;
 

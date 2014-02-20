@@ -8,6 +8,8 @@ EXTRA_DIST = \
 
 man_MANS = \
 	porg.8 \
+	porgball.8 \
+	superporg.8 \
 	porgrc.5
 
 pkgdata_DATA = \
@@ -17,21 +19,11 @@ pkgdata_DATA = \
 logme_files = \
 	$(DESTDIR)$(man5dir)/porgrc.5 \
 	$(DESTDIR)$(man8dir)/porg.8 \
+	$(DESTDIR)$(man8dir)/superporg.8 \
+	$(DESTDIR)$(man8dir)/porgball.8 \
 	$(DESTDIR)$(sysconfdir)/porgrc \
 	$(DESTDIR)$(pkgdatadir)/porgrc \
 	$(DESTDIR)$(pkgdatadir)/faq.txt
-
-if ENABLE_SCRIPTS
-
-man_MANS += \
-	porgball.8 \
-	superporg.8
-	
-logme_files += \
-	$(DESTDIR)$(man8dir)/superporg.8 \
-	$(DESTDIR)$(man8dir)/porgball.8
-
-endif
 
 if ENABLE_GROP
 

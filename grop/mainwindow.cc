@@ -226,9 +226,9 @@ void MainWindow::on_about()
 	dialog.set_name("grop");
 	dialog.set_logo_icon_name("grop");
 	dialog.set_version(PACKAGE_VERSION);
-	dialog.set_comments("Graphic interface of porg,\nthe source code PACkage Organizer");
+	dialog.set_comments("Graphic interface of porg,\na source code package organizer");
 	dialog.set_authors(std::vector<Glib::ustring>(1, "David Ricart " PACKAGE_BUGREPORT));
-	dialog.set_copyright("Copyright (C) 2004-2012 David Ricart");
+	dialog.set_copyright("Copyright (C) 2004-2014 David Ricart");
 	dialog.set_website("http://porg.sourceforge.net");
 
 	dialog.run();

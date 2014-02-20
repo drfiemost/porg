@@ -26,14 +26,14 @@ int main(int argc, char* argv[])
 		// read config file and get options from command line
 		Opt::init(argc, argv);
 
-		if (Opt::mode() == LOG) {
+		if (Opt::mode() == MODE_LOG) {
 			Log log;
 			exit(g_exit_status);
 		}
 
 		PkgSet pset;
 
-		if (Opt::mode() == QUERY || Opt::all_pkgs())
+		if (Opt::mode() == MODE_QUERY || Opt::all_pkgs())
 			pset.get_all_pkgs();
 		else
 			pset.get_pkgs(Opt::args());
@@ -42,14 +42,14 @@ int main(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 
 		switch (Opt::mode()) {
-			case UNLOG:			pset.unlog();			break;
-			case CONF_OPTS:		pset.print_conf_opts();	break;
-			case INFO:			pset.print_info();		break;
-			case LIST_PKGS:		pset.list();			break;
-			case LIST_FILES:	pset.list_files();		break;
-			case QUERY:			pset.query();			break;
-			case REMOVE:		pset.remove();			break;
-			default: 			assert(0);
+			case MODE_CONF_OPTS:	pset.print_conf_opts();	break;
+			case MODE_INFO:			pset.print_info();		break;
+			case MODE_LIST_PKGS:	pset.list();			break;
+			case MODE_LIST_FILES:	pset.list_files();		break;
+			case MODE_QUERY:		pset.query();			break;
+			case MODE_REMOVE:		pset.remove();			break;
+			case MODE_UNLOG:		pset.unlog();			break;
+			default: 				assert(0);
 		}
 	}
 

@@ -95,9 +95,7 @@ Note: Porg does not work on systems in which binaries are linked statically,
 Scripts
 =======
 
-The porg distribution provides the following auxiliary scripts. All scripts are 
-automatically installed, unless the option '--disable-scripts' is passed to 
-configure.
+The porg distribution provides the following auxiliary scripts.
 
 porgball
 --------
@@ -118,7 +116,6 @@ porg_bash_completion
 --------------------
 This file provides bash completion support for porg, in systems that have
 programmable bash completion enabled.
-Look at the header of the file for more information.
 
 
 License

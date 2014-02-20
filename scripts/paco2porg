@@ -11,6 +11,7 @@
 #-----------------------------------------------------------------------
 
 me=`basename $0`
+verb=
 
 version()	{ porg --version | sed "s@^porg@$me@"; exit 0; }
 
@@ -22,9 +23,10 @@ $me - imports paco logs into a porg database.
 Usage:
   $me [OPTIONS]
 
-Options:  [default values listed in brackets]
+Options:
   -h, --help           Display this usage message and exit.
-  -v, --version        Display version information and exit.
+  -V, --version        Display version information and exit.
+  -v, --verbose        Explain what is being done.
 
 EOF
 	exit 0
@@ -35,10 +37,13 @@ EOF
 # Initialize and parse the command line #
 #---------------------------------------#
 
+opt=
+
 # Parse the command line
 while [ "$1" ]; do
 	case $1 in
-		-v|--version)	version;;
+		-v|--verbose)	verb=yes;;
+		-V|--version)	version;;
 		*)	help;;
 	esac
 	shift
@@ -46,8 +51,13 @@ done
 
 # Process the packages
 
-for pkg in `paco -av`; do
-	paco --files --no-package-name $pkg | porg --log --package $pkg
+for pkg in `paco --all --verbose`; do
+	[ -n "$verb" ] && echo -n "Importing package ${pkg}..."
+	if ( paco --files --no-package-name $pkg | porg --log --package $pkg ); then
+		[ -n "$verb" ] && echo "\tdone"
+	else
+		exit 1
+	fi
 done
 
-
+exit 0

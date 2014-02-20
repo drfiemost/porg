@@ -2,7 +2,7 @@
 // basepkg.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2012 David Ricart
+// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -36,8 +36,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_conf_opts(),
 	m_author()
 {
-	assert(!m_name.empty());
-
 	if (!logged)
 		return;
 	
@@ -80,10 +78,9 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 			case CODE_LICENSE: 		m_license = val; 				break;
 			case CODE_AUTHOR: 		m_author = val;					break;
 			case CODE_DESCRIPTION:
-				if (m_description.empty())
-					m_description = val;
-				else
-					m_description += ('\n' + val);
+				if (!m_description.empty())
+					m_description += "\n";
+				m_description += val;
 				break;
 			
 			default: assert(0);
@@ -94,8 +91,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 
 BasePkg::~BasePkg()
 {
-	for (file_it f(m_files.begin()); f != m_files.end(); ++f)
-		delete *f;
+	for (file_it f(m_files.begin()); f != m_files.end(); delete *f++) ;
 }
 
 
@@ -108,8 +104,10 @@ void BasePkg::unlog() const
 
 void BasePkg::get_files()
 {
-	if (!m_files.empty())
-		return;	// files already read
+	if (!m_files.empty()) {
+		assert(m_files.empty());
+		return;
+	}
 
 	FileStream<std::ifstream> f(m_log);
 	
@@ -118,7 +116,6 @@ void BasePkg::get_files()
 	long fsize;
 
 #ifndef NDEBUG
-	// these are for debugging only
 	ulong cnt_size = 0, cnt_nfiles = 0;
 #endif
 
