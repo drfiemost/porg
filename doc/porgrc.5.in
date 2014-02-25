@@ -2,7 +2,7 @@
 .\" porgrc.8 - porgrc man page
 .\"----------------------------------------------------------------
 .\" This file is part of the package porg
-.\" Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+.\" Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
 .\" For more information visit  http://porg.sourceforge.net
 .\"----------------------------------------------------------------
 .\"
@@ -80,7 +80,7 @@ The latest version of porg should be always available at:
 .br
 	http://porg.sourceforge.net
 .SH COPYRIGHT
-Copyright (C) 2004-2012 David Ricart <@PACKAGE_BUGREPORT@>
+Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
 .br
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

@@ -78,15 +78,17 @@ Supported architectures and operative systems
 
 Porg has been successfully tested on the following platforms:
 
-    -------------------------------
-    OS      Version   Architectures
-    -------------------------------
-    Linux   2.*       x86, x86_64
-    Linux   3.*       x86
-    Linux   3.*       ARM v7
+    -----------------------------------------------------------
+    OS       Version   Architectures
+    -----------------------------------------------------------
+    Linux    2         x86, x86_64, Alpha, AMD64. MIPS64, PPC64
+    Linux    3         x86, ARM v7
+    NetBSD   1         x86
+    NetBSD   2         x86
+    Solaris  9         x86, SPARC-R220
 
 	--> your system here! (please send me feedback)
-    -------------------------------
+    -----------------------------------------------------------
 
 Note: Porg does not work on systems in which binaries are linked statically, 
       like FreeBSD or OpenBSD.

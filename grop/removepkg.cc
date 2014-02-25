@@ -2,7 +2,7 @@
 // removepkg.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copy (C) 2004-2012 David Ricart
+// Copy (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
