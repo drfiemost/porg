@@ -1,10 +1,6 @@
 .\"----------------------------------------------------------------
 .\" porg.8 - porg-@PACKAGE_VERSION@ man page
 .\"----------------------------------------------------------------
-.\" Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.\" For more information visit  http://porg.sourceforge.net
-.\"----------------------------------------------------------------
-.\"
 .TH PORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 porg \- a source code package organizer
@@ -53,10 +49,6 @@ Display version information and exit.
 \fB\-a, \-\-all\fR
 Apply to all installed packages.
 .TP
-\fB\-b, \-\-block\-size\fR=\fISIZE\fR
-With \fB\-s\fR, use blocks of SIZE bytes for the sizes. SIZE may be an integer, 
-optionally followed by one of the following: k, K, m, M.
-.TP
 \fB\-d, \-\-date\fR
 Print the installation date of the package. Double it ('\fB\-dd\fR') to print
 also the hour.
@@ -70,9 +62,6 @@ Print the number of installed files.
 \fB\-i, \-\-info\fR
 Print package information, if available.
 .TP
-\fB\-k, \-\-kilobytes\fR
-Like '--block-size=1k', or '--block-size=1024'.
-.TP
 \fB\-o, \-\-configure\-options\fR
 Print the configure options the package was built with.
 .TP
@@ -83,8 +72,7 @@ Query for the packages that own one or more files.
 Reverse order while sorting.
 .TP
 \fB\-s, \-\-size\fR
-Show the size of each package or file; in human readable format by
-default (e.g. 1.2M, 13k).
+Show the size of each package or file.
 .TP
 \fB\-S, \-\-sort\fR=\fIWORD\fR
 Sort the list by WORD: When listing files, meaningful values for WORD
@@ -161,7 +149,7 @@ of files to its log.
 Remove a package, keeping the shared files and asking for confirmation by
 default.
 .TP
-\fB\-B, \-\-batch\fR
+\fB\-b, \-\-batch\fR
 Don't prompt for confirmation when removing (and assume yes to all questions).
 .TP
 \fB\-e, \-\-skip\fR=\fIPATH1:PATH2:...\fR
@@ -263,14 +251,7 @@ For the same reason, porg does not work with programs that statically link libc.
 \fI@sysconfdir@/porgrc\fR - configuration file
 .br
 \fI@LOGDIR@\fR - default log directory
-.SH WEB SITE
-The latest version of porg should be always available at:
-.br
-	http://porg.sourceforge.net
-.SH COPYRIGHT
-Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.br
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
 porgrc(5), porgball(8), superporg(8)

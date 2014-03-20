@@ -1,17 +1,13 @@
 .\"----------------------------------------------------------------
 .\" porgball.8 - porgball-@PACKAGE_VERSION@ man page
 .\"----------------------------------------------------------------
-.\" Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.\" For more information visit  http://porg.sourceforge.net
-.\"----------------------------------------------------------------
-.\"
 .TH PORGBALL "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 porgball - Binary package support for porg(8).
 .SH SYNOPSIS
-\fBporgball\fR [-bgftv] [-d DIR] [-1..9] [-a|<packages>]
+\fBporgball\fR [OPTIONS] [-a|<packages>]
 .br
-\fBporgball\fR -e [-ltv] [-C DIR] <porgballs>
+\fBporgball\fR -e [OPTIONS] <porgballs>
 .SH DESCRIPTION
 .PP
 By default, \fBporgball\fR may be given one or more
@@ -28,6 +24,9 @@ created tarballs ("porgballs") as arguments, and installs them into the
 system, optionally logging the installation with porg.
 .PP
 Mandatory arguments to long options are mandatory for short options too.
+.PP
+Options cannot be joined, for instance: '\fB\-af\fR' is not correct,
+type '\fB\-a \-f\fR' instead.
 .SH GENERAL OPTIONS
 .TP
 \fB\-t, \-\-test\fR
@@ -79,21 +78,14 @@ Extract (install) the given <porgballs>, in directory '/' by default.
 Log the file extraction with porg(8), retrieving the appropiate
 package name from the name of the porgball.
 .TP
-\fB\-C, \-\-root\fR=\fIDIR\fR
-Extract the files into directory DIR (as the -C option in tar).
+\fB\-d, \-\-directory\fR=\fIDIR\fR
+Extract the files into directory DIR (as the option -C in tar).
 .SH FILES
 .PP
 \fI@sysconfdir@/porgrc\fR - porg configuration file
 .br
 \fI@LOGDIR@\fR - default porg log directory
-.SH WEB SITE
-The latest version of porgball should be always available at:
-.br
-	http://porg.sourceforge.net
-.SH COPYRIGHT
-Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.br
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
 porg(8), porgrc(5), superporg(8)

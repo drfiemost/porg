@@ -4,6 +4,9 @@
 EXTRA_DIST = \
 	grop.desktop \
 	faq.txt \
+	porg.png \
+	download.png \
+	index.html \
 	grop.png
 
 man_MANS = \
@@ -14,6 +17,9 @@ man_MANS = \
 
 pkgdata_DATA = \
 	porgrc \
+	index.html \
+	porg.png \
+	download.png \
 	faq.txt
 
 logme_files = \
@@ -23,6 +29,9 @@ logme_files = \
 	$(DESTDIR)$(man8dir)/porgball.8 \
 	$(DESTDIR)$(sysconfdir)/porgrc \
 	$(DESTDIR)$(pkgdatadir)/porgrc \
+	$(DESTDIR)$(pkgdatadir)/index.html \
+	$(DESTDIR)$(pkgdatadir)/porg.png \
+	$(DESTDIR)$(pkgdatadir)/download.png \
 	$(DESTDIR)$(pkgdatadir)/faq.txt
 
 if ENABLE_GROP
@@ -50,7 +59,9 @@ install-data-local: porgrc
 	( test -d $$rc_dir || $(mkinstalldirs) $$rc_dir ); \
 	( test -f $$rc_dir/porgrc || $(INSTALL_DATA) porgrc $$rc_dir/porgrc )
 
-
 logme:
 	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
+
+web: index.html
+	scp $< davidrr,porg@web.sourceforge.net:htdocs/$<
 

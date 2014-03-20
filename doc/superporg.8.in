@@ -1,10 +1,6 @@
 .\"----------------------------------------------------------------
 .\" superporg.8 - superporg-@PACKAGE_VERSION@ man page
 .\"----------------------------------------------------------------
-.\" Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.\" For more information visit  http://porg.sourceforge.net
-.\"----------------------------------------------------------------
-.\"
 .TH SUPERPORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 superporg - Debian, RPM or Slackware package installation support for porg(8).
@@ -39,12 +35,7 @@ When installing the files, use PATH as the root directory.
 \fB\-s, \-\-strip\-release\fR
 Remove the release suffix from the name of the package
 (e.g. 'foo-1.0.2-2.1' --> 'foo-1.0.2').
-.SH WEB SITE
-http://porg.sourceforge.net
-.SH COPYRIGHT
-Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.br
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
 porg(8), porgrc(5), porgball(8)

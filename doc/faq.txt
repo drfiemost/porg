@@ -31,38 +31,17 @@ R2: This is because in the chapter 6 some of glibc files are installed
 		find /lib | porg -lp+ glibc-<GLIBC_VERSION>
 
 
-Q3: Why doesn't porg log directories?
+Q3: Is it safe to launch porg with sudo?
 
-R3: When a directory is created, using either mkdir or install, all the partial
-    directories in its path need to be created too. Even if they already exist,
-    the system call mkdir() may be called for every partial directory in the
-    path. Thus, for example:
-
-        $ porg -l 'install -d /usr/share/man/man1'
-
-    would log the following directories:
-
-        /usr
-        /usr/share
-        /usr/share/man
-        /usr/share/man/man1
-
-    And I think this would be a bad thing: All logs would be bloated with many
-    directories, and the list of files could be too large. Also, most of the
-    directories will be shared among many packages, resulting in a big mess...
-
-
-Q4: Is it safe to launch porg with sudo?
-
-R4: Yes. Here you can see a thread in the porg mailing list that discusses this
+R3: Yes. Here you can see a thread in the paco mailing list that discusses this
     issue:
 
 	http://sourceforge.net/mailarchive/message.php?msg_name=op.s0crq8an4bwnuy%40slack.homenet
 
 
-Q5: Is it safe to launch sudo with porg?
+Q4: Is it safe to launch sudo with porg?
 
-R5: No. For example the command:
+R4: No. For example the command:
 
         porg -lp foobar-1.0 "sudo make install"
 
@@ -70,4 +49,5 @@ R5: No. For example the command:
     installed, but porg would not be able to monitor the installation and no
     files would be logged.
     This is due to LD_PRELOAD limitations on suid programs like sudo.
+
 

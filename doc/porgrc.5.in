@@ -1,11 +1,6 @@
 .\"----------------------------------------------------------------
 .\" porgrc.8 - porgrc man page
 .\"----------------------------------------------------------------
-.\" This file is part of the package porg
-.\" Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.\" For more information visit  http://porg.sourceforge.net
-.\"----------------------------------------------------------------
-.\"
 .TH porgrc "5" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 porgrc - configuration file for porg
@@ -19,16 +14,13 @@ the source code package organizer.
 .PP
 The file consists of comments and key-value pairs. Comments are on separate
 lines that start with a \fB#\fR symbol. The key-value pairs are on the form:
-.RS
-.br
+.PP
 \fBkey=value\fR
-.RE
-.br
-where \fBkey\fR contains no whitespace and no equal signs.
-.br
+.PP
+where \fBkey\fR contains no whitespace and no equal signs, and
 \fBvalue\fR will be all of the text after the equal sign until (but not
 including) the ending newline.
-.br
+.PP
 Occurences of $HOME and ${HOME} in \fBvalue\fR are expanded to the value of
 the environment variable HOME.
 .SH OPTIONS
@@ -75,14 +67,7 @@ within that directory.
 \fI@sysconfdir@/porgrc\fR - active configuration file
 .br
 \fI@prefix@/share/porg/porgrc\fR - sample configuration file
-.SH WEB SITE
-The latest version of porg should be always available at:
-.br
-	http://porg.sourceforge.net
-.SH COPYRIGHT
-Copyright (C) 2004-2014 David Ricart <@PACKAGE_BUGREPORT@>
-.br
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
 porg(8), porgball(8), superporg(8)
