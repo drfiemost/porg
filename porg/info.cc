@@ -2,7 +2,6 @@
 // info.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -11,9 +10,7 @@
 #include "out.h"
 #include "info.h"
 #include "pkg.h"
-#if HAVE_REGEX_H
-#	include "regexp.h"
-#endif
+#include "regexp.h"
 #include <fstream>
 #include <string>
 #include <glob.h>
@@ -40,9 +37,7 @@ Info::Info(Pkg* pkg)
 	get_info_pc();
 	get_info_desktop();
 
-#if HAVE_REGEX_H
 	get_icon_path();
-#endif
 	get_config_opts();
 }
 

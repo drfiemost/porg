@@ -2,7 +2,6 @@
 // pkg.h
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -40,6 +39,7 @@ class Pkg : public BasePkg
 
 	protected:
 
+	std::string format_description() const;
 	bool add_file(std::string const& path);
 	void write_log() const;
 	std::string str_description(bool debug = false) const;

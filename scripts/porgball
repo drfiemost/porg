@@ -1,40 +1,24 @@
-#!/usr/bin/perl
-#----------------------------------------------------------------------
-# porgball - Binary package support for porg.
-#----------------------------------------------------------------------
-# This file is part of the package porg
-# Copyright (C) 2004-2014 David Ricart
+#!/bin/bash
+#-----------------------------------------------------------------------
+# porgball - binary package support for porg
 # For more information visit http://porg.sourceforge.net
-#----------------------------------------------------------------------
-# vim:ts=4
+#-----------------------------------------------------------------------
 
-use Cwd;
-use warnings;
-use strict;
-use Getopt::Long;
+me=$(basename $0)
 
-Getopt::Long::Configure("no_ignore_case", "bundling");
-
-my $me = "porgball";
-my $verbose = '';
-my $zip = "gzip";
-my $level = 9;
-my $force = '';
-my $all = '';
-my $tmp = "/tmp/$me.$$";
-my $logdir = '';
-my ($version, $root, $dir, $extract, $use_porg, $test);
+warn()			{ echo "$me: $*" >&2; }
+die()			{ warn "$*"; exit 1; }
+say()			{ [ "$opt_verb" ] && printf "$*"; }
+do_version() 	{ porg --version | sed "s/^porg/$me/"; exit 0; }
 
 
-sub help
+do_help()
 {
-print <<EOF;
-$me - Creates binary packages from installed (and logged by porg) packages
+cat << EOF
+$me - binary package support for porg.
 
 Usage:
-  $me [-bgxftv] [-d DIR] [-1..9] [-a|<packages>]
-  $me -e [-ltv] [-C DIR] <porgballs>
-  $me [-Vh]
+  $me [OPTIONS] [<packages>|<porgballs>]
 
 General options:
   -t, --test           Test compressed file integrity
@@ -44,7 +28,7 @@ General options:
   
 Package creation options:
   -a, --all            Create a porgball for each logged package
-  -d, --directory=DIR  Create the porgballs in directory DIR (default is '.')
+  -d, --directory=DIR  Create the porgballs in DIR (default is '.')
   -g, --gzip           Compress with gzip (default)
   -b, --bzip2          Compress with bzip2
   -x, --xz             Compress with xz
@@ -54,201 +38,172 @@ Package creation options:
   -f, --force          Force overwrite of existing output files
   
 Package extraction options:
-  -e, --extract        Extract the porgballs, into directory / by default
-  -C, --root=DIR       Extract the files into DIR (as the -C tar option)
+  -e, --extract        Extract the porgballs given as arguments
+  -d, --directory=DIR  Extract the files into root directory DIR
+                       (default is '/')
   -l, --log            Log the extraction with porg
 
 Note:
-  Leading '/' are stripped from the filenames in the porgballs
+  Short options cannot be joined, for instance: '-af' is not correct,
+  type '-a -f' instead.
+
 EOF
-exit(0);
+	exit 0
 }
 
 
-sub checkdir
+#---------------------------------------#
+# Initialize and parse the command line #
+#---------------------------------------#
+
+# Defaults
+
+opt_prog=gzip
+opt_level=-9
+
+
+do_check_dir()
 {
-	my $dir = shift;
-	$$dir =~ s/(.)\/*$/$1/;
-	
-	(-f $$dir) and die("$me: $$dir: not a directory.\n");
-	
-	if (!-d $$dir) { 
-		mkdir($$dir) or die("$me: mkdir(\"$$dir\"): $!\n"); 
-	}
-	
-	(-w $$dir) or die("$me: $$dir is not writable.\n");
+	[ -d "$1" ] || die "$1: No such directory"
+	[ -w "$1" ] || die "$1: Directory non writable"
 }
 
 
-sub check_arg
+do_extract()
 {
-	my $opt = shift;
-	my $switch = shift;
-	(defined $opt && !$opt)
-		and &help("option -$switch requires an argument");
-	return $opt;
+	say "Processing $1\n"
+		
+	[ -e $1 ] || { warn "$1: No such file"; return 1; }
+
+	case $1 in
+		*.porg.tar.gz)	zprog=gzip;;
+		*.porg.tar.bz2)	zprog=bzip2;;
+		*.porg.tar.xz)	zprog=xz;;
+		*)	warn "$1: Does not look like a porgball. Skipping"
+			return 1
+			;;
+	esac
+
+	[ "$opt_test" ] && { $zprog $opt_verb --test $1 || return 1; }
+
+	$zprog $opt_verb $opt_force --keep --decompress $1 || return 1
+
+	tarfile=$(expr $1 : '\(.*\.tar\)')
+	files=$(tar -C $opt_dir -xvf $tarfile) || return 1
+	rm -f $tarfile
+
+	if [ "$opt_log" ]; then
+		pkg=${1%.porg.tar.*}
+		echo $files | awk '{ print "'"$opt_dir"'/" $0; }' \
+		| porg $opt_verb -lp $pkg
+		return $?
+	fi
+	
+	return 0
 }
 
 
-sub get_logdir
+do_create()
 {
-	my $porgrc = "";
-	
-	for ("", "/usr", "/usr/local") {
-		if (-e "$_/etc/porgrc") {
-			$porgrc = "$_/etc/porgrc";
-			last;
-		}
-	}
-	
-	if (open(PORGRC, "< $porgrc")) {
-		while (<PORGRC>) {
-			if (/^LOGDIR=(.+[^\n])/) {
-				# Call echo, because LOGDIR may contain shell 
-				# variables like $HOME or ${HOME}
-				$logdir = `echo $1`;
-				last;
-			}
-		}
-		close(PORGRC);
-	}
-	
-	($logdir) or $logdir = "/var/log/porg";
-	chomp($logdir);
-	(-d $logdir) or die("$me: $logdir: no such directory.\n");
+	say "Processing $1\n"
+
+	: > $tmpfile
+
+	for file in $(porg --no-package-name --files $1); do
+		[ -f $file ] && echo $file >> $tmpfile
+	done
+
+	tarfile=$(echo $opt_dir/${1}.porg.tar | tr -s /)
+
+	tar -cf $tarfile --files-from=$tmpfile || return 1
+
+	$opt_prog $opt_level $opt_verb $opt_force $tarfile || return 1
+
+	if [ "$opt_test" ]; then
+
+		case $opt_prog in
+			bzip2)	suf=bz2;;
+			xz)		suf=xz;;
+			*)		suf=gz;;
+		esac
+
+		$opt_prog $opt_verb -t ${tarfile}.$suf
+		return $?
+	fi
+
+	return 0
 }
 
 
-# Check for porg, and get the version
-$version = `porg --version`	or exit(1);
-$version =~ s/^porg-//;
+# Parse the command line
 
-# Command line arguments
-GetOptions(
-	'h|help'			=> \&help,
-	'd|directory:s',	=> \$dir,
-	'C|root|prefix:s',	=> \$root,
-	'e|extract',		=> \$extract,
-	'l|log',			=> \$use_porg,
-	't|test'			=> \$test,
-	'V|version'			=> sub { print("$me-$version");	exit(0); },
-	'v|verbose'			=> sub { $verbose = "--verbose"; },
-	'b|bzip2'			=> sub { $zip = "bzip2"; },
-	'g|gzip'			=> sub { $zip = "gzip"; },
-	'x|xz'				=> sub { $zip = "xz"; },
-	'f|force'			=> sub { $force = "--force"; },
-	'a|all'				=> sub { $all = "--all"; },
-	'1|fast'			=> sub { $level = 1; },
-	'2'					=> sub { $level = 2; },
-	'3'					=> sub { $level = 3; },
-	'4'					=> sub { $level = 4; },
-	'5'					=> sub { $level = 5; },
-	'6'					=> sub { $level = 6; },
-	'7'					=> sub { $level = 7; },
-	'8'					=> sub { $level = 8; },
-	'9|best'			=> sub { $level = 9; }
-) or &help;
+while [ "$1" ]; do
 
-&check_arg($dir, "d") or $dir = getcwd();
-&check_arg($root, "C") or $root = "/";
-&get_logdir;
+	case $1 in
 
-$SIG{'INT'} = $SIG{'QUIT'} = sub { unlink("$tmp"); exit(1); };
+		-V|--version)	do_version;;
+		-h|--help)		do_help;;
+		-t|--test)		opt_test=-t;;
+		-v|--verbose)	opt_verb=-v;;
+		-a|--all)		opt_all=-a;;
+		-g|--gzip)		opt_prog=gzip;;
+		-b|--bzip2)		opt_prog=bzip2;;
+		-x|--xz)		opt_prog=xz;;
+		-[0-9])			opt_level=-${1:1};;
+		--fast)			opt_level=-1;;
+		--best)			opt_level=-9;;
+		-f|--force)		opt_force=-f;;
+		-e|--extract)	opt_extract=1;;
+		-l|--log)		opt_log=1;;
 
+		-d|-C|--directory|--dir|--root)
+			[ "$2" ] && opt_dir=$2 || die "Option '$1' requires an argument"
+			shift
+			;;
 
-#-------------------#
-# Extract porgballs #
-#-------------------#
+		--directory=*|--dir=*|--root=*)
+			opt_dir=${1#*=}
+			[ "$opt_dir" ] || die "Option '$1' requires an argument"
+			;;
 
-if ($extract) {
-	
-	@ARGV or &help;	
-	&checkdir(\$root);
-	
-	foreach (@ARGV) {
-		if (!-e $_) {
-			warn("$me: $_: no such file.\n");
-			next;
-		}
-		elsif (!/([^\/]*).porg\.tar\.(bz2|gz|xz)$/ || !$1) {
-			warn("$me: $_: this does not look like a porgball. Skipping.\n");
-			next;
-		}
-		elsif ($test) {
-			if (/\.gz$/) {
-				$zip = "gzip";
-			}
-			elsif (/\.bz2$/) {
-				$zip = "bzip2";
-			}
-			else {
-				$zip = "xz";
-			}
-			system("$zip --test $_") == 0 or last;
-		}
-		my $exclude = "";
-		if (!$use_porg and !/^porg-/) {
-			$exclude = "--exclude=" . substr($logdir, 1) . "/*";
-		}
-		my $cmd = "tar -C $root $verbose $exclude -xf $_";
-		if ($use_porg) {
-			$cmd = "porg --log --logdir=$logdir --append --package=$1 \"$cmd\"";
-		}
-		system("$cmd");
-	}
-}
+		-*)	die "$1: Unrecognized option";;
+		
+		*)	args="$args $1";;
+
+	esac
+	shift
+done
 
 
-#------------------#
-# Create porgballs #
-#------------------#
+# Extraction of porgballs
 
-else {
+if [ "$opt_extract" ]; then
 
-	(@ARGV || $all) or &help;
+	[ "$args" ] || die "No arguments provided"
 
-	my @pkgs = `porg $verbose $all @ARGV` or exit(1);
-	chomp(@pkgs);
+	opt_dir=${opt_dir:-/}
+	do_check_dir $opt_dir
 
-	&checkdir(\$dir);
+	for ball in $args; do
+		do_extract $ball
+	done
 
-	for (@pkgs) {
-		my @files = `porg --no-package-name --files $_`;
-		chomp(@files);
-		open(TMP, "> $tmp") or die("$me: open(\"$tmp\"): $!\n");
-		my $empty = 1;
-		for (@files) {
-			if (-l $_ || -e _) {
-				print(TMP "$_\n");
-				$empty = 0;
-			}
-		}
-		print(TMP "$logdir/$_\n");
-		close(TMP);
-		if ($empty) {
-			warn("$me: $_: no files installed.\n");
-			next;
-		}
+# Creation of porgballs
 
-		my $tar = "$dir/$_.porg.tar";
-		my $ball = "";
-		if ($zip eq "gzip") {
-			$ball = "$tar.gz";
-		} 
-		elsif ($zip eq "bzip2") {
-			$ball = "$tar.bz2";
-		}
-		elsif ($zip eq "xz") {
-			$ball = "$tar.xz";
-		}
+else
+	[ "$args" -o "$opt_all" ] || die "No arguments provided"
 
-		system("tar -cf $tar --files-from=$tmp 2>/dev/null");
-		system("$zip -$level $verbose $force $tar");
+	opt_dir=${opt_dir:-.}
+	do_check_dir $opt_dir
 
-		if ($test) {
-			system("$zip --test $ball") == 0 or last;
-		}
-	}
-}
+	tmpfile=$(mktemp || echo /tmp/$me.$$)
+	# Remove tmp stuff on exit
+	trap 'rm -f $tmpfile' 0
 
-unlink("$tmp");
+	for pkg in $(porg $opt_verb $opt_all $args); do
+		do_create $pkg
+	done
+fi
+
+exit 0
+

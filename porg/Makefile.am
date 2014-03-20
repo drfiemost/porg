@@ -18,23 +18,13 @@ porg_SOURCES = \
 	log.cc \
 	dir.cc \
 	opt.cc \
-	global.cc
-
-if !HAVE_GETOPT_LONG
-porg_SOURCES += \
-	getopt.cc
-endif
-
-if HAVE_REGEX_H
-porg_SOURCES += \
+	global.cc \
 	regexp.cc
-endif
 
 noinst_HEADERS = \
 	global.h \
 	out.h \
 	info.h \
-	getopt.h \
 	pkgset.h \
 	regexp.h \
 	pkg.h \

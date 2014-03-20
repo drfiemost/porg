@@ -2,7 +2,6 @@
 // pkgset.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -250,7 +249,7 @@ void PkgSet::list()
 		cout << '\n';
 
 		if (Opt::print_sizes())
-			cout << setw(size_w) << fmt_size(m_total_size, Opt::size_unit()) << "  ";
+			cout << setw(size_w) << fmt_size(m_total_size) << "  ";
 		
 		if (Opt::print_nfiles())
 			cout << setw(nfiles_w) << m_total_files << "  ";
@@ -275,10 +274,8 @@ void PkgSet::list_files()
 			cout << '\n';
 	}
 
-	if (Opt::print_totals()) {
-		cout << '\n' << setw(size_w) 
-			<< fmt_size(m_total_size, Opt::size_unit()) << "  TOTAL\n";
-	}
+	if (Opt::print_totals())
+		cout << '\n' << setw(size_w) << fmt_size(m_total_size) << "  TOTAL\n";
 }
 
 
@@ -312,12 +309,12 @@ bool PkgSet::Sorter::sort_by_name(Pkg* left, Pkg* right) const
 
 bool PkgSet::Sorter::sort_by_size(Pkg* left, Pkg* right) const
 {
-	return left->size() > right->size();
+	return left->size() < right->size();
 }
 
 bool PkgSet::Sorter::sort_by_nfiles(Pkg* left, Pkg* right) const
 {
-	return left->nfiles() > right->nfiles();
+	return left->nfiles() < right->nfiles();
 }
 
 inline bool PkgSet::Sorter::sort_by_date(Pkg* left, Pkg* right) const
@@ -344,7 +341,7 @@ inline static int get_digits(long n)
 
 inline static int get_width(long size)
 {
-	return fmt_size(size, Opt::size_unit()).size();
+	return fmt_size(size).size();
 }
 
 

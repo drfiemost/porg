@@ -2,7 +2,6 @@
 // opt.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -20,7 +19,6 @@ using namespace Porg;
 static sort_t get_sort_type(string const& s);
 static void help();
 static void version();
-static int to_size_unit(char* arg);
 static string get_dir_name();
 static void die_help(string const& msg = "");
 
@@ -42,7 +40,6 @@ namespace Porg
 	bool Opt::s_print_date = false;
 	bool Opt::s_print_hour = false;
 	sort_t Opt::s_sort_type = SORT_BY_NAME;
-	int Opt::s_size_unit = HUMAN_READABLE;
 	string Opt::s_log_pkg_name = string();
 	Mode Opt::s_mode = MODE_LIST_PKGS;
 	vector<string> Opt::s_args = vector<string>();
@@ -74,8 +71,6 @@ Opt::Opt(int argc, char* argv[])
 	 	// List options
 		{ "date", 0, 0, 'd' },
 		{ "sort", 1, 0, 'S' },
-		{ "block-size", 1, 0, 'b' },
-		{ "kilobytes", 0, 0, 'k' },
 		{ "size", 0, 0, 's' },
 		{ "nfiles", 0, 0, 'F' },
 		{ "files", 0, 0, 'f' },
@@ -88,7 +83,7 @@ Opt::Opt(int argc, char* argv[])
 		{ "configure-options", 0, 0, 'o' },
 		// Remove options
 		{ "remove", 0, 0, 'r' },
-		{ "batch", 0, 0, 'B' },
+		{ "batch", 0, 0, 'b' },
 		{ "skip", 1, 0, 'e' },
 		{ "unlog", 0, 0, 'U' },
 		// Log options
@@ -145,8 +140,6 @@ Opt::Opt(int argc, char* argv[])
 			case 'R': s_reverse_sort = true; break;
 			case 't': s_print_totals = true; break;
 			case 's': s_print_sizes = true; break;
-			case 'b': s_size_unit = to_size_unit(optarg); break;
-			case 'k': s_size_unit = KILOBYTE; break;
 			
 			// Package list options
 			case 'd': case 'F':
@@ -172,11 +165,11 @@ Opt::Opt(int argc, char* argv[])
 			
 			// Remove / unlog options
 			case 'U': set_mode(MODE_UNLOG, op); break;
-			case 'r': case 'e': case 'B':
+			case 'r': case 'e': case 'b': case 'B':
 				set_mode(MODE_REMOVE, op);
 				switch (op) {
 					case 'e': s_remove_skip = optarg; break;
-					case 'B': s_remove_batch = true; break;
+					case 'b': case 'B': s_remove_batch = true; break;
 				}
 				break;
 			
@@ -254,16 +247,14 @@ cout <<
 "  -h, --help               Display this help message.\n"
 "  -V, --version            Display version information.\n\n"
 "List options:\n"
-"  -b, --block-size=SIZE    Use blocks of SIZE bytes for the sizes.\n"
-"  -k, --kilobytes          Like '--block-size=1024'.\n"
-"  -R, --reverse            Reverse order while sorting.\n"
-"  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n"
-"  -F, --nfiles             Print the number of installed files.\n"
-"  -d, --date               Print the installation day (-dd prints the hour too).\n"
 "  -s, --size               Print the installed size of each packagei or file.\n"
+"  -d, --date               Print the installation day (-dd prints the hour too).\n"
+"  -F, --nfiles             Print the number of installed files.\n"
+"  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n"
+"  -R, --reverse            Reverse order while sorting.\n"
+"  -t, --total              Print totals.\n"
 "  -f, --files              List installed files.\n"
 "  -z, --no-package-name    Don't print the name of the package (with -f).\n"
-"  -t, --total              Print totals.\n"
 "  -y, --symlinks           Print the contents of symbolic links (with -f).\n\n"
 "Information options:\n"
 "  Note: Information may be not available for all packages.\n"
@@ -273,7 +264,7 @@ cout <<
 "  -q, --query              Query for the packages that own one or more files.\n\n"
 "Remove options:\n"
 "  -r, --remove             Remove the (non shared) files of the package.\n"
-"  -B, --batch              Do not ask for confirmation when removing.\n"
+"  -b, --batch              Do not ask for confirmation when removing.\n"
 "  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n"
 "  -U, --unlog              Unlog the package, without removing any file.\n\n"
 "Log options:\n"
@@ -288,7 +279,7 @@ cout <<
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"
 "Note: The package list mode is enabled by default.\n\n"
-"Send bugs to: David Ricart <" PACKAGE_BUGREPORT ">\n";
+"Written by David Ricart <" PACKAGE_BUGREPORT ">\n";
 
 	exit(EXIT_SUCCESS);
 }
@@ -297,7 +288,7 @@ cout <<
 static void version()
 {
 	cout << "porg-" PACKAGE_VERSION "  (" RELEASEDATE ")\n"
-		"Copyright (C) David Ricart <" PACKAGE_BUGREPORT ">\n";
+		"Written by David Ricart <" PACKAGE_BUGREPORT ">\n";
 
 	exit(EXIT_SUCCESS);
 }
@@ -311,29 +302,6 @@ static string get_dir_name()
 		throw Error("getcwd()", errno);
 
 	return strrchr(dirname, '/') + 1;
-}
-
-
-// 
-// Process the '--block-size=SIZE' option
-//
-static int to_size_unit(char* arg)
-{
-	int i = -1, b = 0, unit;
-	
-	while (isdigit(arg[++i])) ;
-
-	switch (arg[i]) {
-		case 'k': case 'K': b = KILOBYTE; break;
-		case 'm': case 'M': b = MEGABYTE; break;
-		case 'b': case 'B': case 0: b = 1; break;
-		default: throw Error(string(arg) + ": Invalid block size");
-	}
-	
-	if ((unit = i ? (Porg::str2num<int>(arg) * b) : b))
-		return unit ? unit : HUMAN_READABLE;
-
-	throw Error(string(arg) + ": Invalid block size");
 }
 
 

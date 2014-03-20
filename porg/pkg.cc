@@ -2,7 +2,6 @@
 // pkg.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -17,6 +16,7 @@
 #include <string>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 using std::string;
 using std::cout;
@@ -105,22 +105,31 @@ string Pkg::str_description(bool debug /* = false */) const
 }
 
 
+string Pkg::format_description() const
+{
+	string code(string("#") + CODE_DESCRIPTION + ':');
+
+	if (m_description.empty())
+		return code + '\n';
+
+	string ret;
+	std::istringstream is(m_description);
+
+	for (string buf; getline(is, buf); )
+		ret += code + buf + '\n';
+
+	return ret;
+}
+
+	
 void Pkg::write_log() const
 {
-	// format the description field
-	
-	string code(string("#") + CODE_DESCRIPTION + ':');
-	string desc(code + m_description);
-	
-	for (string::size_type p(0); (p = desc.find('\n', p)) != string::npos; )
-		desc.insert(p + 1, code);
-	
 	// Create log file
 
 	FileStream<std::ofstream> of(m_log);
 
 	// write info header
-	
+
 	of	<< "#!porg-" PACKAGE_VERSION "\n"
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
 		<< '#' << CODE_NFILES 		<< ':' << m_nfiles << '\n'
@@ -133,7 +142,7 @@ void Pkg::write_log() const
 		<< '#' << CODE_LICENSE		<< ':' << m_license << '\n'
 		<< '#' << CODE_CONF_OPTS	<< ':' << m_conf_opts << '\n'
 		<< '#' << CODE_ICON_PATH	<< ':' << m_icon_path << '\n'
-		<< desc << '\n';
+		<< format_description();
 
 	// write installed files
 	
@@ -192,7 +201,7 @@ void Pkg::unlog() const
 void Pkg::list(int size_w, int nfiles_w) const
 {
 	if (Opt::print_sizes())
-		cout << setw(size_w) << fmt_size(m_size, Opt::size_unit()) << "  ";
+		cout << setw(size_w) << fmt_size(m_size) << "  ";
 
 	if (Opt::print_nfiles())
 		cout << setw(nfiles_w) << m_nfiles << "  ";
@@ -214,7 +223,7 @@ void Pkg::list_files(int size_w)
 	for (file_it f(m_files.begin()); f != m_files.end(); ++f) {
 		
 		if (Opt::print_sizes())
-			cout << setw(size_w) << fmt_size((*f)->size(), Opt::size_unit()) << "  ";
+			cout << setw(size_w) << fmt_size((*f)->size()) << "  ";
 
 		cout << (*f)->name();
 

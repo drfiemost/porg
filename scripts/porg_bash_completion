@@ -1,3 +1,4 @@
+# vim:ts=4:ft=sh:
 #-------------------------------------------------------------------------------
 # pacKAGE oRGANZIER bash completion
 # Copyright 2006 Christian Schneider <mail@chrschn.de>
@@ -37,17 +38,6 @@
 #	--> http://www.caliban.org/bash/index.shtml
 #
 #-------------------------------------------------------------------------------
-# VERSION: 0.1 (February 2006)
-# VERSION: 0.2 (June 2007)
-#	- Removed option --variable
-#	- Added options -B and --ignore-shared
-# VERSION: 0.3 (July 2007)
-#	- Removed option --expand
-#	- Added option --log-missing
-# VERSION: 0.4 (June 2010)
-#   - Updated to porg-2.0.8 (removed --ignore-shared)
-#-------------------------------------------------------------------------------
-# vim:ts=4:ft=sh:
 
 
 have porg &&
@@ -59,7 +49,6 @@ _porg()
 	longopts='--all \
 		--append \
 		--batch \
-		--block-size=SIZE \
 		--configure-options \
 		--date \
 		--dirname \
@@ -70,7 +59,6 @@ _porg()
 		--ignore-errors \
 		--include=DIR \
 		--info \
-		--kilobytes \
 		--log \
 		--logdir=DIR \
 		--no-package-name \
@@ -88,8 +76,7 @@ _porg()
 		--version'
 
 	# long options with an equals
-	longopts_eq='--block-size= \
-		--exclude= \
+	longopts_eq='--exclude= \
 		--include= \
 		--logdir= \
 		--package= \
@@ -101,7 +88,6 @@ _porg()
 	shortopts='-+ \
 		-a \
 		-b \
-		-B \
 		-d \
 		-D \
 		-e \
@@ -111,7 +97,6 @@ _porg()
 		-h \
 		-i \
 		-I \
-		-k \
 		-l \
 		-L \
 		-o \
@@ -150,11 +135,6 @@ _porg()
 		# expand according to prev parameter
 		case "${prev#--}" in
 	
-			block-size)
-				# No completion available, integer expected
-				return 0
-				;;
-			
 			exclude | include | logdir | skip) 
 				_filedir -d
 				return 0
@@ -209,10 +189,6 @@ _porg()
 	# Completions on current option. At first we must complete on long options
 	# expecting a parameter seperated by a "=".
 	case "$cur" in		
-		# No complete on --block-size option possible
-		--block-size=*)
-			return 0
-			;;
 	
 		# Complete on --{in,ex}clude, --logdir, --skip option
 		--exclude=* | --include=* | --logdir=* | --skip=*)
@@ -235,7 +211,7 @@ _porg()
 			;;
 	
 		# Expand some options together with an equals
-		--bl* | --exc* | --inc* | --logd* | --p* | --sk* | --so*)
+		--exc* | --inc* | --logd* | --p* | --sk* | --so*)
 			# Generate dummy long options with an equals and two choices
 			vars_complete=""
 			for var in $longopts_eq; do 
@@ -275,5 +251,4 @@ _porg()
 	return 0
 }
 [ "$have" ] && complete -F _porg porg
-
 

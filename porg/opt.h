@@ -2,7 +2,6 @@
 // opt.h
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -52,7 +51,6 @@ class Opt : public Porgrc
 	static bool print_date() 		{ return s_print_date; }
 	static bool print_hour() 		{ return s_print_hour; }
 	static sort_t sort_type()		{ return s_sort_type; }
-	static int size_unit()			{ return s_size_unit; }
 	static Mode mode()				{ return s_mode; };
 	static std::string const& log_pkg_name()		{ return s_log_pkg_name; }
 	static std::vector<std::string> const& args()	{ return s_args; }
@@ -78,7 +76,6 @@ class Opt : public Porgrc
 	static bool s_print_date;
 	static bool s_print_hour;
 	static sort_t	s_sort_type;
-	static int s_size_unit;
 	static std::string s_log_pkg_name;
 	static Mode s_mode;
 	static std::vector<std::string> s_args;
