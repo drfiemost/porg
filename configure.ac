@@ -4,7 +4,8 @@
 
 AC_INIT([porg], [svn], [http://porg.sourceforge.net])
 
-RELEASEDATE="28 June 2010"
+#RELEASEDATE="16 March 2014"
+RELEASEDATE="`date +'%d %B %Y'`"
 
 AC_CONFIG_SRCDIR([porg/main.cc])
 AC_CONFIG_HEADERS([config.h])
@@ -37,9 +38,7 @@ AC_GNU_SOURCE
 # Set configure options
 #=======================
 
-if test "$PACKAGE_VERSION" = svn; then
-	RELEASEDATE="`date +'%d %B %Y'`"
-else
+if test "$PACKAGE_VERSION" != svn; then
 	AC_DEFINE([NDEBUG], [1], [Disable libc assertions])
 	AC_DEFINE([G_DISABLE_ASSERT], [1], [Disable glib assertions])
 fi
@@ -81,12 +80,6 @@ AC_PROG_LIBTOOL
 AC_PROG_CC
 AC_PROG_CXX
 
-if test "$enable_grop" = yes; then
-	AC_CHECK_PROG([has_gzip], [gzip], [yes], [no])
-	if test "$has_gzip" = no; then
-		AC_MSG_ERROR([*** gzip program not found ***])
-	fi
-fi
 
 #============
 # Check libs
@@ -102,8 +95,6 @@ fi
 # Check headers
 #===============
 
-AC_CHECK_HEADERS_ONCE([regex.h])
-AM_CONDITIONAL([HAVE_REGEX_H], [test "$ac_cv_header_regex_h" = yes])
 
 #=============
 # Check types
@@ -140,7 +131,6 @@ AC_SUBST([MY_CFLAGS])
 #=============
 
 AC_CHECK_FUNCS_ONCE([ \
-	getopt_long \
 	open64 \
 	creat64 \
 	truncate64 \
@@ -148,7 +138,6 @@ AC_CHECK_FUNCS_ONCE([ \
 	freopen64 \
 	setenv
 ])
-AM_CONDITIONAL([HAVE_GETOPT_LONG], [test "$ac_cv_func_getopt_long" = yes])
 
 #========	
 # Output

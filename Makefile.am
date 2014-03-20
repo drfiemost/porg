@@ -14,8 +14,7 @@ pkgdata_DATA = \
 	README
 
 EXTRA_DIST = \
-	BUGS \
-	config-bot.h
+	BUGS
 
 logdir = \
 	$(DESTDIR)@LOGDIR@
@@ -29,9 +28,9 @@ logme_files = \
 
 ## A rule to log the own porg's installation
 logme:
-	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION); \
+	echo $(logme_files) | porg -lp porg-$(PACKAGE_VERSION); \
 	for dir in $(SUBDIRS); do \
 	  ( cd $$dir && $(MAKE) $@ ) 2>/dev/null; \
 	done && \
-	echo && porg -vvfsty --sort=name porg-$(PACKAGE_VERSION)
+	echo && porg -vvfsty porg-$(PACKAGE_VERSION)
 
