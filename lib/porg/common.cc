@@ -2,7 +2,6 @@
 // common.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -17,28 +16,27 @@ using namespace Porg;
 
 
 //
-// Format size according to given size unit (bytes, kb, human readable...)
+// Create a human readable size
 //
-string Porg::fmt_size(ulong size, ulong unit /* = HUMAN_READABLE */)
+string Porg::fmt_size(ulong size)
 {
+	ulong const KILOBYTE = 1024;
+	ulong const MEGABYTE = 1048576;
+	ulong const GIGABYTE = 1073741824;
 	std::ostringstream s;
 	
-	if (unit == HUMAN_READABLE) {
-		if (size < KILOBYTE)
-			s << size;
-		else if (size < (10 * KILOBYTE))
-			s << std::setprecision(2) << static_cast<float>(size) / KILOBYTE << "k";
-		else if (size < MEGABYTE)
-			s << size / KILOBYTE << "k";
-		else if (size < (10 * MEGABYTE))
-			s << std::setprecision(2) << static_cast<float>(size) / MEGABYTE << "M";
-		else if (size < GIGABYTE)
-			s << size / MEGABYTE << "M";
-		else
-			s << std::setprecision(2) << static_cast<float>(size) / GIGABYTE << "G";
-	}
+	if (size < KILOBYTE)
+		s << size;
+	else if (size < (10 * KILOBYTE))
+		s << std::setprecision(2) << static_cast<float>(size) / KILOBYTE << "k";
+	else if (size < MEGABYTE)
+		s << size / KILOBYTE << "k";
+	else if (size < (10 * MEGABYTE))
+		s << std::setprecision(2) << static_cast<float>(size) / MEGABYTE << "M";
+	else if (size < GIGABYTE)
+		s << size / MEGABYTE << "M";
 	else
-		s << size / unit;
+		s << std::setprecision(2) << static_cast<float>(size) / GIGABYTE << "G";
 		
 	return s.str();
 }

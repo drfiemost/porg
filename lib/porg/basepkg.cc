@@ -2,7 +2,6 @@
 // basepkg.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -225,6 +224,6 @@ inline bool BasePkg::Sorter::sort_by_name(File* left, File* right) const
 
 inline bool BasePkg::Sorter::sort_by_size(File* left, File* right) const
 {
-	return left->size() < right->size();
+	return left->size() > right->size();
 }
 
