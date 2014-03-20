@@ -2,7 +2,6 @@
 // main.cc
 //-----------------------------------------------------------------------
 // This file is part of the package grop
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -23,8 +22,11 @@ int main(int argc, char* argv[])
 
 	try
 	{
+		// Read configuration file
 		Opt::init();
+		// Open porg database
 		DB::init();
+		// Run GUI
 		MainWindow window;
 		Gtk::Main::run(window);
 	}

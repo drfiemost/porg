@@ -2,7 +2,6 @@
 // preferences.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copy (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -24,7 +23,7 @@ Preferences* Preferences::s_prefs = 0;
 
 Preferences::Preferences(Gtk::Window& parent)
 :
-	Gtk::Dialog("Grop :: Preferences", parent, true),
+	Gtk::Dialog("grop :: preferences", parent, true),
 	m_buttons(),
 	m_button_hour("Show _hour in date", true)
 {

@@ -2,7 +2,6 @@
 // opt.cc
 //-----------------------------------------------------------------------
 // This file is part of the package grop
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -51,7 +50,7 @@ Opt::Opt()
 		unlink(m_groprc.c_str());
 	}
 
-	if (s_columns.size() < MainTreeView::NCOLS)
+	if (s_columns.size() != MainTreeView::NCOLS)
 		s_columns = vector<bool>(MainTreeView::NCOLS, true);
 
 	s_initialized = true;

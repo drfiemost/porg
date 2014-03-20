@@ -2,7 +2,6 @@
 // mainwindow.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -66,6 +65,7 @@ MainWindow::MainWindow()
 	build_menu_bar();
 	set_actions_sensitivity();
 
+	// Handle events from the treeview
 	m_treeview.signal_popup_menu.connect(mem_fun(this, &MainWindow::on_popup_menu));
 	m_treeview.signal_2button_press.connect(mem_fun(this, &MainWindow::on_2button_press));
 	m_treeview.signal_key_press.connect(mem_fun(this, &MainWindow::on_key_press));
@@ -92,7 +92,7 @@ MainWindow::~MainWindow()
 	// save window geometry
 	int w, h, x, y;
 	get_size(w, h);
-	get_position(x, y);	//XXX does not work
+	get_position(x, y);	//XXX does not work  :(
 	Opt::set_whxy(w, h, x, y);
 }
 
@@ -100,8 +100,7 @@ MainWindow::~MainWindow()
 void MainWindow::update_statusbar()
 {
 	std::ostringstream os;
-	os 	<< "  " << DB::pkg_cnt() << " packages | " 
-		<< Porg::fmt_size(DB::total_size(), Porg::HUMAN_READABLE);
+	os << "  " << DB::pkg_cnt() << " packages | " << Porg::fmt_size(DB::total_size());
 	m_statusbar.push(os.str());
 }
 
@@ -227,9 +226,8 @@ void MainWindow::on_about()
 	dialog.set_logo_icon_name("grop");
 	dialog.set_version(PACKAGE_VERSION);
 	dialog.set_comments("Graphic interface of porg,\na source code package organizer");
-	dialog.set_authors(std::vector<Glib::ustring>(1, "David Ricart " PACKAGE_BUGREPORT));
-	dialog.set_copyright("Copyright (C) 2004-2014 David Ricart");
-	dialog.set_website("http://porg.sourceforge.net");
+	dialog.set_authors(std::vector<Glib::ustring>(1, "David Ricart"));
+	dialog.set_website(PACKAGE_BUGREPORT);
 
 	dialog.run();
 }

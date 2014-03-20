@@ -2,7 +2,6 @@
 // filestreeview.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -69,6 +68,7 @@ void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, iterator const& it)
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
 	Glib::ustring name = (*it)[m_columns.m_name];
 	
+	// Print missing files in red
 	if (access(name.c_str(), F_OK) < 0)
 		cell_text->property_foreground() = "red";
 	else

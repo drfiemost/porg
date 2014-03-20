@@ -2,7 +2,6 @@
 // db.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -64,16 +63,6 @@ DB::~DB()
 void DB::init()
 {
 	static DB db;
-}
-
-
-Pkg* DB::find_pkg(string const& name)
-{
-	for (pkg_cit p(s_pkgs.begin()); p != s_pkgs.end(); ++p) {
-		if ((*p)->name() == name)
-			return *p;
-	}
-	return 0;
 }
 
 

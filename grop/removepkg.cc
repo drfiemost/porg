@@ -2,7 +2,6 @@
 // removepkg.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copy (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -28,7 +27,7 @@ using namespace Grop;
 
 RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("Grop :: Remove", parent, true),
+	Gtk::Dialog("grop :: remove", parent, true),
 	m_error(false),
 	m_label(),
 	m_progressbar(),

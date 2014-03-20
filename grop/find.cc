@@ -2,7 +2,6 @@
 // find.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -25,7 +24,7 @@ Find* Find::s_find = 0;
 
 Find::Find(Gtk::Window& parent)
 :
-	Gtk::Dialog("Grop :: Find file", parent, true),
+	Gtk::Dialog("grop :: find", parent, true),
 	m_entry(),
 	m_treeview()
 {
@@ -96,7 +95,6 @@ void Find::find()
 	if (path.empty())
 		return;
 	
-	//XXX italic:
 	(*it)[m_treeview.m_columns.m_name] = "(file not found)";
 
 	if (path[0] != '/')

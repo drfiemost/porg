@@ -2,7 +2,6 @@
 // util.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -27,7 +26,7 @@ bool Grop::run_question_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
 	Gtk::MessageDialog dialog(msg, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
 	if (parent)
 		dialog.set_transient_for(*parent);
-	dialog.set_title("Grop :: Question");
+	dialog.set_title("grop :: question");
 	return dialog.run() == Gtk::RESPONSE_YES;
 }
 
@@ -37,7 +36,7 @@ void Grop::run_error_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
 	Gtk::MessageDialog dialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
 	if (parent)
 		dialog.set_transient_for(*parent);
-	dialog.set_title("Grop :: Error");
+	dialog.set_title("grop :: error");
 	dialog.run();
 }
 

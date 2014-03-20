@@ -2,7 +2,6 @@
 // properties.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -21,7 +20,7 @@ using namespace Grop;
 
 Properties::Properties(Pkg const& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("Grop :: Properties", parent),
+	Gtk::Dialog("grop :: properties", parent),
 	m_notebook()
 {
 	set_border_width(4);

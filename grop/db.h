@@ -2,7 +2,6 @@
 // db.h
 //-----------------------------------------------------------------------
 // This file is part of the package grop
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -25,7 +24,6 @@ class DB
 	typedef std::vector<Pkg*>::const_iterator	pkg_cit;
 	
 	static void init();
-	static Pkg* find_pkg(std::string const& name);
 
 	static ulong total_size()			{ return s_total_size; }
 	static std::vector<Pkg*>& pkgs()	{ return s_pkgs; }

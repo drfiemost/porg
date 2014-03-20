@@ -2,7 +2,6 @@
 // porgball.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2004-2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -39,7 +38,7 @@ Porgball::Last Porgball::s_last = { Glib::get_home_dir(), USE_GZIP, 6, false };
 
 Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("Grop :: Porgball", parent, true),
+	Gtk::Dialog("grop :: porgball", parent, true),
 	m_pkg(pkg),
 	m_label("", 0.02, 0.5),
 	m_label_tarball("", 0.0, 0.0),
