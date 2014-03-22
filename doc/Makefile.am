@@ -63,5 +63,5 @@ logme:
 	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
 
 web: index.html
-	scp $< davidrr,porg@web.sourceforge.net:htdocs/$<
+	scp $< davidrr,porg@web.sourceforge.net:htdocs/
 
