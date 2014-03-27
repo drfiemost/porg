@@ -57,14 +57,13 @@ static void porg_die(const char* fmt, ...)
 static void* porg_dlsym(const char* symbol)
 {
 	void* ret;
-	char* error;
+	char* err;
 
 	dlerror();
 
 	if (!(ret = dlsym(RTLD_NEXT, symbol))) {
-		error = (char*)dlerror();
-		porg_die("dlsym(%p, \"%s\"): %s", RTLD_NEXT, symbol,
-			error ? error : "failed");
+		err = (char*)dlerror();
+		porg_die("dlsym(RTLD_NEXT, \"%s\"): %s", symbol, err ? err : "failed");
 	}
 
 	return ret;
@@ -75,6 +74,14 @@ static void porg_init()
 {
 	static char* dbg = NULL;
 
+	/* read the environment */
+	
+	if (!dbg && (dbg = getenv("PORG_DEBUG")))
+		porg_debug = !strcmp(dbg, "yes");
+
+	if (!porg_tmpfile && !(porg_tmpfile = getenv("PORG_TMPFILE")))
+		porg_die("variable PORG_TMPFILE undefined");
+		
 	/* handle libc */
 	
 	libc_creat = porg_dlsym("creat");
@@ -92,14 +99,6 @@ static void porg_init()
 	libc_fopen64 = porg_dlsym("fopen64");
 	libc_freopen64 = porg_dlsym("freopen64");
 #endif  /* PORG_HAVE_64 */
-
-	/* read the environment */
-	
-	if (!porg_tmpfile && !(porg_tmpfile = getenv("PORG_TMPFILE")))
-		porg_die("variable %s undefined", "PORG_TMPFILE"); \
-		
-	if (!dbg && (dbg = getenv("PORG_DEBUG")))
-		porg_debug = !strcmp(dbg, "yes");
 }
 
 
@@ -117,7 +116,7 @@ static void porg_log(const char* path, const char* fmt, ...)
 
 	if (porg_debug) {
 		fflush(stdout);
-		fprintf(stderr, "porg :: ");
+		fprintf(stderr, "porg-log :: ");
 		va_start(a, fmt);
 		vfprintf(stderr, fmt, a);
 		va_end(a);
@@ -198,17 +197,17 @@ static void log_rename(const char* oldpath, const char* newpath)
 	size_t oldlen, newlen;
 	int old_errno = errno;	/* save global errno */
 
-	/* The newpath file doesn't exist.  */
+	/* The newpath file doesn't exist */
 	if (-1 == lstat(newpath, &st)) 
 		goto goto_end;
 
 	else if (!S_ISDIR(st.st_mode)) {
-		/* newpath is a file or a symlink.  */
+		/* newpath is not a directory */
 		porg_log(newpath, "rename(\"%s\", \"%s\")", oldpath, newpath);
 		goto goto_end;
 	}
 
-	/* Make sure we have enough space for the following slashes.  */
+	/* Make sure we have enough space for the following slashes */
 	oldlen = strlen(oldpath);
 	newlen = strlen(newpath);
 	if (oldlen + 2 >= PORG_BUFSIZE || newlen + 2 >= PORG_BUFSIZE)
@@ -224,7 +223,8 @@ static void log_rename(const char* oldpath, const char* newpath)
 	oldbuf[oldlen++] = newbuf[newlen++] = '/';
 	oldbuf[oldlen] = newbuf[newlen] = '\0';
 
-	dir = opendir(newbuf);
+	if (!(dir = opendir(newbuf)))
+		goto goto_end;
 
 	while ((e = readdir(dir))) {
 		if (!strcmp(e->d_name, ".") || !strcmp(e->d_name, ".."))

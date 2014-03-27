@@ -55,7 +55,7 @@ Log::~Log()
 void Log::write_files_to_pkg() const
 {
 	bool done(false);
-	string pkgname(to_lower(Opt::log_pkg_name()));
+	string pkgname(Opt::log_pkg_name());
 
 	if (Opt::log_append()) {
 		try 
@@ -104,8 +104,8 @@ void Log::read_files_from_command()
 		for (uint i(0); i < Opt::args().size(); ++i)
 			command += Opt::args()[i] + " ";
 		
-		set_env("PORG_TMPFILE", m_tmpfile);
 		set_env("LD_PRELOAD", libporg);
+		set_env("PORG_TMPFILE", m_tmpfile);
 		set_env("PORG_DEBUG", Out::debug() ? "yes" : "no");
 
 		Out::dbg_title("settings");
@@ -165,21 +165,21 @@ void Log::filter_files()
 	for (set<string>::iterator p = m_files.begin(); p != m_files.end(); ++p) {
 
 		// get absolute path
-		string real(realdir((*p)));
+		string path(clear_path((*p)));
 
 		// skip excluded (or not included) files
-		if (in_paths(real, Opt::exclude()) || !in_paths(real, Opt::include()))
+		if (in_paths(path, Opt::exclude()) || !in_paths(path, Opt::include()))
 			continue;
 	
 		// skip missing files, if needed
-		else if (lstat(real.c_str(), &s) && !Opt::log_missing())
+		else if (lstat(path.c_str(), &s) && !Opt::log_missing())
 			continue;
 
 		// skip directories
 		else if (S_ISDIR(s.st_mode))
 			continue;
 
-		aux.push_back(real);
+		aux.push_back(path);
 	}
 
 	m_files.clear();

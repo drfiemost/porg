@@ -46,8 +46,6 @@ class RemovePkg : public Gtk::Dialog
 	Glib::RefPtr<Gtk::TextTag> 		m_tag_ok;
 	Glib::RefPtr<Gtk::TextTag> 		m_tag_skipped;
 	Glib::RefPtr<Gtk::TextTag> 		m_tag_error;
-	int								m_initial_width;
-	int								m_initial_height;
 	Pkg&							m_pkg;
 };
 

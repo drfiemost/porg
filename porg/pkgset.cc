@@ -71,7 +71,7 @@ void PkgSet::get_pkgs(vector<string> const& args)
 		bool found(false);
 
 		for (string name; dir.read(name); ) {
-			if (match_pkg(to_lower(args[i]), name) && add_pkg(name))
+			if (match_pkg(args[i], name) && add_pkg(name))
 				found = true;
 		}
 
@@ -164,12 +164,6 @@ void PkgSet::print_conf_opts() const
 }
 
 
-void PkgSet::unlog() const
-{
-	for (const_iterator p(begin()); p != end(); (*p++)->unlog()) ;
-}
-
-
 void PkgSet::query()
 {
 	get_files();
@@ -178,11 +172,11 @@ void PkgSet::query()
 
 	for (uint i(0); i < Opt::args().size(); ++i) {
 		
-		string real(realdir(Opt::args()[i]));
-		cout << real << ':';
+		string path(clear_path(Opt::args()[i]));
+		cout << path << ':';
 		
 		for (const_iterator p(begin()); p != end(); ++p) {
-			if ((*p)->has_file(real)) {
+			if ((*p)->has_file(path)) {
 				g_exit_status = EXIT_SUCCESS;
 				cout << "  " << (*p)->name();
 			}
@@ -201,6 +195,11 @@ void PkgSet::print_info() const
 
 void PkgSet::remove()
 {
+	if (Opt::remove_unlog()) {
+		for (iterator p(begin()); p != end(); (*p++)->unlog()) ;
+		return;
+	}
+	
 	get_files();
 
 	PkgSet all;

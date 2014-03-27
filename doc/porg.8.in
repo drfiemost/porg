@@ -197,31 +197,31 @@ the package to log, using the option \fB\-D\fR instead of \fB\-p\fR:
 If we have forgotten to install a file, it can be added to a previously
 created log with the option \fB\-+\fR:
 .PP
-    porg -lp+ foo-1.0 "install foo /bin/foo"
+    porg -lp+ foo-1.0 "install bar /bin/bar"
 .PP
 Note that the option \fB-+\fR cannot be used to remove a file from the
 log. For instance, the following command:
 .PP
-    porg -lp+ foo-1.0 "rm /bin/foo"
+    porg -lp+ foo-1.0 "rm /bin/bar"
 .PP
-would not remove the file /bin/foo from the log of foo-1.0.
+would not remove the file /bin/bar from the log of foo-1.0.
 .PP
 To avoid such behaviour it is sometimes useful to join up composed
 install commands into one single command and run porg once. For instance,
-imagine that a package installs the file /bin/foo, but we want it to
-be installed in /usr/bin/foo instead. If one runs this:
+imagine that a package installs the file /bin/bar, but we want it to
+be installed in /usr/bin/bar instead. If one runs this:
 .PP
     porg -lp foo-1.0 make install
 .br
-    porg -lp+ foo-1.0 "mv /bin/foo /usr/bin/foo"
+    porg -lp+ foo-1.0 "mv /bin/bar /usr/bin/bar"
 .PP
-Both files, /bin/foo and /usr/bin/foo remain in the log. This is
+Both files, /bin/bar and /usr/bin/bar remain in the log. This is
 usually not the desired behaviour. As a workaround one can join up
 both commands in one single porg run:
 .PP
-    porg -lp foo-1.0 "make install && mv /bin/foo /usr/bin/foo"
+    porg -lp foo-1.0 "make install && mv /bin/bar /usr/bin/bar"
 .PP
-In this case only /usr/bin/foo is logged.
+In this case only /usr/bin/bar is logged.
 .PP
 To understand the meaning of the option \fB\-\-log\-missing\fR, consider
 the following example, where the file /foo/bar does not exist:
@@ -235,6 +235,12 @@ To remove the package foo-3.3, keeping the files in /etc and the files
 ending with ".conf":
 .PP
     porg -r -e '/etc:*.conf' foo-3.3
+.PP
+\fBPlease note\fR that porg automatically expands the version of the packages 
+given as arguments. For example, if foo-1.0 and foo-2.0 are both logged,
+the following command would remove both packages:
+.PP
+    porg -r foo
 .PP
 We have installed the package 'boo-1.9' in prefix '/opt/boo-1.9', but
 we haven't logged the installation with porg. No problem! Just create a log

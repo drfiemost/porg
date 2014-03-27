@@ -25,7 +25,6 @@ enum Mode {
    	MODE_CONF_OPTS,
    	MODE_LOG,
    	MODE_REMOVE,
-	MODE_UNLOG,
    	NMODES
 };
 
@@ -44,6 +43,7 @@ class Opt : public Porgrc
 	static bool print_symlinks()	{ return s_print_symlinks; }
 	static bool print_no_pkg_name()	{ return s_print_no_pkg_name; }
 	static bool remove_batch()		{ return s_remove_batch; }
+	static bool remove_unlog()		{ return s_remove_unlog; }
 	static bool log_append()		{ return s_log_append; }
 	static bool log_ignore_errors()	{ return s_log_ignore_errors; }
 	static bool log_missing()		{ return s_log_missing; }
@@ -69,6 +69,7 @@ class Opt : public Porgrc
 	static bool s_print_symlinks;
 	static bool s_print_no_pkg_name;
 	static bool s_remove_batch;
+	static bool s_remove_unlog;
 	static bool s_log_append;
 	static bool s_log_ignore_errors;
 	static bool s_log_missing;

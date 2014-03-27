@@ -29,7 +29,7 @@ Info::Info(Pkg* pkg)
 {
 	assert(pkg != NULL);
 
-	Out::dbg_title("information");
+	Out::dbg_title("package information");
 
 	get_dirs();
 

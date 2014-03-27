@@ -52,10 +52,6 @@ EOF
 }
 
 
-#---------------------------------------#
-# Initialize and parse the command line #
-#---------------------------------------#
-
 # Defaults
 
 opt_prog=gzip

@@ -16,8 +16,7 @@ namespace Porg
 {
 	extern int g_exit_status;
 
-	std::string realdir(std::string const&);
-	std::string to_lower(std::string const&);
+	std::string clear_path(std::string const&);
 
 }	// namespace Porg
 

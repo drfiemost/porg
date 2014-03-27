@@ -47,7 +47,6 @@ int main(int argc, char* argv[])
 			case MODE_LIST_FILES:	pset.list_files();		break;
 			case MODE_QUERY:		pset.query();			break;
 			case MODE_REMOVE:		pset.remove();			break;
-			case MODE_UNLOG:		pset.unlog();			break;
 			default: 				assert(0);
 		}
 	}

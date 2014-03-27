@@ -18,11 +18,7 @@ namespace Porg
 }
 
 
-//
-// Like libc's realpath(), but it only resolve symlinks in the partial
-// directories of the path, thereby retaining symlinks as symlinks.
-//
-string Porg::realdir(string const& inpath)
+string Porg::clear_path(string const& inpath)
 {
 	string path(inpath);
 	
@@ -43,29 +39,6 @@ string Porg::realdir(string const& inpath)
 			path.insert(0, string(cwd) + '/');
 	}
 
-	// get real path
-	
-	p = path.rfind('/');
-	string base(path.substr(p + 1)), dir(path.substr(0, p));
-
-	char real[4096];
-	if (!realpath(dir.c_str(), real))
-		return path;
-
-	return real + string("/") + base;
-}
-
-
-//
-// convert a string to lowercase
-//
-string Porg::to_lower(string const& str)
-{
-	string low(str);
-
-	for (uint i(0); i < low.size(); ++i)
-		low[i] = tolower(low[i]);
-
-	return low;
+	return path;
 }
 

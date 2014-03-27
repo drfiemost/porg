@@ -1,3 +1,10 @@
+SVN
+---
+
+	+ Fixed bug in paco2porg when impòrting paco logs with no logged files
+	  (thanks Masahiro Kasahara).
+
+
 Version 0.1 (16/03/2014)
 ------------------------
 

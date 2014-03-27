@@ -8,6 +8,7 @@
 #include "config.h"
 #include "opt.h"
 #include "out.h"
+#include "global.h"
 #include <getopt.h>
 
 using std::string;
@@ -21,6 +22,7 @@ static void help();
 static void version();
 static string get_dir_name();
 static void die_help(string const& msg = "");
+static string to_lower(string const& str);
 
 
 namespace Porg
@@ -33,6 +35,7 @@ namespace Porg
 	bool Opt::s_print_symlinks = false;
 	bool Opt::s_print_no_pkg_name = false;
 	bool Opt::s_remove_batch = false;
+	bool Opt::s_remove_unlog = false;
 	bool Opt::s_log_append = false;
 	bool Opt::s_log_ignore_errors = false;
 	bool Opt::s_log_missing = false;
@@ -132,7 +135,7 @@ Opt::Opt(int argc, char* argv[])
 			case 'v': Out::inc_verbosity(); break;
 			case 'a': s_all_pkgs = true; break;
 
-			// List options
+			// General list options
 			case 'i': set_mode(MODE_INFO, op); break;
 			case 'o': set_mode(MODE_CONF_OPTS, op); break;
 			case 'q': set_mode(MODE_QUERY, op); break;
@@ -163,12 +166,12 @@ Opt::Opt(int argc, char* argv[])
 				}
 				break;
 			
-			// Remove / unlog options
-			case 'U': set_mode(MODE_UNLOG, op); break;
-			case 'r': case 'e': case 'b': case 'B':
+			// Remove options
+			case 'r': case 'e': case 'b': case 'B': case 'U':
 				set_mode(MODE_REMOVE, op);
 				switch (op) {
 					case 'e': s_remove_skip = optarg; break;
+					case 'U': s_remove_unlog = true; break;
 					case 'b': case 'B': s_remove_batch = true; break;
 				}
 				break;
@@ -192,25 +195,41 @@ Opt::Opt(int argc, char* argv[])
 		}
 	}
 
-	if (!(s_print_sizes || s_print_nfiles))
-		s_print_totals = false;
-
 	s_args.assign(argv + optind, argv + argc);
 
-	if (s_args.empty()) {
-		if (s_mode == MODE_QUERY)
-			die_help("No input files");
-		else if ((!s_all_pkgs && s_mode != MODE_LOG) || s_mode == MODE_REMOVE || s_mode == MODE_UNLOG)
-			die_help("No input packages");
-	}
+	// Checkings
 
-	if (!logdir_writable()) {
-		if (s_mode == MODE_REMOVE || s_mode == MODE_UNLOG)
-			throw Error(s_logdir, errno);
-		else if (s_mode == MODE_LOG && !s_log_pkg_name.empty()) {
-			if (errno != ENOENT || mkdir(s_logdir.c_str(), 0755) < 0)
-				throw Error(s_logdir, errno);
-		}
+	switch (s_mode) {
+
+		case MODE_QUERY:
+			if (s_args.empty())
+				die_help("No input files");
+			break;
+					
+		case MODE_LOG:
+			if (!s_log_pkg_name.empty()) {
+				s_log_pkg_name = to_lower(s_log_pkg_name);
+				mkdir(s_logdir.c_str(), 0755);
+				if (!logdir_writable())
+					throw Error(s_logdir, errno);
+			}
+			break;
+
+		case MODE_REMOVE:
+			if (s_all_pkgs)
+				die_help("Option '-a|--all' cannot be used with '-r|--remove' or '-U|--unlog'");
+			// no break here
+
+		default:
+			if (!(s_print_sizes || s_print_nfiles))
+				s_print_totals = false;
+
+			if (s_args.empty() && !s_all_pkgs)
+				die_help("No input packages");
+
+			// convert package names to lower case
+			for (uint i(0); i < s_args.size(); ++i)
+				s_args[i] = to_lower(s_args[i]);
 	}
 }
 
@@ -342,4 +361,17 @@ static void die_help(string const& msg /* = "" */)
 	exit(EXIT_FAILURE);
 }
 
+
+//
+// convert a string to lowercase
+//
+static string to_lower(string const& str)
+{
+	string low(str);
+
+	for (uint i(0); i < low.size(); ++i)
+		low[i] = tolower(low[i]);
+
+	return low;
+}
 

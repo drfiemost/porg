@@ -1,5 +1,5 @@
 #!/bin/sh
-# vim:ts=4:ft=sh
+# vim:ts=4
 #-----------------------------------------------------------------------
 # paco2porg - imports paco logs into a porg database.
 #-----------------------------------------------------------------------
@@ -8,9 +8,10 @@
 #-----------------------------------------------------------------------
 
 me=`basename $0`
-verb=
+
 
 version()	{ porg --version | sed "s@^porg@$me@"; exit 0; }
+
 
 help()
 {
@@ -30,13 +31,8 @@ EOF
 }
 
 
-#---------------------------------------#
-# Initialize and parse the command line #
-#---------------------------------------#
-
-opt=
-
 # Parse the command line
+
 while [ "$1" ]; do
 	case $1 in
 		-v|--verbose)	verb=yes;;
@@ -49,11 +45,9 @@ done
 # Process the packages
 
 for pkg in `paco --all --verbose`; do
-	[ -n "$verb" ] && echo -n "Importing package ${pkg}..."
+	[ "$verb" ] && echo -n "Importing package ${pkg}...\t"
 	if ( paco --files --no-package-name $pkg | porg --log --package $pkg ); then
-		[ -n "$verb" ] && echo "\tdone"
-	else
-		exit 1
+		[ "$verb" ] && echo "done"
 	fi
 done
 

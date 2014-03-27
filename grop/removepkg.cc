@@ -27,7 +27,7 @@ using namespace Grop;
 
 RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 :
-	Gtk::Dialog("grop :: remove", parent, true),
+	Gtk::Dialog("grop :: remove package", parent, true),
 	m_error(false),
 	m_label(),
 	m_progressbar(),
@@ -38,12 +38,10 @@ RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 	m_tag_ok(m_text_buffer->create_tag()),
 	m_tag_skipped(m_text_buffer->create_tag()),
 	m_tag_error(m_text_buffer->create_tag()),
-	m_initial_width(),
-	m_initial_height(),
 	m_pkg(pkg)
 {
 	set_border_width(4);
-	set_size_request(450, 0);
+	set_default_size(450, 0);
 
 	Glib::signal_timeout().connect_once(mem_fun(this, &RemovePkg::remove), 100);
 
@@ -81,20 +79,13 @@ RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 	add_action_widget(m_button_close, Gtk::RESPONSE_CLOSE);
 
 	show_all();
-	
-	m_initial_width = get_width();
-	m_initial_height = get_height();
-
 	run();
 }
 
 
 void RemovePkg::on_expander_changed()
 {
-	if (!m_expander.get_expanded()) {
-		resize(m_initial_width, m_initial_height);
-		set_size_request(m_initial_width, m_initial_height);
-	}
+	resize(get_width(), m_expander.get_expanded() ? 400 : 1);
 }
 
 
@@ -150,8 +141,10 @@ void RemovePkg::remove()
 
 	if (m_error)
 		m_label.set_markup("<span fgcolor=\"darkred\"><b>Completed with errors (see Details)</b></span>");
-	else
+	else {
+		report("Package '" + m_pkg.name() + "' removed from database", m_tag_ok);
 		m_label.set_markup("<span fgcolor=\"darkgreen\"><b>Done</b></span>");
+	}
 
 	m_button_close.set_sensitive();
 }
