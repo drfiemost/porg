@@ -106,7 +106,8 @@ void Log::read_files_from_command()
 		
 		set_env("LD_PRELOAD", libporg);
 		set_env("PORG_TMPFILE", m_tmpfile);
-		set_env("PORG_DEBUG", Out::debug() ? "yes" : "no");
+		if (Out::debug())
+			set_env("PORG_DEBUG", "yes");
 
 		Out::dbg_title("settings");
 		Out::dbg("LD_PRELOAD: " + libporg + "\n"); 

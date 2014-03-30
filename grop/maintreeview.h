@@ -27,7 +27,6 @@ class MainTreeView : public Gtk::TreeView
 
 		ModelColumns()
 		{
-//			add(m_icon);
 			add(m_name);
 			add(m_size);
 			add(m_nfiles);
@@ -37,7 +36,6 @@ class MainTreeView : public Gtk::TreeView
 		}
 
 		Gtk::TreeModelColumn<Pkg*>							m_pkg;
-//		Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >	m_icon;
 		Gtk::TreeModelColumn<Glib::ustring>					m_name;
 		Gtk::TreeModelColumn<gulong>						m_size;
 		Gtk::TreeModelColumn<int>							m_date;
@@ -51,7 +49,6 @@ class MainTreeView : public Gtk::TreeView
 	MainTreeView();
 	
 	enum {
-//		COL_ICON,
 		COL_NAME = 0,
 		COL_SIZE,
 		COL_NFILES,

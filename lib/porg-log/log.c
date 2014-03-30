@@ -15,8 +15,6 @@
 #define PORG_HAVE_64  (HAVE_OPEN64 && HAVE_CREAT64 && HAVE_TRUNCATE64 \
                       && HAVE_FOPEN64 && HAVE_FREOPEN64)
 
-#define PORG_CHECK_INIT  do { if (!porg_tmpfile) porg_init(); } while (0)
-
 #define PORG_BUFSIZE  4096
 
 static int	(*libc_creat)		(const char*, mode_t);
@@ -35,8 +33,8 @@ static FILE*(*libc_fopen64)		(const char*, const char*);
 static FILE*(*libc_freopen64)	(const char*, const char*, FILE*);
 #endif  /* PORG_HAVE_64 */
 
-static char*	porg_tmpfile;
-static int		porg_debug;
+static char* porg_tmpfile;
+static char* porg_debug;
 
 
 static void porg_die(const char* fmt, ...)
@@ -69,17 +67,22 @@ static void* porg_dlsym(const char* symbol)
 	return ret;
 }
 
-		
+
 static void porg_init()
 {
-	static char* dbg = NULL;
+	if (porg_tmpfile) /* already init'ed */
+		return;
+
+	/* skip paths in /proc to avoid problems with dlsym() in multithreading
+	   environments (thanks Masahiro Kasahara) */
+	/*if (path && !strncmp(path, "/proc/", 6))
+		return;*/
 
 	/* read the environment */
 	
-	if (!dbg && (dbg = getenv("PORG_DEBUG")))
-		porg_debug = !strcmp(dbg, "yes");
+	porg_debug = getenv("PORG_DEBUG");
 
-	if (!porg_tmpfile && !(porg_tmpfile = getenv("PORG_TMPFILE")))
+	if (!(porg_tmpfile = getenv("PORG_TMPFILE")))
 		porg_die("variable PORG_TMPFILE undefined");
 		
 	/* handle libc */
@@ -112,7 +115,7 @@ static void porg_log(const char* path, const char* fmt, ...)
 		!strncmp(path, "/proc/", 6))
 		return;
 
-	PORG_CHECK_INIT;
+	porg_init();
 
 	if (porg_debug) {
 		fflush(stdout);
@@ -126,7 +129,7 @@ static void porg_log(const char* path, const char* fmt, ...)
 	/* "Absolutize" relative paths */
 	if (path[0] == '/') {
 		strncpy(abs_path, path, PORG_BUFSIZE - 1);
-		abs_path[PORG_BUFSIZE - 1] = '\0';
+		abs_path[PORG_BUFSIZE - 1] = 0;
 	}
 	else if (getcwd(abs_path, PORG_BUFSIZE)) {
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
@@ -152,41 +155,8 @@ static void porg_log(const char* path, const char* fmt, ...)
 }
 
 
-/************************/
-/* System call handlers */
-/************************/
-
-FILE* fopen(const char* path, const char* mode)
-{
-	FILE* ret;
-	
-	PORG_CHECK_INIT;
-	
-	ret = libc_fopen(path, mode);
-	if (ret && strpbrk(mode, "wa+"))
-		porg_log(path, "fopen(\"%s\", \"%s\")", path, mode);
-	
-	return ret;
-}
-
-
-FILE* freopen(const char* path, const char* mode, FILE* stream)
-{
-	FILE* ret;
-	
-	PORG_CHECK_INIT;
-	
-	ret = libc_freopen(path, mode, stream);
-	if (ret && strpbrk(mode, "wa+"))
-		porg_log(path, "freopen(\"%s\", \"%s\")", path, mode);
-	
-	return ret;
-}
-
-
-/*
- * If newbuf isn't a directory write it to the log, otherwise log files it and
- * its subdirectories contain.
+/* 
+ * Handle renaming of directories 
  */
 static void log_rename(const char* oldpath, const char* newpath)
 {
@@ -198,7 +168,7 @@ static void log_rename(const char* oldpath, const char* newpath)
 	int old_errno = errno;	/* save global errno */
 
 	/* The newpath file doesn't exist */
-	if (-1 == lstat(newpath, &st)) 
+	if (lstat(newpath, &st) < 0) 
 		goto goto_end;
 
 	else if (!S_ISDIR(st.st_mode)) {
@@ -210,18 +180,14 @@ static void log_rename(const char* oldpath, const char* newpath)
 	/* Make sure we have enough space for the following slashes */
 	oldlen = strlen(oldpath);
 	newlen = strlen(newpath);
-	if (oldlen + 2 >= PORG_BUFSIZE || newlen + 2 >= PORG_BUFSIZE)
+	if (oldlen + 3 > PORG_BUFSIZE || newlen + 3 > PORG_BUFSIZE)
 		goto goto_end;
 
 	strcpy(oldbuf, oldpath);
 	strcpy(newbuf, newpath);
-	newbuf[PORG_BUFSIZE - 1] = oldbuf[PORG_BUFSIZE - 1] = '\0';
 
-	/* We can do this in the loop below, buf it's more efficient to do
-	   that once. These slashes will separate the path NEWBUF/OLDBUF
-	   contains from names of its files/subdirectories.  */
 	oldbuf[oldlen++] = newbuf[newlen++] = '/';
-	oldbuf[oldlen] = newbuf[newlen] = '\0';
+	oldbuf[oldlen] = newbuf[newlen] = 0;
 
 	if (!(dir = opendir(newbuf)))
 		goto goto_end;
@@ -232,7 +198,7 @@ static void log_rename(const char* oldpath, const char* newpath)
 		strncat(oldbuf, e->d_name, PORG_BUFSIZE - oldlen - 1);
 		strncat(newbuf, e->d_name, PORG_BUFSIZE - newlen - 1);
 		log_rename(oldbuf, newbuf);
-		oldbuf[oldlen] = newbuf[newlen] = '\0';
+		oldbuf[oldlen] = newbuf[newlen] = 0;
 	}
 
 	closedir(dir);
@@ -243,11 +209,41 @@ goto_end:
 }
 
 
+/************************/
+/* System call handlers */
+/************************/
+
+FILE* fopen(const char* path, const char* mode)
+{
+	FILE* ret;
+	
+	porg_init();
+	
+	if ((ret = libc_fopen(path, mode)) && strpbrk(mode, "wa+"))
+		porg_log(path, "fopen(\"%s\", \"%s\")", path, mode);
+	
+	return ret;
+}
+
+
+FILE* freopen(const char* path, const char* mode, FILE* stream)
+{
+	FILE* ret;
+	
+	porg_init();
+	
+	if ((ret = libc_freopen(path, mode, stream)) && strpbrk(mode, "wa+"))
+		porg_log(path, "freopen(\"%s\", \"%s\")", path, mode);
+	
+	return ret;
+}
+
+
 int rename(const char* oldpath, const char* newpath)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	if ((ret = libc_rename(oldpath, newpath)) != -1)
 		log_rename(oldpath, newpath);
@@ -260,11 +256,9 @@ int creat(const char* path, mode_t mode)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
-	ret = libc_open(path, O_CREAT | O_WRONLY | O_TRUNC, mode);
-	
-	if (ret != -1)
+	if ((ret = libc_open(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
 		porg_log(path, "creat(\"%s\", 0%o)", path, (int)mode);
 	
 	return ret;
@@ -275,7 +269,7 @@ int link(const char* oldpath, const char* newpath)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	if ((ret = libc_link(oldpath, newpath)) != -1)
 		porg_log(newpath, "link(\"%s\", \"%s\")", oldpath, newpath);
@@ -288,7 +282,7 @@ int truncate(const char* path, off_t length)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	if ((ret = libc_truncate(path, length)) != -1)
 		porg_log(path, "truncate(\"%s\", %d)", path, (int)length);
@@ -302,8 +296,12 @@ int open(const char* path, int flags, ...)
 	va_list a;
 	mode_t mode;
 	int accmode, ret;
+
+	/* this fixes a rare bug in some multithreading installers */
+	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
+		return libc_open(path, flags);
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	va_start(a, flags);
 	mode = va_arg(a, mode_t);
@@ -323,7 +321,7 @@ int symlink(const char* oldpath, const char* newpath)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	if ((ret = libc_symlink(oldpath, newpath)) != -1)
 		porg_log(newpath, "symlink(\"%s\", \"%s\")", oldpath, newpath);
@@ -338,7 +336,7 @@ int creat64(const char* path, mode_t mode)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	if ((ret = libc_open64(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
 		porg_log(path, "creat64(\"%s\")", path);
@@ -353,7 +351,10 @@ int open64(const char* path, int flags, ...)
 	mode_t mode;
 	int accmode, ret;
 	
-	PORG_CHECK_INIT;
+	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
+		return libc_open64(path, flags);
+
+	porg_init();
 	
 	va_start(a, flags);
 	mode = va_arg(a, mode_t);
@@ -373,7 +374,7 @@ int truncate64(const char* path, off64_t length)
 {
 	int ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	if ((ret = libc_truncate64(path, length)) != -1)
 		porg_log(path, "truncate64(\"%s\", %d)", path, (int)length);
@@ -386,7 +387,7 @@ FILE* fopen64(const char* path, const char* mode)
 {
 	FILE* ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	ret = libc_fopen64(path, mode);
 	if (ret && strpbrk(mode, "wa+"))
@@ -400,7 +401,7 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 {
 	FILE* ret;
 	
-	PORG_CHECK_INIT;
+	porg_init();
 	
 	ret = libc_freopen64(path, mode, stream);
 	if (ret && strpbrk(mode, "wa+"))

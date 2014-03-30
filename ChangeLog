@@ -1,8 +1,10 @@
 SVN
 ---
 
-	+ Fixed bug in paco2porg when impòrting paco logs with no logged files
-	  (thanks Masahiro Kasahara).
+	+ Several bugs fixed thanks to the contribution of Masahiro Kasahara:
+	  - paco2porg failed when importing paco logs with no logged files
+	  - porg hanged up when installing packages in multithreading environments
+	  - porg failed to log filenames with spaces in them
 
 
 Version 0.1 (16/03/2014)
