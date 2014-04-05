@@ -12,42 +12,69 @@
 #include <stdarg.h>
 #include <unistd.h>
 
-#define PORG_HAVE_64  (HAVE_OPEN64 && HAVE_CREAT64 && HAVE_TRUNCATE64 \
-                      && HAVE_FOPEN64 && HAVE_FREOPEN64)
+#define PORG_HAVE_64	(HAVE_OPEN64 && HAVE_CREAT64 && HAVE_FOPEN64 \
+						 && HAVE_FREOPEN64)
+#define PORG_HAVE_AT	(HAVE_OPENAT && HAVE_LINKAT && HAVE_SYMLINKAT \
+						 && HAVE_RENAMEAT)
 
 #define PORG_BUFSIZE  4096
 
-static int	(*libc_creat)		(const char*, mode_t);
-static int	(*libc_link)		(const char*, const char*);
 static int	(*libc_open)		(const char*, int, ...);
+static int	(*libc_creat)		(const char*, mode_t);
 static int	(*libc_rename)		(const char*, const char*);
+static int	(*libc_link)		(const char*, const char*);
 static int	(*libc_symlink)		(const char*, const char*);
-static int	(*libc_truncate)	(const char*, off_t);
 static FILE*(*libc_fopen)		(const char*, const char*);
 static FILE*(*libc_freopen)		(const char*, const char*, FILE*);
+
+#if PORG_HAVE_AT
+static int	(*libc_openat)		(int, const char*, int, ...);
+static int	(*libc_renameat)	(int, const char*, int, const char*);
+static int	(*libc_linkat)		(int, const char*, int, const char*, int);
+static int	(*libc_symlinkat)	(const char*, int, const char*);
+#endif
+
 #if PORG_HAVE_64
-static int	(*libc_creat64)		(const char*, mode_t);
 static int	(*libc_open64)		(const char*, int, ...);
-static int	(*libc_truncate64)	(const char*, off64_t);
+static int	(*libc_creat64)		(const char*, mode_t);
 static FILE*(*libc_fopen64)		(const char*, const char*);
 static FILE*(*libc_freopen64)	(const char*, const char*, FILE*);
-#endif  /* PORG_HAVE_64 */
+#endif 
+
+#if HAVE_OPENAT64
+static int	(*libc_openat64)	(int, const char*, int, ...);
+#endif
 
 static char* porg_tmpfile;
 static char* porg_debug;
 
 
+static void porg_vprint(const char* fmt, va_list ap)
+{
+	if (porg_debug) {
+		fflush(stdout);
+		fputs("porg-log :: ", stderr);
+		vfprintf(stderr, fmt, ap);
+		putc('\n', stderr);
+	}
+}
+
+
+static void porg_print(const char* fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	porg_vprint(fmt, ap);
+	va_end(ap);
+}	
+
+
 static void porg_die(const char* fmt, ...)
 {
 	va_list ap;
-	
-	fflush(stdout);
-	fputs("libporg-log: ", stderr);
 	va_start(ap, fmt);
-	vfprintf(stderr, fmt, ap);
+	porg_vprint(fmt, ap);
 	va_end(ap);
-	putc('\n', stderr);
-	
 	exit(EXIT_FAILURE);
 }
 
@@ -73,35 +100,42 @@ static void porg_init()
 	if (porg_tmpfile) /* already init'ed */
 		return;
 
-	/* skip paths in /proc to avoid problems with dlsym() in multithreading
-	   environments (thanks Masahiro Kasahara) */
-	/*if (path && !strncmp(path, "/proc/", 6))
-		return;*/
-
 	/* read the environment */
 	
-	porg_debug = getenv("PORG_DEBUG");
-
 	if (!(porg_tmpfile = getenv("PORG_TMPFILE")))
 		porg_die("variable PORG_TMPFILE undefined");
 		
-	/* handle libc */
+	porg_debug = getenv("PORG_DEBUG");
 	
-	libc_creat = porg_dlsym("creat");
-	libc_link = porg_dlsym("link");
-	libc_open = porg_dlsym("open");
-	libc_rename = porg_dlsym("rename");
-	libc_symlink = porg_dlsym("symlink");
-	libc_truncate = porg_dlsym("truncate");
-	libc_fopen = porg_dlsym("fopen");
-	libc_freopen = porg_dlsym("freopen");
+	porg_print("-- init --");
+
+	/* handle system calls */
+	
+	libc_open 		= porg_dlsym("open");
+	libc_creat 		= porg_dlsym("creat");
+	libc_rename 	= porg_dlsym("rename");
+	libc_link 		= porg_dlsym("link");
+	libc_symlink 	= porg_dlsym("symlink");
+	libc_fopen 		= porg_dlsym("fopen");
+	libc_freopen 	= porg_dlsym("freopen");
+
 #if PORG_HAVE_64
-	libc_open64 = porg_dlsym("open64");
-	libc_creat64 = porg_dlsym("creat64");
-	libc_truncate64 = porg_dlsym("truncate64");
-	libc_fopen64 = porg_dlsym("fopen64");
-	libc_freopen64 = porg_dlsym("freopen64");
-#endif  /* PORG_HAVE_64 */
+	libc_open64 	= porg_dlsym("open64");
+	libc_creat64 	= porg_dlsym("creat64");
+	libc_fopen64 	= porg_dlsym("fopen64");
+	libc_freopen64 	= porg_dlsym("freopen64");
+#endif
+
+#if PORG_HAVE_AT
+	libc_openat 	= porg_dlsym("openat");
+	libc_renameat	= porg_dlsym("renameat");
+	libc_linkat		= porg_dlsym("linkat");
+	libc_symlinkat	= porg_dlsym("symlinkat");
+#endif
+
+#if HAVE_OPENAT64
+	libc_openat64 	= porg_dlsym("openat64");
+#endif
 }
 
 
@@ -111,34 +145,28 @@ static void porg_log(const char* path, const char* fmt, ...)
 	va_list a;
 	int fd, len, old_errno = errno;
 	
-	if (!strcmp(path, "/dev/tty") || !strcmp(path, "/dev/null") ||
-		!strncmp(path, "/proc/", 6))
+	if (!strncmp(path, "/dev/", 5) || !strncmp(path, "/proc/", 6))
 		return;
 
 	porg_init();
 
-	if (porg_debug) {
-		fflush(stdout);
-		fprintf(stderr, "porg-log :: ");
-		va_start(a, fmt);
-		vfprintf(stderr, fmt, a);
-		va_end(a);
-		putc('\n', stderr);
-	}
+	va_start(a, fmt);
+	porg_vprint(fmt, a);
+	va_end(a);
 	
-	/* "Absolutize" relative paths */
-	if (path[0] == '/') {
-		strncpy(abs_path, path, PORG_BUFSIZE - 1);
-		abs_path[PORG_BUFSIZE - 1] = 0;
-	}
-	else if (getcwd(abs_path, PORG_BUFSIZE)) {
+	/* get absolute path */
+
+	if (path[0] != '/' && getcwd(abs_path, PORG_BUFSIZE)) {
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
 		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
 	}
-	else
-		snprintf(abs_path, PORG_BUFSIZE, "./%s", path);
-
+	else {
+		strncpy(abs_path, path, PORG_BUFSIZE - 1);
+		abs_path[PORG_BUFSIZE - 1] = 0;
+	}
 	strncat(abs_path, "\n", PORG_BUFSIZE - strlen(abs_path) - 1);
+
+	/* write path to tmp file to be read by porg */
 
 	if ((fd = libc_open(porg_tmpfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) < 0)
 		porg_die("open(\"%s\"): %s", porg_tmpfile, strerror(errno));
@@ -158,7 +186,7 @@ static void porg_log(const char* path, const char* fmt, ...)
 /* 
  * Handle renaming of directories 
  */
-static void log_rename(const char* oldpath, const char* newpath)
+static void porg_log_rename(const char* oldpath, const char* newpath)
 {
 	char oldbuf[PORG_BUFSIZE], newbuf[PORG_BUFSIZE];
 	struct stat st;
@@ -197,14 +225,14 @@ static void log_rename(const char* oldpath, const char* newpath)
 			continue;
 		strncat(oldbuf, e->d_name, PORG_BUFSIZE - oldlen - 1);
 		strncat(newbuf, e->d_name, PORG_BUFSIZE - newlen - 1);
-		log_rename(oldbuf, newbuf);
+		porg_log_rename(oldbuf, newbuf);
 		oldbuf[oldlen] = newbuf[newlen] = 0;
 	}
 
 	closedir(dir);
 
 goto_end:
-	/* Restore global errno */
+	/* restore global errno */
 	errno = old_errno;
 }
 
@@ -212,6 +240,86 @@ goto_end:
 /************************/
 /* System call handlers */
 /************************/
+
+
+int open(const char* path, int flags, ...)
+{
+	va_list a;
+	mode_t mode;
+	int accmode, ret;
+
+	/* this fixes a rare bug in some multithreading installers */
+/*
+	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
+		return __open(path, flags);
+*/	
+	porg_init();
+	
+	va_start(a, flags);
+	mode = va_arg(a, mode_t);
+	va_end(a);
+	
+	if ((ret = libc_open(path, flags, mode)) != -1) {
+		accmode = flags & O_ACCMODE;
+		if (accmode == O_WRONLY || accmode == O_RDWR)
+			porg_log(path, "open(\"%s\")", path);
+	}
+
+	return ret;
+}
+
+
+int creat(const char* path, mode_t mode)
+{
+	int ret;
+	
+	porg_init();
+	
+	if ((ret = libc_open(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
+		porg_log(path, "creat(\"%s\", 0%o)", path, (int)mode);
+	
+	return ret;
+}
+
+
+int rename(const char* oldpath, const char* newpath)
+{
+	int ret;
+	
+	porg_init();
+	
+	if ((ret = libc_rename(oldpath, newpath)) != -1)
+		porg_log_rename(oldpath, newpath);
+
+	return ret;
+}
+
+
+int link(const char* oldpath, const char* newpath)
+{
+	int ret;
+	
+	porg_init();
+	
+	if ((ret = libc_link(oldpath, newpath)) != -1)
+		porg_log(newpath, "link(\"%s\", \"%s\")", oldpath, newpath);
+	
+	return ret;
+}
+
+
+int symlink(const char* oldpath, const char* newpath)
+{
+	int ret;
+	
+	porg_init();
+	
+	if ((ret = libc_symlink(oldpath, newpath)) != -1)
+		porg_log(newpath, "symlink(\"%s\", \"%s\")", oldpath, newpath);
+	
+	return ret;
+}
+
 
 FILE* fopen(const char* path, const char* mode)
 {
@@ -239,111 +347,7 @@ FILE* freopen(const char* path, const char* mode, FILE* stream)
 }
 
 
-int rename(const char* oldpath, const char* newpath)
-{
-	int ret;
-	
-	porg_init();
-	
-	if ((ret = libc_rename(oldpath, newpath)) != -1)
-		log_rename(oldpath, newpath);
-
-	return ret;
-}
-
-
-int creat(const char* path, mode_t mode)
-{
-	int ret;
-	
-	porg_init();
-	
-	if ((ret = libc_open(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
-		porg_log(path, "creat(\"%s\", 0%o)", path, (int)mode);
-	
-	return ret;
-}
-
-
-int link(const char* oldpath, const char* newpath)
-{
-	int ret;
-	
-	porg_init();
-	
-	if ((ret = libc_link(oldpath, newpath)) != -1)
-		porg_log(newpath, "link(\"%s\", \"%s\")", oldpath, newpath);
-	
-	return ret;
-}
-
-
-int truncate(const char* path, off_t length)
-{
-	int ret;
-	
-	porg_init();
-	
-	if ((ret = libc_truncate(path, length)) != -1)
-		porg_log(path, "truncate(\"%s\", %d)", path, (int)length);
-	
-	return ret;
-}
-
-
-int open(const char* path, int flags, ...)
-{
-	va_list a;
-	mode_t mode;
-	int accmode, ret;
-
-	/* this fixes a rare bug in some multithreading installers */
-	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
-		return libc_open(path, flags);
-	
-	porg_init();
-	
-	va_start(a, flags);
-	mode = va_arg(a, mode_t);
-	va_end(a);
-	
-	if ((ret = libc_open(path, flags, mode)) != -1) {
-		accmode = flags & O_ACCMODE;
-		if (accmode == O_WRONLY || accmode == O_RDWR)
-			porg_log(path, "open(\"%s\")", path);
-	}
-
-	return ret;
-}
-
-
-int symlink(const char* oldpath, const char* newpath)
-{
-	int ret;
-	
-	porg_init();
-	
-	if ((ret = libc_symlink(oldpath, newpath)) != -1)
-		porg_log(newpath, "symlink(\"%s\", \"%s\")", oldpath, newpath);
-	
-	return ret;
-}
-
-
 #if PORG_HAVE_64
-
-int creat64(const char* path, mode_t mode)
-{
-	int ret;
-	
-	porg_init();
-	
-	if ((ret = libc_open64(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
-		porg_log(path, "creat64(\"%s\")", path);
-	
-	return ret;
-}
-
 
 int open64(const char* path, int flags, ...)
 {
@@ -351,9 +355,11 @@ int open64(const char* path, int flags, ...)
 	mode_t mode;
 	int accmode, ret;
 	
+	/* this fixes a rare bug in some multithreading installers */
+	/*
 	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
-		return libc_open64(path, flags);
-
+		return __open64(path, flags);
+*/
 	porg_init();
 	
 	va_start(a, flags);
@@ -370,14 +376,14 @@ int open64(const char* path, int flags, ...)
 }
 
 
-int truncate64(const char* path, off64_t length)
+int creat64(const char* path, mode_t mode)
 {
 	int ret;
 	
 	porg_init();
 	
-	if ((ret = libc_truncate64(path, length)) != -1)
-		porg_log(path, "truncate64(\"%s\", %d)", path, (int)length);
+	if ((ret = libc_open64(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
+		porg_log(path, "creat64(\"%s\", 0%o)", path, mode);
 	
 	return ret;
 }
@@ -410,5 +416,107 @@ FILE* freopen64(const char* path, const char* mode, FILE* stream)
 	return ret;
 }
 
-#endif  /* PORG_HAVE_64 */
+#endif /* PORG_HAVE_64 */
+
+
+#if PORG_HAVE_AT
+
+int openat(int fd, const char* path, int flags, ...)
+{
+	va_list a;
+	mode_t mode;
+	int accmode, ret;
+
+	/* this fixes a rare bug in some multithreading installers */
+/*
+	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
+		return __open(path, flags);
+*/	
+	porg_init();
+	
+	va_start(a, flags);
+	mode = va_arg(a, mode_t);
+	va_end(a);
+	
+	if ((ret = libc_openat(fd, path, flags, mode)) != -1) {
+		accmode = flags & O_ACCMODE;
+		if (accmode == O_WRONLY || accmode == O_RDWR)
+			porg_log(path, "openat(\"%s\")", path);
+	}
+
+	return ret;
+}
+
+
+int renameat(int oldfd, const char* oldpath, int newfd, const char* newpath)
+{
+	int ret;
+	
+	porg_init();
+	/*XXX*/
+	if ((ret = libc_renameat(oldfd, oldpath, newfd, newpath)) != -1)
+		porg_log_rename(oldpath, newpath);
+
+	return ret;
+}
+
+
+int linkat(int oldfd, const char* oldpath, 
+           int newfd, const char* newpath, int flags)
+{
+	int ret;
+	
+	porg_init();
+	/*XXX*/
+	if ((ret = libc_linkat(oldfd, oldpath, newfd, newpath, flags)) != -1)
+		porg_log(newpath, "linkat(\"%s\", \"%s\")", oldpath, newpath);
+	
+	return ret;
+}
+
+
+int symlinkat(const char* oldpath, int fd, const char* newpath)
+{
+	int ret;
+	
+	porg_init();
+	
+	if ((ret = libc_symlinkat(oldpath, fd, newpath)) != -1)
+		porg_log(newpath, "symlinkat(\"%s\", \"%s\")", oldpath, newpath);
+	
+	return ret;
+}
+
+#endif	/* PORG_HAVE_AT */
+
+
+#if HAVE_OPENAT64
+
+int openat64(int fd, const char* path, int flags, ...)
+{
+	va_list a;
+	mode_t mode;
+	int accmode, ret;
+
+	/* this fixes a rare bug in some multithreading installers */
+/*
+	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
+		return __open(path, flags);
+*/	
+	porg_init();
+	
+	va_start(a, flags);
+	mode = va_arg(a, mode_t);
+	va_end(a);
+	
+	if ((ret = libc_openat64(fd, path, flags, mode)) != -1) {
+		accmode = flags & O_ACCMODE;
+		if (accmode == O_WRONLY || accmode == O_RDWR)
+			porg_log(path, "openat64(%d, \"%s\")", fd, path);
+	}
+
+	return ret;
+}
+
+#endif	/* HAVE_OPENAT64 */
 

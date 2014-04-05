@@ -5,6 +5,11 @@ SVN
 	  - paco2porg failed when importing paco logs with no logged files
 	  - porg hanged up when installing packages in multithreading environments
 	  - porg failed to log filenames with spaces in them
+	+ Fixed bug that prevented logging of files created by programs that don't
+	  terminate normally.
+	+ Removed option '-g|--log-ignore-errors'.
+	+ Handle system calls openat(), linkat(), etc... when installing a package.
+	+ Do not handle *truncate() system calls when installing a package.
 
 
 Version 0.1 (16/03/2014)

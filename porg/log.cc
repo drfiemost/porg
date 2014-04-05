@@ -125,11 +125,7 @@ void Log::read_files_from_command()
 	else if (pid == -1)
 		throw Error("fork()", errno);
 
-	int status;
-	waitpid(pid, &status, 0);
-	g_exit_status = WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE_EXTERNAL;
-	if (!Opt::log_ignore_errors() && g_exit_status != EXIT_SUCCESS)
-		exit(g_exit_status);
+	wait(0);
 	
 	FileStream<ifstream> f(m_tmpfile);
 	read_files_from_stream(f);

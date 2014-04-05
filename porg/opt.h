@@ -45,7 +45,6 @@ class Opt : public Porgrc
 	static bool remove_batch()		{ return s_remove_batch; }
 	static bool remove_unlog()		{ return s_remove_unlog; }
 	static bool log_append()		{ return s_log_append; }
-	static bool log_ignore_errors()	{ return s_log_ignore_errors; }
 	static bool log_missing()		{ return s_log_missing; }
 	static bool reverse_sort() 		{ return s_reverse_sort; }
 	static bool print_date() 		{ return s_print_date; }
@@ -71,7 +70,6 @@ class Opt : public Porgrc
 	static bool s_remove_batch;
 	static bool s_remove_unlog;
 	static bool s_log_append;
-	static bool s_log_ignore_errors;
 	static bool s_log_missing;
 	static bool s_reverse_sort;
 	static bool s_print_date;

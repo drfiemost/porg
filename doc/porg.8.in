@@ -129,11 +129,6 @@ configuration file (type 'man porgrc' for more information).
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
-\fB\-g, \-\-ignore\-errors\fR
-Do not exit if the install command fails. This allows for logging
-uncomplete installations, and cleanup the system upon an installation
-failure. Errors are not ignored by default.
-.TP
 \fB\-\-log\-missing\fR
 By default, when installing a package porg registers only those files 
 that exist in the filesystem right after the installation. Using this

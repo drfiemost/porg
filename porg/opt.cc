@@ -37,7 +37,6 @@ namespace Porg
 	bool Opt::s_remove_batch = false;
 	bool Opt::s_remove_unlog = false;
 	bool Opt::s_log_append = false;
-	bool Opt::s_log_ignore_errors = false;
 	bool Opt::s_log_missing = false;
 	bool Opt::s_reverse_sort = false;
 	bool Opt::s_print_date = false;
@@ -96,7 +95,6 @@ Opt::Opt(int argc, char* argv[])
 		{ "exclude", 1, 0, 'E' },
 		{ "append", 0, 0, '+' },
 		{ "dirname", 0, 0, 'D' },
-		{ "ignore-errors", 0, 0, 'g' },
 		{ "log-missing", 0, 0, OPT_LOG_MISSING },
 		{ NULL ,0, 0, 0 },
 	};
@@ -177,7 +175,7 @@ Opt::Opt(int argc, char* argv[])
 				break;
 			
 			// Log options
-			case 'l': case 'p': case 'D': case 'I': case 'E': case '+': case 'g':
+			case 'l': case 'p': case 'D': case 'I': case 'E': case '+': 
 			case OPT_LOG_MISSING:
 				set_mode(MODE_LOG, op);
 				switch (op) {
@@ -186,7 +184,6 @@ Opt::Opt(int argc, char* argv[])
 					case 'I': s_include = optarg; break;
 					case 'E': s_exclude = optarg; break;
 					case '+': s_log_append = true; break;
-					case 'g': s_log_ignore_errors = true; break;
 					case OPT_LOG_MISSING: s_log_missing = true; break;
 				}
 				break;
@@ -293,7 +290,6 @@ cout <<
 "                           of the package.\n"
 "  -+, --append             With -p or -D: If the package is already logged,\n"
 "                           append the list of files to its log.\n"
-"  -g, --ignore-errors      Do not exit if the install command fails.\n"
 "      --log_missing        Do not skip missing files.\n"
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"

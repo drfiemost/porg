@@ -51,7 +51,7 @@ AC_DEFINE_UNQUOTED([INCLUDE], ["$INCLUDE"], [List of paths to scan])
 AC_SUBST([INCLUDE])
 
 EXCLUDE="/dev:/tmp"
-for dir in /proc /selinux /sys /usr/share/info/dir; do
+for dir in /proc /selinux /sys; do
 	test -e "$dir" && EXCLUDE="$EXCLUDE:$dir"
 done
 AC_DEFINE_UNQUOTED([EXCLUDE], ["$EXCLUDE"], [List of paths to skip])
@@ -101,10 +101,8 @@ fi
 #=============
 
 AC_TYPE_MODE_T
-AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 
-AC_CHECK_TYPE([off64_t], [unsigned long])
 AC_CHECK_TYPE([uint], [unsigned int])
 AC_CHECK_TYPE([ulong], [unsigned long])
 
@@ -131,11 +129,15 @@ AC_SUBST([MY_CFLAGS])
 #=============
 
 AC_CHECK_FUNCS_ONCE([ \
+	openat \
+	renameat \
+	linkat \
+	symlinkat \
 	open64 \
 	creat64 \
-	truncate64 \
 	fopen64 \
 	freopen64 \
+	openat64 \
 	setenv
 ])
 
