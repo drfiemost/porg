@@ -49,13 +49,13 @@ static char* porg_tmpfile;
 static char* porg_debug;
 
 
-static void porg_vprint(const char* fmt, va_list ap)
+static void porg_vprintf(const char* fmt, va_list ap)
 {
 	if (porg_debug) {
 		fflush(stdout);
 		fputs("porg-log :: ", stderr);
 		vfprintf(stderr, fmt, ap);
-		putc('\n', stderr);
+		fputs("\n", stderr);
 	}
 }
 
@@ -64,7 +64,7 @@ static void porg_print(const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	porg_vprint(fmt, ap);
+	porg_vprintf(fmt, ap);
 	va_end(ap);
 }	
 
@@ -73,9 +73,42 @@ static void porg_die(const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
-	porg_vprint(fmt, ap);
+	porg_vprintf(fmt, ap);
 	va_end(ap);
 	exit(EXIT_FAILURE);
+}
+
+
+static char* porg_get_absolute_path(int fd, char const* const path, 
+                                    char* const abs_path)
+{
+	static char cwd[PORG_BUFSIZE];
+	static char aux[PORG_BUFSIZE];
+	int old_errno = errno;
+
+	abs_path[0] = 0;
+
+	/* already absolute */
+	if (path[0] == '/' || !getcwd(cwd, PORG_BUFSIZE)) {
+		strncpy(abs_path, path, PORG_BUFSIZE - 1);
+	}
+	/* relative to CWD */
+	else if (fd < 0) {
+		strncpy(abs_path, cwd, PORG_BUFSIZE - 1);
+		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
+		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
+	}
+	/* relative to dir fd */
+	else if (fchdir(fd) == 0 && getcwd(aux, PORG_BUFSIZE) && chdir(cwd) == 0) {
+		strncpy(abs_path, aux, PORG_BUFSIZE - 1);
+		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
+		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
+	}		
+		
+	abs_path[PORG_BUFSIZE - 1] = 0;
+	errno = old_errno;
+	
+	return abs_path;
 }
 
 
@@ -151,26 +184,17 @@ static void porg_log(const char* path, const char* fmt, ...)
 	porg_init();
 
 	va_start(a, fmt);
-	porg_vprint(fmt, a);
+	porg_vprintf(fmt, a);
 	va_end(a);
 	
-	/* get absolute path */
-
-	if (path[0] != '/' && getcwd(abs_path, PORG_BUFSIZE)) {
-		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
-		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
-	}
-	else {
-		strncpy(abs_path, path, PORG_BUFSIZE - 1);
-		abs_path[PORG_BUFSIZE - 1] = 0;
-	}
-	strncat(abs_path, "\n", PORG_BUFSIZE - strlen(abs_path) - 1);
+	porg_get_absolute_path(-1, path, abs_path);
 
 	/* write path to tmp file to be read by porg */
 
 	if ((fd = libc_open(porg_tmpfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) < 0)
 		porg_die("open(\"%s\"): %s", porg_tmpfile, strerror(errno));
 	
+	strncat(abs_path, "\n", PORG_BUFSIZE - strlen(abs_path) - 1);
 	len = strlen(abs_path);
 	
 	if (write(fd, abs_path, len) != len)
@@ -426,12 +450,8 @@ int openat(int fd, const char* path, int flags, ...)
 	va_list a;
 	mode_t mode;
 	int accmode, ret;
+	static char abs_path[PORG_BUFSIZE];
 
-	/* this fixes a rare bug in some multithreading installers */
-/*
-	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
-		return __open(path, flags);
-*/	
 	porg_init();
 	
 	va_start(a, flags);
@@ -440,8 +460,10 @@ int openat(int fd, const char* path, int flags, ...)
 	
 	if ((ret = libc_openat(fd, path, flags, mode)) != -1) {
 		accmode = flags & O_ACCMODE;
-		if (accmode == O_WRONLY || accmode == O_RDWR)
-			porg_log(path, "openat(\"%s\")", path);
+		if (accmode == O_WRONLY || accmode == O_RDWR) {
+			porg_get_absolute_path(fd, path, abs_path);
+			porg_log(abs_path, "openat(%d, \"%s\")", fd, path);
+		}
 	}
 
 	return ret;
@@ -451,11 +473,16 @@ int openat(int fd, const char* path, int flags, ...)
 int renameat(int oldfd, const char* oldpath, int newfd, const char* newpath)
 {
 	int ret;
+	static char old_abs_path[PORG_BUFSIZE];
+	static char new_abs_path[PORG_BUFSIZE];
 	
 	porg_init();
-	/*XXX*/
-	if ((ret = libc_renameat(oldfd, oldpath, newfd, newpath)) != -1)
-		porg_log_rename(oldpath, newpath);
+
+	if ((ret = libc_renameat(oldfd, oldpath, newfd, newpath)) != -1) {
+		porg_get_absolute_path(oldfd, oldpath, old_abs_path);
+		porg_get_absolute_path(newfd, newpath, new_abs_path);
+		porg_log_rename(old_abs_path, new_abs_path);
+	}
 
 	return ret;
 }
@@ -465,25 +492,36 @@ int linkat(int oldfd, const char* oldpath,
            int newfd, const char* newpath, int flags)
 {
 	int ret;
+	static char old_abs_path[PORG_BUFSIZE];
+	static char new_abs_path[PORG_BUFSIZE];
 	
 	porg_init();
-	/*XXX*/
-	if ((ret = libc_linkat(oldfd, oldpath, newfd, newpath, flags)) != -1)
-		porg_log(newpath, "linkat(\"%s\", \"%s\")", oldpath, newpath);
-	
+
+	if ((ret = libc_linkat(oldfd, oldpath, newfd, newpath, flags)) != -1) {
+		/* XXX: flags */
+		porg_get_absolute_path(oldfd, oldpath, old_abs_path);
+		porg_get_absolute_path(newfd, newpath, new_abs_path);
+		porg_log(new_abs_path, "linkat(%d, \"%s\", %d, \"%s\")",
+			oldfd, oldpath, newfd, newpath);
+	}
+
 	return ret;
 }
 
 
-int symlinkat(const char* oldpath, int fd, const char* newpath)
+int symlinkat(const char* oldpath, int newfd, const char* newpath)
 {
 	int ret;
+	static char new_abs_path[PORG_BUFSIZE];
 	
 	porg_init();
 	
-	if ((ret = libc_symlinkat(oldpath, fd, newpath)) != -1)
-		porg_log(newpath, "symlinkat(\"%s\", \"%s\")", oldpath, newpath);
-	
+	if ((ret = libc_symlinkat(oldpath, newfd, newpath)) != -1) {
+		porg_get_absolute_path(newfd, newpath, new_abs_path);
+		porg_log(new_abs_path, "symlinkat(\"%s\", %d, \"%s\")", 
+			oldpath, newfd, newpath);
+	}
+
 	return ret;
 }
 
@@ -497,12 +535,8 @@ int openat64(int fd, const char* path, int flags, ...)
 	va_list a;
 	mode_t mode;
 	int accmode, ret;
+	static char abs_path[PORG_BUFSIZE];
 
-	/* this fixes a rare bug in some multithreading installers */
-/*
-	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
-		return __open(path, flags);
-*/	
 	porg_init();
 	
 	va_start(a, flags);
@@ -511,8 +545,10 @@ int openat64(int fd, const char* path, int flags, ...)
 	
 	if ((ret = libc_openat64(fd, path, flags, mode)) != -1) {
 		accmode = flags & O_ACCMODE;
-		if (accmode == O_WRONLY || accmode == O_RDWR)
-			porg_log(path, "openat64(%d, \"%s\")", fd, path);
+		if (accmode == O_WRONLY || accmode == O_RDWR) {
+			porg_get_absolute_path(fd, path, abs_path);
+			porg_log(abs_path, "openat64(%d, \"%s\")", fd, path);
+		}
 	}
 
 	return ret;
