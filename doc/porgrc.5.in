@@ -34,7 +34,7 @@ Base porg logs directory. Default is '@LOGDIR@'.
 \fBINCLUDE\fR [-I|--include]
 .br
 Colon-separated list of paths to scan when logging the installation of a
-package. Default is '@INCLUDE@'.
+package. Default is '/'.
 .br
 Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
 more details.

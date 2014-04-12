@@ -49,6 +49,15 @@ static char* porg_tmpfile;
 static char* porg_debug;
 
 
+/* Fake declarations of libc's internal __open and __open64 */
+#if !HAVE_DECL___OPEN
+int __open(const char*, int, ...);
+#endif
+#if !HAVE_DECL___OPEN64
+int __open64(const char*, int, ...);
+#endif
+
+
 static void porg_vprintf(const char* fmt, va_list ap)
 {
 	if (porg_debug) {
@@ -60,7 +69,7 @@ static void porg_vprintf(const char* fmt, va_list ap)
 }
 
 
-static void porg_print(const char* fmt, ...)
+static void porg_printf(const char* fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
@@ -79,8 +88,7 @@ static void porg_die(const char* fmt, ...)
 }
 
 
-static char* porg_get_absolute_path(int fd, char const* const path, 
-                                    char* const abs_path)
+static void porg_get_absolute_path(int fd, const char* path, char* abs_path)
 {
 	static char cwd[PORG_BUFSIZE];
 	static char aux[PORG_BUFSIZE];
@@ -88,7 +96,7 @@ static char* porg_get_absolute_path(int fd, char const* const path,
 
 	abs_path[0] = 0;
 
-	/* already absolute */
+	/* already absolute (or can't get CWD) */
 	if (path[0] == '/' || !getcwd(cwd, PORG_BUFSIZE)) {
 		strncpy(abs_path, path, PORG_BUFSIZE - 1);
 	}
@@ -98,17 +106,15 @@ static char* porg_get_absolute_path(int fd, char const* const path,
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
 		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
 	}
-	/* relative to dir fd */
+	/* relative to directory fd */
 	else if (fchdir(fd) == 0 && getcwd(aux, PORG_BUFSIZE) && chdir(cwd) == 0) {
 		strncpy(abs_path, aux, PORG_BUFSIZE - 1);
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
 		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
 	}		
-		
+
 	abs_path[PORG_BUFSIZE - 1] = 0;
 	errno = old_errno;
-	
-	return abs_path;
 }
 
 
@@ -119,6 +125,8 @@ static void* porg_dlsym(const char* symbol)
 
 	dlerror();
 
+	/* XXX: old versions of libc don't define RTLD_NEXT, we should dlopen libc
+	        in those cases */
 	if (!(ret = dlsym(RTLD_NEXT, symbol))) {
 		err = (char*)dlerror();
 		porg_die("dlsym(RTLD_NEXT, \"%s\"): %s", symbol, err ? err : "failed");
@@ -140,7 +148,7 @@ static void porg_init()
 		
 	porg_debug = getenv("PORG_DEBUG");
 	
-	porg_print("-- init --");
+	porg_printf("-- init --");
 
 	/* handle system calls */
 	
@@ -172,6 +180,10 @@ static void porg_init()
 }
 
 
+/*
+ * Log a filename to the tmp file, and print a debug message to stderr if 
+ * debugging is enabled.
+ */
 static void porg_log(const char* path, const char* fmt, ...)
 {
 	static char abs_path[PORG_BUFSIZE];
@@ -224,7 +236,7 @@ static void porg_log_rename(const char* oldpath, const char* newpath)
 		goto goto_end;
 
 	else if (!S_ISDIR(st.st_mode)) {
-		/* newpath is not a directory */
+		/* newpath is not a directory, we're done */
 		porg_log(newpath, "rename(\"%s\", \"%s\")", oldpath, newpath);
 		goto goto_end;
 	}
@@ -237,9 +249,8 @@ static void porg_log_rename(const char* oldpath, const char* newpath)
 
 	strcpy(oldbuf, oldpath);
 	strcpy(newbuf, newpath);
-
-	oldbuf[oldlen++] = newbuf[newlen++] = '/';
-	oldbuf[oldlen] = newbuf[newlen] = 0;
+	oldbuf[oldlen] = newbuf[newlen] = '/';
+	oldbuf[++oldlen] = newbuf[++newlen] = 0;
 
 	if (!(dir = opendir(newbuf)))
 		goto goto_end;
@@ -255,8 +266,7 @@ static void porg_log_rename(const char* oldpath, const char* newpath)
 
 	closedir(dir);
 
-goto_end:
-	/* restore global errno */
+goto_end: 
 	errno = old_errno;
 }
 
@@ -272,11 +282,11 @@ int open(const char* path, int flags, ...)
 	mode_t mode;
 	int accmode, ret;
 
-	/* this fixes a rare bug in some multithreading installers */
-/*
+	/* this fixes a bug when the installer program calls jemalloc 
+	   (thanks Masahiro Kasahara) */
 	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
 		return __open(path, flags);
-*/	
+
 	porg_init();
 	
 	va_start(a, flags);
@@ -379,11 +389,9 @@ int open64(const char* path, int flags, ...)
 	mode_t mode;
 	int accmode, ret;
 	
-	/* this fixes a rare bug in some multithreading installers */
-	/*
 	if (!porg_tmpfile && path && !strncmp(path, "/proc/", 6))
 		return __open64(path, flags);
-*/
+
 	porg_init();
 	
 	va_start(a, flags);
@@ -498,7 +506,7 @@ int linkat(int oldfd, const char* oldpath,
 	porg_init();
 
 	if ((ret = libc_linkat(oldfd, oldpath, newfd, newpath, flags)) != -1) {
-		/* XXX: flags */
+		/* XXX: handle flags */
 		porg_get_absolute_path(oldfd, oldpath, old_abs_path);
 		porg_get_absolute_path(newfd, newpath, new_abs_path);
 		porg_log(new_abs_path, "linkat(%d, \"%s\", %d, \"%s\")",

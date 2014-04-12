@@ -18,7 +18,7 @@ static string expand_var(string const& str, string const& var);
 namespace Porg
 {
 	string Porgrc::s_logdir = LOGDIR;
-	string Porgrc::s_include = INCLUDE;
+	string Porgrc::s_include = "/";
 	string Porgrc::s_exclude = EXCLUDE;
 	string Porgrc::s_remove_skip = string();
 }

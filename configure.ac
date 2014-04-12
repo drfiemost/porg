@@ -34,6 +34,7 @@ AC_CONFIG_FILES([ \
 
 AC_GNU_SOURCE
 
+
 #=======================
 # Set configure options
 #=======================
@@ -46,12 +47,8 @@ fi
 AC_DEFINE_UNQUOTED([RELEASEDATE], ["$RELEASEDATE"], [Release date])
 AC_SUBST([RELEASEDATE])
 
-INCLUDE="/"
-AC_DEFINE_UNQUOTED([INCLUDE], ["$INCLUDE"], [List of paths to scan])
-AC_SUBST([INCLUDE])
-
-EXCLUDE="/dev:/tmp"
-for dir in /proc /selinux /sys; do
+EXCLUDE=""
+for dir in /dev /tmp /proc /selinux /sys; do
 	test -e "$dir" && EXCLUDE="$EXCLUDE:$dir"
 done
 AC_DEFINE_UNQUOTED([EXCLUDE], ["$EXCLUDE"], [List of paths to skip])
@@ -85,11 +82,13 @@ AC_PROG_CXX
 # Check libs
 #============
 
+#XXX: This could be better:
 AC_SEARCH_LIBS([dlopen], [dl], [], AC_MSG_ERROR([*** dlopen not found ***]))
 
 if test "$enable_grop" = yes; then
 	PKG_CHECK_MODULES([GTKMM], [gtkmm-3.0 >= 3.4.0])
 fi
+
 
 #===============
 # Check headers
@@ -105,6 +104,7 @@ AC_TYPE_SIZE_T
 
 AC_CHECK_TYPE([uint], [unsigned int])
 AC_CHECK_TYPE([ulong], [unsigned long])
+
 
 #================
 # Check compiler
@@ -124,6 +124,7 @@ fi
 AC_SUBST([MY_CXXFLAGS])
 AC_SUBST([MY_CFLAGS])
 
+
 #=============
 # Check funcs
 #=============
@@ -141,7 +142,10 @@ AC_CHECK_FUNCS_ONCE([ \
 	setenv
 ])
 
-#========	
+AC_CHECK_DECLS([__open, __open64], [], [], [[#include <fcntl.h>]])
+
+
+#========
 # Output
 #========
 

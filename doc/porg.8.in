@@ -122,7 +122,7 @@ Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
 \fB\-I, \-\-include\fR=\fIPATH1:PATH2:...\fR
-Colon-separated list of paths to scan when logging. Default is '@INCLUDE@',
+Colon-separated list of paths to scan when logging. Default is '/',
 unless variable INCLUDE is set in the
 configuration file (type 'man porgrc' for more information).
 .br

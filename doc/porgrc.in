@@ -13,7 +13,7 @@
 
 # Paths to scan when logging installations.
 # [-I|--include]
-#INCLUDE=@INCLUDE@
+#INCLUDE=/
 
 # Paths to skip when logging installations.
 # [-E|--exclude]

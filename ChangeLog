@@ -3,8 +3,9 @@ SVN
 
 	+ Several bugs fixed thanks to the contribution of Masahiro Kasahara:
 	  - paco2porg failed when importing paco logs with no logged files
-	  - porg hanged up when installing packages in multithreading environments
-	  - porg failed to log filenames with spaces in them
+	  - porg hanged up when logging packages and the installer program calls 
+	    jemalloc
+	  - porg failed to log files with spaces in their names [XXX pending]
 	+ Fixed bug that prevented logging of files created by programs that don't
 	  terminate normally.
 	+ Removed option '-g|--log-ignore-errors'.
