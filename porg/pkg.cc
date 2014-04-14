@@ -60,8 +60,6 @@ Pkg::Pkg(string const& name_, set<string> const& files_)
 
 void Pkg::print_info_dbg() const
 {
-	assert(Out::debug());
-
 	Out::dbg_title();
 	Out::dbg("Name: "			+ m_base_name + '\n');
 	Out::dbg("Version: "		+ m_version + '\n');
@@ -121,7 +119,7 @@ string Pkg::format_description() const
 	return ret;
 }
 
-	
+
 void Pkg::write_log() const
 {
 	// Create log file
@@ -255,7 +253,7 @@ bool Pkg::remove(PkgSet const& pset)
 			Out::vrb((*f)->name() + ": shared (skipped)\n");
 
 		// remove file
-		else if (!unlink((*f)->name().c_str())) {
+		else if (unlink((*f)->name().c_str()) == 0) {
 			Out::vrb("Removed '" + (*f)->name() + "'\n");
 			remove_parent_dir((*f)->name());
 		}
@@ -280,12 +278,9 @@ static void remove_parent_dir(string const& path)
 	for (i = dir.size() - 1; i > 0 && dir.at(i) == '/'; dir.erase(i--)) ;
 
 	// get parent dir and remove it
-	if ((i = dir.rfind('/'))) {
-
-		if (i != string::npos)
-			dir.erase(i);
-		
-		if (!rmdir(dir.c_str())) {
+	if ((i = dir.rfind('/')) != string::npos) {
+		dir.erase(i);
+		if (rmdir(dir.c_str()) == 0) {
 			Out::vrb("Removed directory '" + dir + "'\n");
 			remove_parent_dir(dir);
 		}

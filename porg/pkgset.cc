@@ -59,7 +59,7 @@ void PkgSet::get_all_pkgs()
 
 
 //
-// Search the database for packages matching any of the string in args given
+// Search the database for packages matching any of the strings in args given
 // by the command line
 //
 void PkgSet::get_pkgs(vector<string> const& args)
@@ -330,7 +330,7 @@ inline bool PkgSet::Sorter::sort_by_date(Pkg* left, Pkg* right) const
 //
 // Return the number of digits of a number
 //
-inline static int get_digits(long n)
+static int get_digits(long n)
 {
 	int ret;
 	for (ret = 0; n; n /= 10, ret++) ;

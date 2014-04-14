@@ -1,6 +1,6 @@
 # vim:ts=4:ft=sh:
 #-------------------------------------------------------------------------------
-# pacKAGE oRGANZIER bash completion
+# porg bash completion support
 # Copyright 2006 Christian Schneider <mail@chrschn.de>
 # License: GNU GPL v2 or later
 #-------------------------------------------------------------------------------
@@ -56,7 +56,6 @@ _porg()
 		--log-missing \
 		--files \
 		--help \
-		--ignore-errors \
 		--include=DIR \
 		--info \
 		--log \

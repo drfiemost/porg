@@ -11,6 +11,7 @@ SVN
 	+ Removed option '-g|--log-ignore-errors'.
 	+ Handle system calls openat(), linkat(), etc... when installing a package.
 	+ Do not handle *truncate() system calls when installing a package.
+	+ Removed porg.pc from distribution, as porg is not a library.
 
 
 Version 0.1 (16/03/2014)

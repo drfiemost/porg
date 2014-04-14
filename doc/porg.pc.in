@@ -1,7 +1,0 @@
-prefix=@prefix@
-sysconfdir=@sysconfdir@
-porgrc=${sysconfdir}/porgrc
-
-Name: porg
-Description: Source code package organizer
-Version: @PACKAGE_VERSION@

@@ -88,18 +88,19 @@ static void porg_die(const char* fmt, ...)
 }
 
 
+/*
+ * Get the absolute path, referring relative paths to the CWD, or to directory
+ * referred to by file descriptor fd, if non negative.
+ */
 static void porg_get_absolute_path(int fd, const char* path, char* abs_path)
 {
-	static char cwd[PORG_BUFSIZE];
-	static char aux[PORG_BUFSIZE];
+	static char cwd[PORG_BUFSIZE], aux[PORG_BUFSIZE];
 	int old_errno = errno;
 
-	abs_path[0] = 0;
-
 	/* already absolute (or can't get CWD) */
-	if (path[0] == '/' || !getcwd(cwd, PORG_BUFSIZE)) {
+	if (path[0] == '/' || !getcwd(cwd, PORG_BUFSIZE))
 		strncpy(abs_path, path, PORG_BUFSIZE - 1);
-	}
+
 	/* relative to CWD */
 	else if (fd < 0) {
 		strncpy(abs_path, cwd, PORG_BUFSIZE - 1);
@@ -111,9 +112,12 @@ static void porg_get_absolute_path(int fd, const char* path, char* abs_path)
 		strncpy(abs_path, aux, PORG_BUFSIZE - 1);
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
 		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
-	}		
+	}
+	else
+		strncpy(abs_path, path, PORG_BUFSIZE - 1);
 
 	abs_path[PORG_BUFSIZE - 1] = 0;
+
 	errno = old_errno;
 }
 
@@ -199,13 +203,12 @@ static void porg_log(const char* path, const char* fmt, ...)
 	porg_vprintf(fmt, a);
 	va_end(a);
 	
-	porg_get_absolute_path(-1, path, abs_path);
-
 	/* write path to tmp file to be read by porg */
 
 	if ((fd = libc_open(porg_tmpfile, O_WRONLY | O_CREAT | O_APPEND, 0644)) < 0)
 		porg_die("open(\"%s\"): %s", porg_tmpfile, strerror(errno));
 	
+	porg_get_absolute_path(-1, path, abs_path);
 	strncat(abs_path, "\n", PORG_BUFSIZE - strlen(abs_path) - 1);
 	len = strlen(abs_path);
 	
@@ -229,7 +232,7 @@ static void porg_log_rename(const char* oldpath, const char* newpath)
 	DIR* dir;
 	struct dirent* e;
 	size_t oldlen, newlen;
-	int old_errno = errno;	/* save global errno */
+	int old_errno = errno;
 
 	/* The newpath file doesn't exist */
 	if (lstat(newpath, &st) < 0) 
@@ -309,7 +312,7 @@ int creat(const char* path, mode_t mode)
 	
 	porg_init();
 	
-	if ((ret = libc_open(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
+	if ((ret = libc_creat(path, mode)) != -1)
 		porg_log(path, "creat(\"%s\", 0%o)", path, (int)mode);
 	
 	return ret;
@@ -414,7 +417,7 @@ int creat64(const char* path, mode_t mode)
 	
 	porg_init();
 	
-	if ((ret = libc_open64(path, O_CREAT | O_WRONLY | O_TRUNC, mode)) != -1)
+	if ((ret = libc_creat64(path, mode)) != -1)
 		porg_log(path, "creat64(\"%s\", 0%o)", path, mode);
 	
 	return ret;
