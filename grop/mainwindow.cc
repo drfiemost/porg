@@ -48,6 +48,7 @@ MainWindow::MainWindow()
 {
 	// Opt should have been initialized before
 	g_assert(Opt::initialized());
+
 	set_default_size(Opt::width(), Opt::height());
 	move(Opt::xpos(), Opt::ypos());
 

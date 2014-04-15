@@ -106,8 +106,6 @@ void Find::find()
 		if ((*p)->has_file(path)) {
 			if (cnt++ > 0)
 				it = m_treeview.m_model->append();
-			// XXX show package files on double click:
-			// (*it)[m_treeview.m_columns.m_pkg] = *p;
 			(*it)[m_treeview.m_columns.m_name] = (*p)->name();
 		}
 	}

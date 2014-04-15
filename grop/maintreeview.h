@@ -35,12 +35,12 @@ class MainTreeView : public Gtk::TreeView
 			add(m_pkg);
 		}
 
-		Gtk::TreeModelColumn<Pkg*>							m_pkg;
-		Gtk::TreeModelColumn<Glib::ustring>					m_name;
-		Gtk::TreeModelColumn<gulong>						m_size;
-		Gtk::TreeModelColumn<int>							m_date;
-		Gtk::TreeModelColumn<gulong>						m_nfiles;
-		Gtk::TreeModelColumn<Glib::ustring>					m_summary;
+		Gtk::TreeModelColumn<Pkg*>			m_pkg;
+		Gtk::TreeModelColumn<Glib::ustring>	m_name;
+		Gtk::TreeModelColumn<gulong>		m_size;
+		Gtk::TreeModelColumn<int>			m_date;
+		Gtk::TreeModelColumn<gulong>		m_nfiles;
+		Gtk::TreeModelColumn<Glib::ustring>	m_summary;
 
 	};	// class MainTreeView::ModelColumns
 

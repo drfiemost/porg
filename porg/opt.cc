@@ -290,7 +290,7 @@ cout <<
 "                           of the package.\n"
 "  -+, --append             With -p or -D: If the package is already logged,\n"
 "                           append the list of files to its log.\n"
-"      --log_missing        Do not skip missing files.\n"
+"      --log-missing        Do not skip missing files.\n"
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"
 "Note: The package list mode is enabled by default.\n\n"

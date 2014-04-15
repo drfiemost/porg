@@ -45,22 +45,19 @@ class Info
 	};	// class Info::Define
 
 	std::vector<Define> 	m_defs;
-	std::set<std::string> 	m_dirs;
 	Pkg*					m_pkg;
 
 	void get_icon_path();
-	void get_dirs();
 	void get_info_spec();
 	void get_info_pc();
 	void get_info_desktop();
-	void get_config_opts();
+	void get_info_config_log();
 	void get_defs_pc(std::string const&);
 	void get_defs_spec(std::string const&);
 	void get_spec_desc(std::string const&);
 	std::string resolve_defines(std::string const&) const;
 	bool get_var(std::string const&, std::string const&, std::string&, bool = true) const;
 	std::string search_file(std::string const&) const;
-	bool get_build_var(std::string const& tag, std::string& var) const;
 
 };	// class Info
 

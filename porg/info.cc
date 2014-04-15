@@ -20,25 +20,24 @@ using std::vector;
 using std::set;
 using namespace Porg;
 
+static string unquote(string const&);
+
 
 Info::Info(Pkg* pkg)
 :
 	m_defs(),
-	m_dirs(),
 	m_pkg(pkg)
 {
 	assert(pkg != NULL);
 
 	Out::dbg_title("package information");
 
-	get_dirs();
-
-	get_info_spec();
+	get_info_config_log();
 	get_info_pc();
+	get_info_spec();
 	get_info_desktop();
 
 	get_icon_path();
-	get_config_opts();
 }
 
 
@@ -150,15 +149,14 @@ void Info::get_info_spec()
 	get_defs_spec(spec);
 
 	get_var(spec, "Name", m_pkg->m_base_name);
+	get_var(spec, "Icon", m_pkg->m_icon_path);
 	get_var(spec, "Version", m_pkg->m_version);
 	get_var(spec, "Summary", m_pkg->m_summary);
 	get_var(spec, "URL", m_pkg->m_url);
-
-	if (!get_var(spec, "Vendor", m_pkg->m_author))
-		get_var(spec, "Packager", m_pkg->m_author);
-	
-	if (!get_var(spec, "License", m_pkg->m_license))
-		get_var(spec, "Copyright", m_pkg->m_license);
+	get_var(spec, "Vendor", m_pkg->m_author);
+	get_var(spec, "Packager", m_pkg->m_author);
+	get_var(spec, "Copyright", m_pkg->m_license);
+	get_var(spec, "License", m_pkg->m_license);
 
 	get_spec_desc(spec);
 }
@@ -173,11 +171,7 @@ void Info::get_info_desktop()
 	get_var(desktop, "Icon", m_pkg->m_icon_path, false);
 	get_var(desktop, "Name", m_pkg->m_base_name, false);
 	get_var(desktop, "GenericName", m_pkg->m_summary, false);
-
-	string desc;
-	get_var(desktop, "Comment", desc, false);
-	if (desc.size() > m_pkg->m_description.size())
-		m_pkg->m_description = desc;
+	get_var(desktop, "Comment", m_pkg->m_summary, false);
 }
 
 
@@ -195,37 +189,10 @@ void Info::get_info_pc()
 }
 
 
-string Info::search_file(string const& name) const
+void Info::get_info_config_log()
 {
-	Out::dbg("searching for " + name);
-	
-	glob_t g;
-	memset(&g, 0, sizeof(g));
-	
-	string file, pat = "*/*/" + name;
-
-	for (set<string>::iterator d(m_dirs.begin()); file.empty() && d != m_dirs.end(); ++d) {
-		for (int k = 2; file.empty() && k >= 0; --k) {
-			string s = *d + "/" + pat.substr(k << 1);
-			if (!glob(s.c_str(), GLOB_NOSORT, 0, &g) && g.gl_pathc)
-				file = g.gl_pathv[0];
-		}
-	}
-	
-	globfree(&g);
-
-	if (file.empty())
-		Out::dbg("\t(not found)\n", false);
-	else
-		Out::dbg("\t" + file + "\n", false);
-		
-	return file;
-}
-
-
-void Info::get_config_opts()
-{
-	std::ifstream f("config.log");
+	string config("config.log");
+	std::ifstream f(config.c_str());
 	if (!f)
 		return;
 
@@ -240,6 +207,66 @@ void Info::get_config_opts()
 			break;
 		}
 	}
+	
+	f.close();
+
+	get_var(config, "PACKAGE_NAME", m_pkg->m_base_name, false);
+	get_var(config, "PACKAGE", m_pkg->m_base_name, false);
+	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
+	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
+	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
+	get_var(config, "PACKAGE_VERSION", m_pkg->m_version, false);
+}
+
+
+string Info::search_file(string const& name) const
+{
+	Out::dbg("searching for " + name);
+	
+	glob_t g;
+	memset(&g, 0, sizeof(g));
+	
+	string file;
+	string patt[3] = { name, "*/" + name, "*/*/" + name };
+
+	for (int i = 0; i < 3 && file.empty(); ++i) {
+		if (0 == glob(patt[i].c_str(), 0, 0, &g) && g.gl_pathc)
+			file = g.gl_pathv[0];
+	}
+
+	globfree(&g);
+
+	if (file.empty())
+		Out::dbg("\t(not found)\n", false);
+	else
+		Out::dbg("\t" + file + "\n", false);
+		
+	return file;
+}
+
+
+bool Info::get_var(string const& file, string const& tag, 
+                   string& val, bool resolve /* = true */) const
+{
+	std::ifstream f(file.c_str());
+	if (!f)
+		return false;
+		
+	string buf;
+	string::size_type p;
+	bool found = false;
+
+	while (!found && getline(f, buf)) {
+		if (buf.find(tag) == 0
+		&& (p = buf.find_first_not_of(" \t:=", tag.size())) != string::npos) {
+			val = unquote(buf.substr(p));
+			if (resolve)
+				val = resolve_defines(val);
+			found = true;
+		}
+	}
+
+	return found;
 }
 
 
@@ -257,10 +284,9 @@ void Info::get_icon_path()
 	// otherwise search for the icon file in the list of files installed by
 	// the package
 	
-	string exp("/" + path), suf(".(png|xpm|jpg|ico|gif|svg)$");
-
 	// if path does not have any image format suffix, add 'suf' to the expression
 	
+	string exp("/" + path), suf(".(png|xpm|jpg|ico|gif|svg)$");
 	Regexp re1(suf, true);
 	if (!re1.run(path))
 		exp += suf;
@@ -272,63 +298,19 @@ void Info::get_icon_path()
 	for (uint i(0); i < m_pkg->m_files.size(); ++i) {
 		if (re2.run(m_pkg->m_files[i]->name())) {
 			path = m_pkg->m_files[i]->name();
-			if (!access(path.c_str(), F_OK))
+			if (0 == access(path.c_str(), F_OK))
 				break;
 		}
 	}
 }
 
 
-void Info::get_dirs()
+static string unquote(string const& str)
 {
-	m_dirs.insert(".");
-
-	string dir;
-	
-	if (get_build_var("top_srcdir", dir))
-		m_dirs.insert(dir);
-
-	if (get_build_var("top_builddir", dir))
-		m_dirs.insert(dir);
+	if (str.size() > 1 && (str.at(0) == '"' || str.at(0) == '\'') 
+	&& str.at(0) == str.at(str.size() - 1))
+		return str.substr(1, str.size() - 2);
+	else
+		return str;
 }
-
-
-bool Info::get_var(
-		string const& file, 
-		string const& tag, 
-		string& val, 
-		bool resolve /* = true */) const
-{
-	std::ifstream f(file.c_str());
-	if (!f)
-		return false;
-		
-	string buf;
-	string::size_type p;
-	bool found = false;
-
-	while (!found && getline(f, buf)) {
-		if (buf.find(tag) == 0
-		&& (p = buf.find_first_not_of(" \t:=", tag.size())) != string::npos) {
-			val = buf.substr(p);
-			if (resolve)
-				val = resolve_defines(val);
-			found = true;
-		}
-	}
-
-	return found;
-}
-
-
-//
-// Extract the value of 'var' from Makefile, makefile or config.log
-//
-bool Info::get_build_var(string const& tag, string& var) const
-{
-	return get_var("Makefile", tag, var, false)
-		|| get_var("makefile", tag, var, false)
-		|| get_var("config.log", tag, var, false);
-}
-
 

@@ -12,6 +12,7 @@ noinst_HEADERS = \
 	porgball.h \
 	preferences.h \
 	filestreeview.h \
+	infotextview.h \
 	maintreeview.h \
 	pkg.h
 
@@ -28,6 +29,7 @@ grop_SOURCES = \
 	porgball.cc \
 	removepkg.cc \
 	filestreeview.cc \
+	infotextview.cc \
 	properties.cc \
 	mainwindow.cc \
 	preferences.cc \
