@@ -41,7 +41,7 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 	Gtk::Dialog("grop :: porgball", parent, true),
 	m_pkg(pkg),
 	m_label("", 0.02, 0.5),
-	m_label_tarball("", 0.0, 0.0),
+	m_label_tarball("", 0, 0),
 	m_combo_prog(),
 	m_combo_level(),
 	m_filechooser_button(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER),
@@ -147,9 +147,10 @@ void Porgball::create_porgball()
 	}
 
     string tar = dir + "/" + m_pkg.name() + ".porg.tar";
-
     string zip = tar + ".";
+	
 	int prog = m_combo_prog.get_active_row_number();
+
 	switch (prog) {
 		case USE_GZIP: 	zip += "gz";	break;
 		case USE_BZIP2:	zip += "bz2";	break;

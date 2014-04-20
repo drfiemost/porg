@@ -28,7 +28,7 @@ Info::Info(Pkg* pkg)
 	m_defs(),
 	m_pkg(pkg)
 {
-	assert(pkg != NULL);
+	assert(pkg != 0);
 
 	Out::dbg_title("package information");
 
@@ -94,8 +94,8 @@ void Info::get_defs_spec(string const& spec)
 
 	while (!f.getline(buf, sizeof(buf)).eof()) {
 		if ((p = strtok(buf, " \t")) && !strcmp(p, "%define")
-		&& (var = strtok(NULL, " \t\n"))
-		&& (val = strtok(NULL, " \t\n")) && val[0] != '%')
+		&& (var = strtok(0, " \t\n"))
+		&& (val = strtok(0, " \t\n")) && val[0] != '%')
 			m_defs.push_back(Define(Define::FMT_SPEC, var, val));
 	}
 }

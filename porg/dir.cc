@@ -16,7 +16,7 @@ using namespace Porg;
 Dir::Dir(string const& path)
 :
 	m_dir(opendir(path.c_str())),
-	m_dirent(NULL)
+	m_dirent(0)
 {
 	if (!m_dir)
 		throw Error("opendir(\"" + path + "\")", errno);

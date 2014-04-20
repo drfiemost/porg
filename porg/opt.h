@@ -59,6 +59,7 @@ class Opt : public Porgrc
 	Opt(int argc, char* argv[]);
 
 	static void set_mode(Mode m, char optchar);
+	static void set_sort_type(std::string const&);
 
 	static bool s_all_pkgs;
 	static bool s_print_sizes;

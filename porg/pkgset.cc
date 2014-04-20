@@ -62,13 +62,15 @@ void PkgSet::get_all_pkgs()
 // Search the database for packages matching any of the strings in args given
 // by the command line
 //
-void PkgSet::get_pkgs(vector<string> const& args)
-{	
+int PkgSet::get_pkgs(vector<string> const& args)
+{
+	int ret = EXIT_SUCCESS;
+	
 	Dir dir(Opt::logdir());
 
 	for (uint i(0); i < args.size(); ++i, dir.rewind()) {
 		
-		bool found(false);
+		bool found = false;
 
 		for (string name; dir.read(name); ) {
 			if (match_pkg(args[i], name) && add_pkg(name))
@@ -77,11 +79,13 @@ void PkgSet::get_pkgs(vector<string> const& args)
 
 		if (!found) {
 			Out::vrb("porg: " + args[i] + ": Package not logged\n");
-			g_exit_status = EXIT_FAILURE;
+			ret = EXIT_FAILURE;
 		}
 	}
 
 	std::sort(begin(), end(), Sorter());
+
+	return ret;
 }
 
 
@@ -164,11 +168,11 @@ void PkgSet::print_conf_opts() const
 }
 
 
-void PkgSet::query()
+int PkgSet::query()
 {
-	get_files();
+	int ret = EXIT_FAILURE;
 
-	g_exit_status = EXIT_FAILURE;
+	get_files();
 
 	for (uint i(0); i < Opt::args().size(); ++i) {
 		
@@ -177,13 +181,15 @@ void PkgSet::query()
 		
 		for (const_iterator p(begin()); p != end(); ++p) {
 			if ((*p)->has_file(path)) {
-				g_exit_status = EXIT_SUCCESS;
+				ret = EXIT_SUCCESS;
 				cout << "  " << (*p)->name();
 			}
 		}
 		
 		cout << '\n';
 	}
+	
+	return ret;
 }
 
 

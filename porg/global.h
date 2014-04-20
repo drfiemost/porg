@@ -14,8 +14,6 @@
 
 namespace Porg
 {
-	extern int g_exit_status;
-
 	std::string clear_path(std::string const&);
 
 }	// namespace Porg

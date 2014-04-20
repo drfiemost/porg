@@ -116,7 +116,7 @@ void Log::read_files_from_command()
 		Out::dbg("command: " + command + "\n");
 		Out::dbg_title("libporg-log");
 
-		char* cmd[] = { (char*)"sh", (char*)"-c", (char*)(command.c_str()), NULL };
+		char* cmd[] = { (char*)"sh", (char*)"-c", (char*)(command.c_str()), 0 };
 		execv("/bin/sh", cmd);
 
 		throw Error("execv()", errno);

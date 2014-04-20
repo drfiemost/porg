@@ -11,34 +11,42 @@
 
 using std::string;
 
-// initialization of globals
-namespace Porg
-{
-	int g_exit_status = EXIT_SUCCESS;
-}
 
-
+//
+// Like libc's realpath(), but it only resolve symlinks in the partial
+// directories of the path, thereby retaining symlinks as symlinks.
+//
 string Porg::clear_path(string const& inpath)
 {
-	string path(inpath);
-	
-	// strip trailing and consecutive slashes
-    
-	string::size_type p;
-    while ((p = path.find("//")) != string::npos)
-        path.erase(p, 1);
+	assert(!inpath.empty());
 
-    if ((p = path.find_last_not_of("/")) != string::npos)
-        path.erase(++p);
-	
+	string path(inpath);
+
 	// absolutize path
-	
+
 	if (path[0] != '/') {
 		char cwd[4096];
 		if (getcwd(cwd, sizeof(cwd)))
-			path.insert(0, string(cwd) + '/');
+			path.insert(0, string(cwd) + "/");
 	}
+	// strip trailing slashes
+    
+	while (path[path.size() - 1] == '/')
+		path.erase(path.size() - 1);
 
-	return path;
+	// separate dirname from basename
+
+	string::size_type p = path.rfind('/');
+	string base((p == string::npos) ? "" : path.substr(p + 1));
+	string dir(path.substr(0, p));
+
+	// get realpath of dirname
+
+	char real[4096];
+
+	if (!::realpath(dir.c_str(), real))
+		return path;
+
+	return string(real) + "/" + base;
 }
 

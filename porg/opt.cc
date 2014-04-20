@@ -17,7 +17,6 @@ using std::cout;
 using std::cerr;
 using namespace Porg;
 
-static sort_t get_sort_type(string const& s);
 static void help();
 static void version();
 static string get_dir_name();
@@ -96,7 +95,7 @@ Opt::Opt(int argc, char* argv[])
 		{ "append", 0, 0, '+' },
 		{ "dirname", 0, 0, 'D' },
 		{ "log-missing", 0, 0, OPT_LOG_MISSING },
-		{ NULL ,0, 0, 0 },
+		{ 0 ,0, 0, 0 },
 	};
 	
 	// Deal with the weird non-getopt-friendly '-p+' option
@@ -137,7 +136,7 @@ Opt::Opt(int argc, char* argv[])
 			case 'i': set_mode(MODE_INFO, op); break;
 			case 'o': set_mode(MODE_CONF_OPTS, op); break;
 			case 'q': set_mode(MODE_QUERY, op); break;
-			case 'S': s_sort_type = get_sort_type(optarg); break;
+			case 'S': set_sort_type(optarg); break;
 			case 'R': s_reverse_sort = true; break;
 			case 't': s_print_totals = true; break;
 			case 's': s_print_sizes = true; break;
@@ -250,6 +249,21 @@ void Opt::set_mode(Mode m, char optchar)
 }
 
 
+void Opt::set_sort_type(string const& s)
+{
+	if (!s.compare(0, s.size(), "size", s.size()))
+		s_sort_type = SORT_BY_SIZE;
+	else if (!s.compare(0, s.size(), "date", s.size()))
+		s_sort_type = SORT_BY_DATE;
+	else if (!s.compare(0, s.size(), "files", s.size()))
+		s_sort_type = SORT_BY_NFILES;
+	else if (!s.compare(0, s.size(), "name", s.size()))
+		s_sort_type = SORT_BY_NAME;
+	else
+		die_help("'" + s + "': Invalid argument for option '-S|--sort'");
+}
+
+
 static void help()
 {
 cout <<
@@ -317,32 +331,6 @@ static string get_dir_name()
 		throw Error("getcwd()", errno);
 
 	return strrchr(dirname, '/') + 1;
-}
-
-
-//
-// Process the '--sort=WORD' option
-//
-static sort_t get_sort_type(string const& s)
-{
-	if (!s.compare(0, s.size(), "size", s.size()))
-		return SORT_BY_SIZE;
-	
-	else if (!s.compare(0, s.size(), "date", s.size()))
-		return SORT_BY_DATE;
-	
-	else if (!s.compare(0, s.size(), "files", s.size()))
-		return SORT_BY_NFILES;
-	
-	else if (!s.compare(0, s.size(), "name", s.size()))
-		return SORT_BY_NAME;
-
-	throw Error(string("Invalid argument '") + s + "' for option '-S|--sort'.\n"
-		"Valid arguments are:\n"
-		"  - 'name'\n"
-		"  - 'size'\n"
-		"  - 'date'\n"
-		"  - 'files'\n");
 }
 
 
