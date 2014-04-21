@@ -503,14 +503,11 @@ int linkat(int oldfd, const char* oldpath,
            int newfd, const char* newpath, int flags)
 {
 	int ret;
-	static char old_abs_path[PORG_BUFSIZE];
 	static char new_abs_path[PORG_BUFSIZE];
 	
 	porg_init();
 
 	if ((ret = libc_linkat(oldfd, oldpath, newfd, newpath, flags)) != -1) {
-		/* XXX: handle flags */
-		porg_get_absolute_path(oldfd, oldpath, old_abs_path);
 		porg_get_absolute_path(newfd, newpath, new_abs_path);
 		porg_log(new_abs_path, "linkat(%d, \"%s\", %d, \"%s\")",
 			oldfd, oldpath, newfd, newpath);

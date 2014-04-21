@@ -8,6 +8,7 @@ SVN
 	  - porg failed to log files with spaces in their names [XXX pending]
 	+ Fixed bug that prevented logging of files created by programs that don't
 	  terminate normally.
+	+ Fixed bug with resolution of relative paths.
 	+ Removed option '-g|--log-ignore-errors'.
 	+ Handle system calls openat(), linkat(), etc... when installing a package.
 	+ Do not handle *truncate() system calls when installing a package.

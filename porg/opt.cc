@@ -316,7 +316,7 @@ cout <<
 
 static void version()
 {
-	cout << "porg-" PACKAGE_VERSION "  (" RELEASEDATE ")\n"
+	cout << "porg-" PACKAGE_VERSION " (" RELEASEDATE ")\n"
 		"Written by David Ricart <" PACKAGE_BUGREPORT ">\n";
 
 	exit(EXIT_SUCCESS);
