@@ -1,6 +1,9 @@
 .\"----------------------------------------------------------------
 .\" porgrc.8 - porgrc man page
 .\"----------------------------------------------------------------
+.\" Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
+.\"----------------------------------------------------------------
+
 .TH porgrc "5" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 porgrc - configuration file for porg

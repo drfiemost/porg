@@ -1,6 +1,9 @@
 .\"----------------------------------------------------------------
 .\" porg.8 - porg-@PACKAGE_VERSION@ man page
 .\"----------------------------------------------------------------
+.\" Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
+.\"----------------------------------------------------------------
+.\"
 .TH PORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 porg \- a source code package organizer

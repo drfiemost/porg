@@ -1,6 +1,12 @@
 SVN
 ---
 
+	+ Readded GPL License and Copyright.
+
+
+Version 0.2 (23/04/2014)
+------------------------
+
 	+ Several bugs fixed thanks to the contribution of Masahiro Kasahara:
 	  - paco2porg failed when importing paco logs with no logged files
 	  - porg hanged up when logging packages and the installer program calls 

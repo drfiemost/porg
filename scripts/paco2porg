@@ -3,9 +3,10 @@
 #-----------------------------------------------------------------------
 # paco2porg - imports paco logs into a porg database.
 #-----------------------------------------------------------------------
-# paco2porg is part of the package porg
+# This file is part of the package porg
+# Copyright (C) 2014 David Ricart
 # For more information visit http://porg.sourceforge.net
-#-----------------------------------------------------------------------
+#----------------------------------------------------------------------
 
 me=`basename $0`
 

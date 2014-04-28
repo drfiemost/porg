@@ -4,7 +4,7 @@
 
 AC_INIT([porg], [svn], [http://porg.sourceforge.net])
 
-#RELEASEDATE="16 March 2014"
+#RELEASEDATE="23 April 2014"
 RELEASEDATE="`date +'%d %B %Y'`"
 
 AC_CONFIG_SRCDIR([porg/main.cc])

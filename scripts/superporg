@@ -6,7 +6,8 @@
 #
 # To install RPM packages, cpio and (rpm2cpio or rpmunpack) are required.
 #-----------------------------------------------------------------------
-# SuperPorg is part of the package porg
+# This file is part of the package porg
+# Copyright (C) 2014 David Ricart
 # For more information visit http://porg.sourceforge.net
 #-----------------------------------------------------------------------
 

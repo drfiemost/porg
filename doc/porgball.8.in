@@ -1,6 +1,9 @@
 .\"----------------------------------------------------------------
 .\" porgball.8 - porgball-@PACKAGE_VERSION@ man page
 .\"----------------------------------------------------------------
+.\" Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
+.\"----------------------------------------------------------------
+.\"
 .TH PORGBALL "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
 .SH NAME
 porgball - Binary package support for porg(8).

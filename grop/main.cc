@@ -2,6 +2,7 @@
 // main.cc
 //-----------------------------------------------------------------------
 // This file is part of the package grop
+// Copyright (C) 2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 

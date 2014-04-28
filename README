@@ -50,6 +50,8 @@ packages or printing package information. For more information just DOWNLOAD IT!
     
     - Major code enhancements and cleanup. 
 
+    - Additionally, all changes documented in the Changelog.
+
 Paco users can import old paco logs into the porg database with the script
 paco2porg included in the porg distribution.
 
@@ -110,7 +112,9 @@ The porg distribution provides the following auxiliary scripts:
 
 * License *
 
-No such thing.
+Copyright (C) 2014 David Ricart
+Porg is protected by the GNU General Public License.
+Look at the COPYING file for more details.
 
 
 * Authors *

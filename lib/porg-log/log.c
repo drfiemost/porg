@@ -2,6 +2,7 @@
  * log.c: Handles the system calls that create files and logs them.
  ***********************************************************************
  * This file is part of the package porg
+ * Copyright (C) 2014 David Ricart
  * For more information visit http://porg.sourceforge.net
  ***********************************************************************/
 

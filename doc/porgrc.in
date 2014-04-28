@@ -1,8 +1,10 @@
 ##----------------------------------------------------------------------
 ## @sysconfdir@/porgrc: configuration file for porg-@PACKAGE_VERSION@.
 ##
+## Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
+##
 ## See the man page of porgrc(5) for more information.
-##----------------------------------------------------------------------
+##
 ## Note: For those variables that can be also set by the command line,
 ## the equivalent command line options are specified in brackets.
 ##----------------------------------------------------------------------
