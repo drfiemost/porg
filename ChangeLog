@@ -2,6 +2,7 @@ SVN
 ---
 
 	+ Readded GPL License and Copyright.
+	+ Bugfix: properly log files with spaces in their names.
 
 
 Version 0.2 (23/04/2014)
@@ -11,7 +12,6 @@ Version 0.2 (23/04/2014)
 	  - paco2porg failed when importing paco logs with no logged files
 	  - porg hanged up when logging packages and the installer program calls 
 	    jemalloc
-	  - porg failed to log files with spaces in their names [XXX pending]
 	+ Fixed bug that prevented logging of files created by programs that don't
 	  terminate normally.
 	+ Fixed bug with resolution of relative paths.

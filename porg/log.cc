@@ -87,7 +87,7 @@ void Log::write_files_to_stream(ostream& s) const
 
 void Log::read_files_from_stream(istream& f)
 {
-	m_files.insert(istream_iterator<string>(f), istream_iterator<string>());
+	for (string buf; getline(f, buf); m_files.insert(buf)) ;
 }
 
 
