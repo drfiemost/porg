@@ -10,7 +10,6 @@
 #include "opt.h"
 #include "log.h"
 #include "pkgset.h"
-#include <stdexcept>
 
 using namespace Porg;
 using namespace std;
