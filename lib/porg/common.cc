@@ -71,11 +71,15 @@ string Porg::fmt_date(time_t date, bool print_hour)
 bool Porg::in_paths(string const& path, string const& list)
 {   
 	std::istringstream s(list + ":");
-	string buf;
-	while (getline(s, buf, ':') && buf.size()) {
-		if (buf == "/" || !fnmatch(buf.c_str(), path.c_str(), 0) || !path.find(buf + "/"))
+
+	for (string buf; getline(s, buf, ':'); ) {
+		if (buf.empty())
+			continue;
+		else if (buf == "/" || !fnmatch(buf.c_str(), path.c_str(), 0) 
+		|| !path.find(buf + "/"))
 			return true;
 	}
+
 	return false;
 }
 

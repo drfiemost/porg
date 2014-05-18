@@ -70,15 +70,6 @@ static void porg_vprintf(const char* fmt, va_list ap)
 }
 
 
-static void porg_printf(const char* fmt, ...)
-{
-	va_list ap;
-	va_start(ap, fmt);
-	porg_vprintf(fmt, ap);
-	va_end(ap);
-}	
-
-
 static void porg_die(const char* fmt, ...)
 {
 	va_list ap;
@@ -153,8 +144,6 @@ static void porg_init()
 		
 	porg_debug = getenv("PORG_DEBUG");
 	
-	porg_printf("-- init --");
-
 	/* handle system calls */
 	
 	libc_open 		= porg_dlsym("open");

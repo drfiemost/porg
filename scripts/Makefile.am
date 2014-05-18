@@ -15,8 +15,7 @@ bin_SCRIPTS = \
 install-exec-local:
 	if test -f /etc/bash_completion ; then \
 		$(mkinstalldirs) /etc/bash_completion.d && \
-		$(INSTALL_DATA) porg_bash_completion /etc/bash_completion.d && \
-		source /etc/bash_completion; \
+		$(INSTALL_DATA) porg_bash_completion /etc/bash_completion.d; \
 	fi
 
 logme_files = \

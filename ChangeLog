@@ -1,8 +1,11 @@
-SVN
----
+Version 0.3 (19/05/2014)
+------------------------
 
 	+ Readded GPL License and Copyright.
 	+ Bugfix: properly log files with spaces in their names.
+	+ Bugfix: EXCLUDE variable in porgrc was not parsed correctly.
+	+ Bugfix: Skip sourcing of /etc/bash_completion when installing
+	  porg_bash_completion, to avoid errors from foreign software.
 
 
 Version 0.2 (23/04/2014)

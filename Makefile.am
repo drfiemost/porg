@@ -14,7 +14,7 @@ pkgdata_DATA = \
 	README
 
 EXTRA_DIST = \
-	BUGS
+	ChangeLog.paco
 
 logdir = \
 	$(DESTDIR)@LOGDIR@
