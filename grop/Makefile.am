@@ -51,7 +51,7 @@ logme_files = \
     $(DESTDIR)$(bindir)/grop
 
 logme:
-	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
+	ls $(logme_files) 2>/dev/null | porg -lp+ porg-$(PACKAGE_VERSION)
 
 else
 

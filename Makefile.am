@@ -28,7 +28,7 @@ logme_files = \
 
 ## A rule to log the own porg's installation
 logme:
-	echo $(logme_files) | porg -lp porg-$(PACKAGE_VERSION); \
+	ls $(logme_files) 2>/dev/null | porg -lp porg-$(PACKAGE_VERSION); \
 	for dir in $(SUBDIRS); do \
 	  ( cd $$dir && $(MAKE) $@ ) 2>/dev/null; \
 	done && \

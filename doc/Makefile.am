@@ -60,7 +60,7 @@ install-data-local: porgrc
 	( test -f $$rc_dir/porgrc || $(INSTALL_DATA) porgrc $$rc_dir/porgrc )
 
 logme:
-	echo $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
+	ls $(logme_files) 2>/dev/null | porg -lp+ porg-$(PACKAGE_VERSION)
 
 web: index.html
 	scp $< davidrr,porg@web.sourceforge.net:htdocs/

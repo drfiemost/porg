@@ -46,13 +46,6 @@ Log::Log()
 }
 
 
-Log::~Log()
-{
-	if (!m_tmpfile.empty())
-		unlink(m_tmpfile.c_str());
-}
-
-
 void Log::write_files_to_pkg() const
 {
 	bool done(false);
@@ -93,8 +86,23 @@ void Log::read_files_from_stream(istream& f)
 
 void Log::read_files_from_command()
 {
-	get_tmpfile();
+	try
+	{
+		do_read_files_from_command();
+		unlink(m_tmpfile.c_str());
+	}
+	catch (...)
+	{
+		unlink(m_tmpfile.c_str());
+		throw;
+	}
+}
 
+
+void Log::do_read_files_from_command()
+{
+	get_tmpfile();
+	
 	pid_t pid = fork();
 
 	if (pid == 0) { // child
@@ -127,7 +135,7 @@ void Log::read_files_from_command()
 		throw Error("fork()", errno);
 
 	wait(0);
-	
+
 	FileStream<ifstream> f(m_tmpfile);
 	read_files_from_stream(f);
 }

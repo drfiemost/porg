@@ -20,16 +20,16 @@ class Log
 	public:
 
 	Log();
-	~Log();
 
 	protected:
 
 	std::string				m_tmpfile;
-	std::set<std::string>	m_files;
+	std::set<std::string> 	m_files;
 	
 	static int const EXIT_FAILURE_EXTERNAL = 2;
 	
 	void read_files_from_command();
+	void do_read_files_from_command();
 	void read_files_from_stream(std::istream&);
 	void write_files_to_pkg() const;
 	void write_files_to_stream(std::ostream&) const;

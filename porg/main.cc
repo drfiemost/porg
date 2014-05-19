@@ -23,12 +23,11 @@ int main(int argc, char* argv[])
 
 	try 
 	{
-		// read config file and get options from command line
 		Opt::init(argc, argv);
 
 		if (Opt::mode() == MODE_LOG) {
 			Log log;
-			exit(EXIT_SUCCESS);
+			exit(exit_status);
 		}
 
 		PkgSet pset;
@@ -55,7 +54,11 @@ int main(int argc, char* argv[])
 	catch (Error const& x) 
 	{
 		cerr << "porg: " << x.what() << '\n';
-		exit(EXIT_FAILURE);
+		exit_status = EXIT_FAILURE;
+	}
+	catch (...)
+	{
+		exit_status = EXIT_FAILURE;
 	}
 
 	exit(exit_status);
