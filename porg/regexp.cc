@@ -14,22 +14,41 @@ using namespace Porg;
 using std::string;
 
 
-Regexp::Regexp(string const& exp, bool icase /* = false */)
+Regexp::Regexp(string const& exp, int flags /* = 0 */)
 :
-	m_ok(!regcomp(	&m_regex, 
-					exp.c_str(), 
-					REG_NOSUB | REG_EXTENDED | (REG_ICASE & icase)))
-{ }
+	m_regex(),
+	m_pmatch(),
+	m_str(),
+	m_matched(false),
+	m_compiled(0 == regcomp(&m_regex, exp.c_str(), REG_EXTENDED | flags))
+{ 
+	assert(m_compiled);
+}
 
 
 Regexp::~Regexp()
 {
-	regfree(&m_regex);
+	if (m_compiled)
+		regfree(&m_regex);
 }
 
 
-bool Regexp::run(string const& str)
+bool Regexp::exec(string const& str)
 {
-	return m_ok && regexec(&m_regex, str.c_str(), 0, 0, 0) != REG_NOMATCH;
+	m_str = str;
+	m_matched = !regexec(&m_regex, str.c_str(), MAX_MATCHES, m_pmatch, 0);
+	return m_matched;
+}
+
+
+string Regexp::submatch(int n /* = 0 */)
+{
+	assert(m_matched);
+	assert(n < MAX_MATCHES);
+
+	if (!m_matched || n >= MAX_MATCHES || m_pmatch[n].rm_so == -1)
+		return "";
+
+	return m_str.substr(m_pmatch[n].rm_so, m_pmatch[n].rm_eo - m_pmatch[n].rm_so);
 }
 

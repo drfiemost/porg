@@ -30,16 +30,12 @@ class Info
 	{
 		public:
 
-		static char const FMT_SPEC = '%';
-		static char const FMT_PC   = '$';
-
-		Define(char const fmt, std::string const& var, std::string const& val);
+		Define(std::string const& var, std::string const& val);
 	
 		void resolve(std::string& str) const;
 	
 		private:
 		
-		char m_fmt;
 		std::string m_var;
 		std::string m_val;
 
@@ -50,10 +46,8 @@ class Info
 
 	void get_icon_path();
 	void get_info_spec();
-	void get_info_pc();
 	void get_info_desktop();
 	void get_info_config_log();
-	void get_defs_pc(std::string const&);
 	void get_defs_spec(std::string const&);
 	void get_spec_desc(std::string const&);
 	std::string resolve_defines(std::string const&) const;

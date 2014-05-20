@@ -17,19 +17,27 @@
 namespace Porg
 {
 
+//XXX: template <int nmatches = 1>
 class Regexp
 {
 	public:
 
-	Regexp(std::string const& exp, bool icase = false);
+	Regexp(std::string const& exp, int flags = 0);
 	~Regexp();
 
-	bool run(std::string const& str);
+	bool exec(std::string const&);
+	std::string submatch(int = 0);
 		
 	private:
 
-	regex_t	m_regex;
-	bool	m_ok;
+	//XXX make this with template <int>
+	static int const MAX_MATCHES = 8;
+
+	regex_t		m_regex;
+	regmatch_t	m_pmatch[MAX_MATCHES];
+	std::string	m_str;
+	bool		m_matched;
+	bool const	m_compiled;
 };
 
 }

@@ -34,7 +34,6 @@ Info::Info(Pkg* pkg)
 	Out::dbg_title("package information");
 
 	get_info_config_log();
-	get_info_pc();
 	get_info_spec();
 	get_info_desktop();
 
@@ -42,25 +41,23 @@ Info::Info(Pkg* pkg)
 }
 
 
-Info::Define::Define(char const fmt, string const& var, string const& val)
+Info::Define::Define(string const& var, string const& val)
 :
-	m_fmt(fmt),
 	m_var(var),
 	m_val(val)
 { }
 
 
+//XXX: Use Regexp
 void Info::Define::resolve(string& str) const
 {
-	if (str.find(m_fmt) == string::npos)
+	if (str.find('%') == string::npos)
 		return;
 			
 	string::size_type p;
-	string var0(1, m_fmt), var1(1, m_fmt);
+	string var0(string("%") + m_var);
+	string var1(string("%{")  + m_var + "}");
 	
-	var0 += m_var;
-	var1 += "{" + m_var + "}";
-
 	for (p = 0; (p = str.find(var0, p)) != string::npos; )
 		str.replace(p, var0.size(), m_val);
 
@@ -97,26 +94,7 @@ void Info::get_defs_spec(string const& spec)
 		if ((p = strtok(buf, " \t")) && !strcmp(p, "%define")
 		&& (var = strtok(0, " \t\n"))
 		&& (val = strtok(0, " \t\n")) && val[0] != '%')
-			m_defs.push_back(Define(Define::FMT_SPEC, var, val));
-	}
-}
-
-
-void Info::get_defs_pc(string const& pc)
-{
-	std::ifstream f(pc.c_str());
-	if (!f)
-		return;
-		
-	string buf;
-	string::size_type p;
-
-	m_defs.clear();
-
-	while (getline(f, buf)) {
-		if ((p = buf.find("=")) != string::npos && buf.size() > p)
-			m_defs.push_back
-				(Define(Define::FMT_PC, buf.substr(0, p), buf.substr(p + 1)));
+			m_defs.push_back(Define(var, val));
 	}
 }
 
@@ -149,9 +127,7 @@ void Info::get_info_spec()
 
 	get_defs_spec(spec);
 
-	get_var(spec, "Name", m_pkg->m_base_name);
 	get_var(spec, "Icon", m_pkg->m_icon_path);
-	get_var(spec, "Version", m_pkg->m_version);
 	get_var(spec, "Summary", m_pkg->m_summary);
 	get_var(spec, "URL", m_pkg->m_url);
 	get_var(spec, "Vendor", m_pkg->m_author);
@@ -170,23 +146,8 @@ void Info::get_info_desktop()
 		return;
 
 	get_var(desktop, "Icon", m_pkg->m_icon_path, false);
-	get_var(desktop, "Name", m_pkg->m_base_name, false);
 	get_var(desktop, "GenericName", m_pkg->m_summary, false);
 	get_var(desktop, "Comment", m_pkg->m_summary, false);
-}
-
-
-void Info::get_info_pc()
-{
-	string pc(search_file(m_pkg->m_base_name + ".pc"));
-	if (pc.empty())
-		return;
-
-	get_defs_pc(pc);
-	
-	get_var(pc, "Description",	m_pkg->m_summary);
-	get_var(pc, "Name", 		m_pkg->m_base_name);
-	get_var(pc, "Version",		m_pkg->m_version);
 }
 
 
@@ -211,12 +172,9 @@ void Info::get_info_config_log()
 	
 	f.close();
 
-	get_var(config, "PACKAGE_NAME", m_pkg->m_base_name, false);
-	get_var(config, "PACKAGE", m_pkg->m_base_name, false);
 	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
 	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
 	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
-	get_var(config, "PACKAGE_VERSION", m_pkg->m_version, false);
 }
 
 
@@ -253,21 +211,18 @@ bool Info::get_var(string const& file, string const& tag,
 	if (!f)
 		return false;
 		
-	string buf;
-	string::size_type p;
-	bool found = false;
+	Regexp re(tag + "[[:space:]:=]\\+(.\\+)$");
 
-	while (!found && getline(f, buf)) {
-		if (buf.find(tag) == 0
-		&& (p = buf.find_first_not_of(" \t:=", tag.size())) != string::npos) {
-			val = unquote(buf.substr(p));
+	for (string buf; getline(f, buf); ) {
+		if (re.exec(buf)) {
+			val = unquote(re.submatch(1));
 			if (resolve)
 				val = resolve_defines(val);
-			found = true;
+			return true;
 		}
 	}
 
-	return found;
+	return false;
 }
 
 
@@ -287,17 +242,19 @@ void Info::get_icon_path()
 	
 	// if path does not have any image format suffix, add 'suf' to the expression
 	
-	string exp("/" + path), suf(".(png|xpm|jpg|ico|gif|svg)$");
-	Regexp re1(suf, true);
-	if (!re1.run(path))
+	string exp("/" + path);
+	string suf(".(png|xpm|jpg|ico|gif|svg)$");
+	Regexp re1(suf, REG_ICASE);
+	
+	if (!re1.exec(path))
 		exp += suf;
 
 	// Search the logged files for the path of the icon
 	
-	Regexp re2(exp, true);
+	Regexp re2(exp, REG_ICASE);
 
 	for (uint i(0); i < m_pkg->m_files.size(); ++i) {
-		if (re2.run(m_pkg->m_files[i]->name())) {
+		if (re2.exec(m_pkg->m_files[i]->name())) {
 			path = m_pkg->m_files[i]->name();
 			if (0 == access(path.c_str(), F_OK))
 				break;

@@ -133,8 +133,6 @@ void Pkg::write_log() const
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
 		<< '#' << CODE_NFILES 		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_SIZE 		<< ':' << m_size << '\n'
-		<< '#' << CODE_BASE_NAME	<< ':' << m_base_name << '\n'
-		<< '#' << CODE_VERSION		<< ':' << m_version << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
 		<< '#' << CODE_SUMMARY		<< ':' << m_summary << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'

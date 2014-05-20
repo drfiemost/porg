@@ -22,12 +22,12 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 :
 	m_files(),
 	m_name(name_),
+	m_log(Porgrc::logdir() + "/" + name_),
+	m_base_name(get_base(name_)),
+	m_version(get_version(name_)),
 	m_date(time(0)),
 	m_size(0),
 	m_nfiles(0),
-	m_log(Porgrc::logdir() + "/" + name_),
-	m_base_name(get_base(m_name)),
-	m_version(get_version(m_name)),
 	m_icon_path(),
 	m_url(),
 	m_license(),
@@ -69,8 +69,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 			case CODE_DATE: 		m_date = str2num<int>(val);		break;
 			case CODE_SIZE: 		m_size = str2num<ulong>(val); 	break;
 			case CODE_NFILES: 		m_nfiles = str2num<long>(val);	break;
-			case CODE_BASE_NAME: 	m_base_name = val;				break;
-			case CODE_VERSION: 		m_version = val; 				break;
 			case CODE_CONF_OPTS:	m_conf_opts = val; 				break;
 			case CODE_ICON_PATH:	m_icon_path = val;				break;
 			case CODE_SUMMARY: 		m_summary = val; 				break;
@@ -82,8 +80,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 					m_description += "\n";
 				m_description += val;
 				break;
-			
-			default: assert(0);
 		}
 	}
 }
@@ -180,6 +176,7 @@ void BasePkg::sort_files(	sort_t type,	// = SORT_BY_NAME
 }
 
 
+//XXX Use Regexp
 string BasePkg::get_base(string const& name)
 {
 	for (string::size_type i = 1; i < name.size(); ++i) {
@@ -190,6 +187,7 @@ string BasePkg::get_base(string const& name)
 }
 
 
+//XXX Use Regexp
 string BasePkg::get_version(string const& name)
 {
 	for (string::size_type i = 1; i < name.size(); ++i) {

@@ -28,8 +28,6 @@ class BasePkg
 
 	// codes used to identify fields in the header of log files
 	
-	static char const CODE_BASE_NAME	= 'b';
-	static char const CODE_VERSION		= 'v';
 	static char const CODE_DATE			= 't';
 	static char const CODE_SIZE			= 's';
 	static char const CODE_NFILES		= 'f';
@@ -87,12 +85,12 @@ class BasePkg
 
 	std::vector<File*> m_files;
 	std::string const m_name;
+	std::string const m_log;
+	std::string const m_base_name;
+	std::string const m_version;
 	int m_date;
 	ulong m_size;
 	ulong m_nfiles;
-	std::string const m_log;
-	std::string m_base_name;
-	std::string m_version;
 	std::string m_icon_path;
 	std::string m_url;
 	std::string m_license;
