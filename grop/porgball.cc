@@ -110,7 +110,7 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 	add_button(Gtk::Stock::EXECUTE, Gtk::RESPONSE_OK);
 	get_action_area()->set_layout(Gtk::BUTTONBOX_EDGE);
 
-	if (close(Glib::file_open_tmp(m_tmpfile, "grop")) < 0)
+	if (::close(Glib::file_open_tmp(m_tmpfile, "grop")) < 0)
 		m_tmpfile = "/tmp/grop" + getpid();
 
 	show_all();
