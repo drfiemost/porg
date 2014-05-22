@@ -1,5 +1,5 @@
 ##----------------------------------------------------------------------
-## @sysconfdir@/porgrc: configuration file for porg-@PACKAGE_VERSION@.
+## @sysconfdir@/porgrc: configuration file for porg.
 ##
 ## Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
 ##
@@ -16,7 +16,7 @@
 # [-I|--include]
 #INCLUDE=/
 
-# Paths to skip when logging installations.
+# Paths to exclude when logging installations.
 # [-E|--exclude]
 #EXCLUDE=@EXCLUDE@
 

@@ -3,6 +3,8 @@ SVN
 
 	+ Bugfix: Always remove temporary files after installing a package.
 	+ Bugfix: Log all files installed by porg when running "make logme".
+	+ When installing packages, take into account environment variables
+	  passed to ./configure.
 
 
 Version 0.3 (19/05/2014)

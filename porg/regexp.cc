@@ -41,7 +41,7 @@ bool Regexp::exec(string const& str)
 }
 
 
-string Regexp::submatch(int n /* = 0 */)
+string Regexp::match(int n /* = 0 */)
 {
 	assert(m_matched);
 	assert(n < MAX_MATCHES);

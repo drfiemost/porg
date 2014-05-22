@@ -1,10 +1,10 @@
 .\"----------------------------------------------------------------
-.\" superporg.8 - superporg-@PACKAGE_VERSION@ man page
+.\" superporg.8 - superporg man page
 .\"----------------------------------------------------------------
 .\" Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
 .\"----------------------------------------------------------------
 
-.TH SUPERPORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
+.TH SUPERPORG "8" "@RELEASEDATE@" "porg @PACKAGE_VERSION@" "System"
 .SH NAME
 superporg - Debian, RPM or Slackware package installation support for porg(8).
 .SH SYNOPSIS

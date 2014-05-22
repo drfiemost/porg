@@ -17,16 +17,11 @@
 #include <glob.h>
 
 using std::string;
-using std::vector;
-using std::set;
 using namespace Porg;
-
-static string unquote(string const&);
 
 
 Info::Info(Pkg* pkg)
 :
-	m_defs(),
 	m_pkg(pkg)
 {
 	assert(pkg != 0);
@@ -34,68 +29,11 @@ Info::Info(Pkg* pkg)
 	Out::dbg_title("package information");
 
 	get_info_config_log();
+	get_info_pc();
 	get_info_spec();
 	get_info_desktop();
 
 	get_icon_path();
-}
-
-
-Info::Define::Define(string const& var, string const& val)
-:
-	m_var(var),
-	m_val(val)
-{ }
-
-
-//XXX: Use Regexp
-void Info::Define::resolve(string& str) const
-{
-	if (str.find('%') == string::npos)
-		return;
-			
-	string::size_type p;
-	string var0(string("%") + m_var);
-	string var1(string("%{")  + m_var + "}");
-	
-	for (p = 0; (p = str.find(var0, p)) != string::npos; )
-		str.replace(p, var0.size(), m_val);
-
-	for (p = 0; (p = str.find(var1, p)) != string::npos; )
-		str.replace(p, var1.size(), m_val);
-}
-
-
-string Info::resolve_defines(string const& str) const
-{
-	string ret(str);
-
-	for (uint i = 0; i < m_defs.size(); ++i)
-		m_defs[i].resolve(ret);
-	
-	return ret;
-}
-
-
-void Info::get_defs_spec(string const& spec)
-{
-	std::ifstream f(spec.c_str());
-	if (!f)
-		return;
-		
-	char* var;
-	char* p;
-	char* val;
-	char buf[8192];
-
-	m_defs.clear();
-
-	while (!f.getline(buf, sizeof(buf)).eof()) {
-		if ((p = strtok(buf, " \t")) && !strcmp(p, "%define")
-		&& (var = strtok(0, " \t\n"))
-		&& (val = strtok(0, " \t\n")) && val[0] != '%')
-			m_defs.push_back(Define(var, val));
-	}
 }
 
 
@@ -112,7 +50,7 @@ void Info::get_spec_desc(string const& spec)
 		return;
 	
 	while (getline(f, buf) && buf[0] != '%' && buf[0] != '#')
-		desc += resolve_defines(buf) + '\n';
+		desc += buf + '\n';
 
 	if (desc.size() > m_pkg->m_description.size())
 		m_pkg->m_description = desc;
@@ -125,10 +63,9 @@ void Info::get_info_spec()
 	if (spec.empty())
 		return;
 
-	get_defs_spec(spec);
-
 	get_var(spec, "Icon", m_pkg->m_icon_path);
 	get_var(spec, "Summary", m_pkg->m_summary);
+	//XXX URL pot tenir minuscules (Url)
 	get_var(spec, "URL", m_pkg->m_url);
 	get_var(spec, "Vendor", m_pkg->m_author);
 	get_var(spec, "Packager", m_pkg->m_author);
@@ -139,15 +76,26 @@ void Info::get_info_spec()
 }
 
 
+void Info::get_info_pc()
+{
+	string pc(search_file(m_pkg->m_base_name + ".pc"));
+	if (pc.empty())
+		return;
+
+	get_var(pc, "Description",	m_pkg->m_summary);
+	//XXX URL (pot tenir defines!)
+}
+
+
 void Info::get_info_desktop()
 {
 	string desktop(search_file(m_pkg->m_base_name + ".desktop"));
 	if (desktop.empty())
 		return;
 
-	get_var(desktop, "Icon", m_pkg->m_icon_path, false);
-	get_var(desktop, "GenericName", m_pkg->m_summary, false);
-	get_var(desktop, "Comment", m_pkg->m_summary, false);
+	get_var(desktop, "Icon", m_pkg->m_icon_path);
+	get_var(desktop, "GenericName", m_pkg->m_summary);
+	get_var(desktop, "Comment", m_pkg->m_summary);
 }
 
 
@@ -158,23 +106,20 @@ void Info::get_info_config_log()
 	if (!f)
 		return;
 
-	string buf;
-	string::size_type p;
+	Regexp re("\\$[ \\t].*/configure[ \\t]+(.*)$");
 
-	while (getline(f, buf)) {
-		if ((p = buf.find("$")) != string::npos
-		&&	(p = buf.find("/configure", p)) != string::npos
-		&&	(p = buf.find("-", p)) != string::npos) {
-			m_pkg->m_conf_opts = buf.substr(p);
+	for (string buf; getline(f, buf); ) {
+		if (re.exec(buf)) {
+			m_pkg->m_conf_opts = re.match(1);
 			break;
 		}
 	}
 	
 	f.close();
 
-	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
-	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
-	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
+	get_var(config, "PACKAGE_URL", m_pkg->m_url);
+	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author);
+	get_var(config, "PACKAGE_STRING", m_pkg->m_summary);
 }
 
 
@@ -204,20 +149,18 @@ string Info::search_file(string const& name) const
 }
 
 
-bool Info::get_var(string const& file, string const& tag, 
-                   string& val, bool resolve /* = true */) const
+bool Info::get_var(string const& file, string const& tag, string& val) const
 {
 	std::ifstream f(file.c_str());
 	if (!f)
 		return false;
 		
-	Regexp re(tag + "[[:space:]:=]\\+(.\\+)$");
+	//XXX Test that quotes are not included in match(1)
+	Regexp re(tag + "[ \\t:=]+[\"']*(.+)[\"']*$");
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
-			val = unquote(re.submatch(1));
-			if (resolve)
-				val = resolve_defines(val);
+			val = re.match(1);
 			return true;
 		}
 	}
@@ -234,7 +177,7 @@ void Info::get_icon_path()
 		path = m_pkg->m_base_name;
 	
 	// If it's an absolute path, we're done	
-	else if (path.at(0) == '/')
+	else if (path[0] == '/')
 		return;
 
 	// otherwise search for the icon file in the list of files installed by
@@ -243,7 +186,7 @@ void Info::get_icon_path()
 	// if path does not have any image format suffix, add 'suf' to the expression
 	
 	string exp("/" + path);
-	string suf(".(png|xpm|jpg|ico|gif|svg)$");
+	string suf("\\.(png|xpm|jpg|ico|gif|svg)$");
 	Regexp re1(suf, REG_ICASE);
 	
 	if (!re1.exec(path))
@@ -260,15 +203,5 @@ void Info::get_icon_path()
 				break;
 		}
 	}
-}
-
-
-static string unquote(string const& str)
-{
-	if (str.size() > 1 && (str.at(0) == '"' || str.at(0) == '\'') 
-	&& str.at(0) == str.at(str.size() - 1))
-		return str.substr(1, str.size() - 2);
-	else
-		return str;
 }
 

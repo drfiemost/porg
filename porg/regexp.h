@@ -26,7 +26,7 @@ class Regexp
 	~Regexp();
 
 	bool exec(std::string const&);
-	std::string submatch(int = 0);
+	std::string match(int = 0);
 		
 	private:
 

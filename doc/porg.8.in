@@ -1,10 +1,10 @@
 .\"----------------------------------------------------------------
-.\" porg.8 - porg-@PACKAGE_VERSION@ man page
+.\" porg.8 - porg man page
 .\"----------------------------------------------------------------
 .\" Copyright (C) 2014 David Ricart <@PACKAGE_BUGREPORT@>
 .\"----------------------------------------------------------------
 .\"
-.TH PORG "8" "@RELEASEDATE@" "porg-@PACKAGE_VERSION@" "System"
+.TH PORG "8" "@RELEASEDATE@" "porg @PACKAGE_VERSION@" "System"
 .SH NAME
 porg \- a source code package organizer
 .SH SYNOPSIS
