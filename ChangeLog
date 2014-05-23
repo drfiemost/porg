@@ -1,10 +1,14 @@
 SVN
 ---
 
-	+ Bugfix: Always remove temporary files after installing a package.
-	+ Bugfix: Log all files installed by porg when running "make logme".
-	+ When installing packages, take into account environment variables
-	  passed to ./configure.
+	+ Bugfix: In some cases, tmp files were not removed after installing a 
+	  package.
+	+ Bugfix: Some files were not registered when logging the own porg
+	  installation with "make logme".
+	+ Bugfix: The main window of grop was partially invisible.
+	+ New feature: When installing a package, save the environment variables
+	  passed to ./configure, and not only the command line options.
+	+ Enhancement: Improved the code for searching for package information.
 
 
 Version 0.3 (19/05/2014)
@@ -55,3 +59,4 @@ Changes from the last version of paco:
 	+ Disabled listing of missing and shared files.
 	+ Simplification of the GUI.
 	+ Major code enhancements and cleanup.
+

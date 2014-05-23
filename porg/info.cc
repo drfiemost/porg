@@ -65,7 +65,6 @@ void Info::get_info_spec()
 
 	get_var(spec, "Icon", m_pkg->m_icon_path);
 	get_var(spec, "Summary", m_pkg->m_summary);
-	//XXX URL pot tenir minuscules (Url)
 	get_var(spec, "URL", m_pkg->m_url);
 	get_var(spec, "Vendor", m_pkg->m_author);
 	get_var(spec, "Packager", m_pkg->m_author);
@@ -82,8 +81,9 @@ void Info::get_info_pc()
 	if (pc.empty())
 		return;
 
-	get_var(pc, "Description",	m_pkg->m_summary);
-	//XXX URL (pot tenir defines!)
+	get_var(pc, "Description", m_pkg->m_summary);
+	//XXX La URL pot tenir defines!
+	get_var(pc, "URL", m_pkg->m_url);
 }
 
 
@@ -117,9 +117,9 @@ void Info::get_info_config_log()
 	
 	f.close();
 
-	get_var(config, "PACKAGE_URL", m_pkg->m_url);
-	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author);
-	get_var(config, "PACKAGE_STRING", m_pkg->m_summary);
+	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
+	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
+	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
 }
 
 
@@ -149,14 +149,14 @@ string Info::search_file(string const& name) const
 }
 
 
-bool Info::get_var(string const& file, string const& tag, string& val) const
+bool Info::get_var(string const& file, string const& tag,
+                   string& val, bool icase /* = false */) const
 {
 	std::ifstream f(file.c_str());
 	if (!f)
 		return false;
 		
-	//XXX Test that quotes are not included in match(1)
-	Regexp re(tag + "[ \\t:=]+[\"']*(.+)[\"']*$");
+	Regexp re(tag + "[ \\t:=]+[\"']*(.+[^\"'])", REG_ICASE & icase);
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {

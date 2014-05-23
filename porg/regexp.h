@@ -22,6 +22,8 @@ class Regexp
 {
 	public:
 
+//XXX Create static member func for running regexes "on the fly"
+
 	Regexp(std::string const& exp, int flags = 0);
 	~Regexp();
 

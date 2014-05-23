@@ -18,7 +18,7 @@
 #include "removepkg.h"
 #include "util.h"	// run_*_dialog()
 #include "find.h"
-#include <gtkmm/grid.h>
+#include <gtkmm/box.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/uimanager.h>
 #include <gtkmm/aboutdialog.h>
@@ -47,22 +47,14 @@ MainWindow::MainWindow()
 	m_popup_menu(0),
 	m_selected_pkg(0)
 {
-	// Opt should have been initialized before
 	g_assert(Opt::initialized());
 
 	set_default_size(Opt::width(), Opt::height());
 	move(Opt::xpos(), Opt::ypos());
-
 	set_border_width(4);
 
-	try 
-	{ 
-		set_icon_from_file(DATADIR "/pixmaps/grop.png"); 
-	}
-	catch (Glib::Error& x) 
-	{ 
-		g_warning("%s", x.what().c_str()); 
-	}
+	try { set_default_icon_from_file(DATADIR "/pixmaps/grop.png"); }
+	catch (Glib::Error& x) { g_warning("%s", x.what().c_str()); }
 
 	build_menu_bar();
 	set_actions_sensitivity();
@@ -79,12 +71,12 @@ MainWindow::MainWindow()
 	Gtk::ScrolledWindow* scrolled_window = Gtk::manage(new Gtk::ScrolledWindow());
 	scrolled_window->add(m_treeview);
 
-	Gtk::Grid* grid = Gtk::manage(new Gtk::Grid());
-	grid->attach(*(m_uimanager->get_widget("/MenuBar")), 0, 0, 1, 1);
-	grid->attach(*scrolled_window, 0, 1, 1, 1);
-	grid->attach(m_statusbar, 0, 2, 1, 1);
-	add(*grid);
-
+	Gtk::Box* box = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL));
+	box->pack_start(*(m_uimanager->get_widget("/MenuBar")), false, true);
+	box->pack_start(*scrolled_window, true, true);
+	box->pack_start(m_statusbar, false, true);
+	
+	add(*box);
 	show_all();
 }
 
@@ -94,7 +86,7 @@ MainWindow::~MainWindow()
 	// save window geometry
 	int w, h, x, y;
 	get_size(w, h);
-	get_position(x, y);	//XXX does not work  :(
+	get_position(x, y);	//XXX does not work WTF :(
 	Opt::set_whxy(w, h, x, y);
 }
 
@@ -187,7 +179,6 @@ void MainWindow::on_key_press(GdkEventKey* event)
 
 	switch (event->keyval) {
 		case GDK_KEY_Delete:
-		case GDK_KEY_BackSpace:
 			on_unlog();
 			break;
 		case GDK_KEY_Return:
@@ -209,8 +200,6 @@ void MainWindow::on_pkg_selected(Pkg* pkg)
 
 void MainWindow::set_actions_sensitivity()
 {
-	// set allowed actions
-
 	m_action_find->set_sensitive(DB::pkg_cnt() > 0);
 	m_action_properties->set_sensitive(m_selected_pkg);
 	m_action_porgball->set_sensitive(m_selected_pkg);
@@ -225,11 +214,15 @@ void MainWindow::on_about()
 
 	dialog.set_transient_for(*this);
 	dialog.set_name("grop");
-	dialog.set_logo_icon_name("grop");
-	dialog.set_version(PACKAGE_VERSION);
+	dialog.set_logo_default();
+	dialog.set_version("Version " PACKAGE_VERSION);
 	dialog.set_comments("Graphic interface of porg,\na source code package organizer");
 	dialog.set_authors(std::vector<Glib::ustring>(1, "David Ricart"));
 	dialog.set_website(PACKAGE_BUGREPORT);
+	//XXX put a nicer (C) here ------v
+	dialog.set_copyright("Copyright (C) 2014 David Ricart");
+	dialog.set_license("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA");
+	dialog.set_wrap_license(true);
 
 	dialog.run();
 }

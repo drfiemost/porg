@@ -119,6 +119,8 @@ void BasePkg::get_files()
 
 	while (getline(f, buf)) {
 
+		//XXX Use Regexp
+
 		// skip header
 		if (buf[0] != '/')
 			continue;

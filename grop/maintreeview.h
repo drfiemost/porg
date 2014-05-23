@@ -36,6 +36,7 @@ class MainTreeView : public Gtk::TreeView
 			add(m_pkg);
 		}
 
+		//XXX add a column for the icon
 		Gtk::TreeModelColumn<Pkg*>			m_pkg;
 		Gtk::TreeModelColumn<Glib::ustring>	m_name;
 		Gtk::TreeModelColumn<gulong>		m_size;

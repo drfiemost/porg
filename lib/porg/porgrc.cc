@@ -65,6 +65,7 @@ bool Porgrc::logdir_writable()
 // Expand environment variable var in str.
 // var may be given as "$var" or "${var}".
 //
+//XXX Use Regexp
 static string expand_var(string const& str, string const& var)
 {
 	string ret(str);

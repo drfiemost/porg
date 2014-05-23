@@ -23,7 +23,6 @@ MainTreeView::MainTreeView()
 	m_columns(),
 	m_model(Gtk::ListStore::create(m_columns))
 {
-	// DB should have been initialized before
 	g_assert(DB::initialized());
 
 	set_rules_hint();
@@ -34,37 +33,8 @@ MainTreeView::MainTreeView()
 
 	add_columns();
 	set_opts();
-	fill_model();
+	// fill_model();
 	set_model(m_model);
-}
-
-
-void MainTreeView::fill_model()
-{
-	m_model->clear();
-
-	for (DB::pkg_cit p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
-		iterator i = m_model->append();
-		(*i)[m_columns.m_pkg] 		= (*p);
-		(*i)[m_columns.m_name] 		= (*p)->name();
-		(*i)[m_columns.m_size] 		= (*p)->size();
-		(*i)[m_columns.m_nfiles] 	= (*p)->nfiles();
-		(*i)[m_columns.m_date] 		= (*p)->date();
-		(*i)[m_columns.m_summary] 	= (*p)->summary();
-	}
-}
-
-
-void MainTreeView::remove_pkg(Pkg const* const pkg)
-{
-	Gtk::TreeModel::Children children = m_model->children();
-
-	for (iterator it = children.begin(); it != children.end(); ++it) {
-		if ((*it)[m_columns.m_pkg] == pkg) {
-			m_model->erase(it);
-			break;
-		}
-	}
 }
 
 
@@ -98,8 +68,48 @@ void MainTreeView::add_columns()
 }
 
 
+void MainTreeView::set_opts()
+{
+	for (int i = 0; i < NCOLS; ++i)
+		get_column(i)->set_visible(Opt::columns()[i]);
+
+	fill_model(); // so that changes in Opt::hour() will be applied
+	              //XXX There should be a better way to do this...
+}
+
+
+void MainTreeView::fill_model()
+{
+	m_model->clear();
+
+	for (DB::pkg_cit p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
+		iterator i = m_model->append();
+		(*i)[m_columns.m_pkg] 		= (*p);
+		(*i)[m_columns.m_name] 		= (*p)->name();
+		(*i)[m_columns.m_size] 		= (*p)->size();
+		(*i)[m_columns.m_nfiles] 	= (*p)->nfiles();
+		(*i)[m_columns.m_date] 		= (*p)->date();
+		(*i)[m_columns.m_summary] 	= (*p)->summary();
+	}
+}
+
+
+void MainTreeView::remove_pkg(Pkg const* const pkg)
+{
+	Gtk::TreeModel::Children children = m_model->children();
+
+	for (iterator it = children.begin(); it != children.end(); ++it) {
+		if ((*it)[m_columns.m_pkg] == pkg) {
+			m_model->erase(it);
+			break;
+		}
+	}
+}
+
+
 void MainTreeView::size_cell_func(Gtk::CellRenderer* cell, iterator const& it)
 {
+	// show sizes in "human readable" format
 	static_cast<Gtk::CellRendererText*>(cell)
 		->property_text() = Porg::fmt_size((*it)[m_columns.m_size]);
 }
@@ -112,18 +122,10 @@ void MainTreeView::date_cell_func(Gtk::CellRenderer* cell, iterator const& it)
 }
 
 
-void MainTreeView::set_opts()
-{
-	for (int i = 0; i < NCOLS; ++i)
-		get_column(i)->set_visible(Opt::columns()[i]);
-
-	fill_model(); // so that changes in Opt::hour() will be applied
-}
-
-
 void MainTreeView::on_selection_changed()
 {
-	iterator it = get_selection()->get_selected();
+	iterator it(get_selection()->get_selected());
+	
 	if (it)
 		signal_pkg_selected.emit((*it)[m_columns.m_pkg]);
 	else

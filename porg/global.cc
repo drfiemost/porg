@@ -30,8 +30,11 @@ string Porg::clear_path(string const& inpath)
 		if (getcwd(cwd, sizeof(cwd)))
 			path.insert(0, string(cwd) + "/");
 	}
+
 	// strip trailing slashes
     
+	//XXX Use Regexp?
+
 	while (path[path.size() - 1] == '/')
 		path.erase(path.size() - 1);
 
