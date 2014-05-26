@@ -97,13 +97,6 @@ The porg distribution provides the following auxiliary scripts:
     are logged in the porg database. It can be used also to reinstall packages
     by extracting the files from previously created porgballs.
 
-    superporg
-
-    Superporg is a shell script that installs Debian, RPM or Slackware binary
-    packages without requiring dpkg, rpm or pkgtool, and optionally logs their
-    installation with porg. To install RPM packages, cpio and ( rpm2cpio or
-    rpmunpack ) are required.
-
     porg_bash_completion
 
     This file, written by Christian Schneider, provides bash completion support

@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	grop.desktop \
 	faq.txt \
 	porg.png \
+	porg.spec \
 	download.png \
 	index.html \
 	grop.png
@@ -12,7 +13,6 @@ EXTRA_DIST = \
 man_MANS = \
 	porg.8 \
 	porgball.8 \
-	superporg.8 \
 	porgrc.5
 
 pkgdata_DATA = \
@@ -25,7 +25,6 @@ pkgdata_DATA = \
 logme_files = \
 	$(DESTDIR)$(man5dir)/porgrc.5 \
 	$(DESTDIR)$(man8dir)/porg.8 \
-	$(DESTDIR)$(man8dir)/superporg.8 \
 	$(DESTDIR)$(man8dir)/porgball.8 \
 	$(DESTDIR)$(sysconfdir)/porgrc \
 	$(DESTDIR)$(pkgdatadir)/porgrc \
@@ -60,7 +59,7 @@ install-data-local: porgrc
 	( test -f $$rc_dir/porgrc || $(INSTALL_DATA) porgrc $$rc_dir/porgrc )
 
 logme:
-	ls $(logme_files) 2>/dev/null | porg -lp+ porg-$(PACKAGE_VERSION)
+	ls $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
 
 web: index.html
 	scp $< davidrr,porg@web.sourceforge.net:htdocs/

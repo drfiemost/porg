@@ -11,7 +11,7 @@ me=$(basename $0)
 
 warn()			{ echo "$me: $*" >&2; }
 die()			{ warn "$*"; exit 1; }
-say()			{ [ "$opt_verb" ] && printf "$*"; }
+say()			{ [ "$opt_verb" ] && echo "$*"; }
 do_version() 	{ porg --version | sed "s/^porg/$me/"; exit 0; }
 
 
@@ -25,12 +25,13 @@ Usage:
 
 General options:
   -t, --test           Test compressed file integrity
-  -v, --verbose        Increase output messages
-  -V, --version        Display version information
-  -h, --help           Display this help message
+  -v, --verbose        Explain what is being done
+  -V, --version        Display version information and exit
+  -h, --help           Display this help message and exit
   
 Package creation options:
   -a, --all            Create a porgball for each logged package
+  -X, --exact-version  Do not expand version of packages given as arguments
   -d, --directory=DIR  Create the porgballs in DIR (default is '.')
   -g, --gzip           Compress with gzip (default)
   -b, --bzip2          Compress with bzip2
@@ -47,7 +48,7 @@ Package extraction options:
   -l, --log            Log the extraction with porg
 
 Note:
-  Short options cannot be joined, for instance: '-af' is not correct,
+  Short options cannot be joined up, for instance: '-af' is not correct,
   type '-a -f' instead.
 
 EOF
@@ -68,9 +69,11 @@ do_check_dir()
 }
 
 
+# Extract a porgball
+
 do_extract()
 {
-	say "Processing $1\n"
+	say "Processing $1"
 		
 	[ -e $1 ] || { warn "$1: No such file"; return 1; }
 
@@ -83,18 +86,29 @@ do_extract()
 			;;
 	esac
 
-	[ "$opt_test" ] && { $zprog $opt_verb --test $1 || return 1; }
+	# Test integrity of porgball, if needed
+	if [ "$opt_test" ]; then
+		say "Testing integrity of $1"
+		$zprog $opt_verb --test $1 || return 1;
+	fi
 
+	# Decompress porgball into a tar archive
+	say "Decompressing $1"
 	$zprog $opt_verb $opt_force --keep --decompress $1 || return 1
 
+	# Extract files from the tar archive
 	tarfile=$(expr $1 : '\(.*\.tar\)')
+	say "Extracting files from $tarfile"
 	files=$(tar -C $opt_dir -xvf $tarfile) || return 1
 	rm -f $tarfile
+	[ "$opt_verb" ] && ls -1 $files
 
+	# Log the extracted files with porg, if needed
 	if [ "$opt_log" ]; then
-		pkg=${1%.porg.tar.*}
-		echo $files | awk '{ print "'"$opt_dir"'/" $0; }' \
-		| porg $opt_verb -lp $pkg
+		say "Logging the extracted files with porg"
+		ls $files \
+			| awk '{ print "'"$opt_dir"'/" $0; }' \
+			| porg $opt_verb -lp ${1%.porg.tar.*}
 		return $?
 	fi
 	
@@ -102,31 +116,41 @@ do_extract()
 }
 
 
+# Create a porgball for a package logged in the porg database.
+
 do_create()
 {
-	say "Processing $1\n"
+	say "Processing $1"
 
-	: > $tmpfile
-
-	for file in $(porg --no-package-name --files $1); do
-		[ -f $file ] && echo $file >> $tmpfile
-	done
+	# Write list of files logged by the package into tmpfile.
+	# By using ls, only existing files are written,
+	ls -1 $(porg -Xzf $1) > $tmpfile
 
 	tarfile=$(echo $opt_dir/${1}.porg.tar | tr -s /)
+	case $opt_prog in
+		bzip2)	suf=bz2;;
+		xz)		suf=xz;;
+		*)		suf=gz;;
+	esac
+	ball=${tarfile}.$suf
 
-	tar -cf $tarfile --files-from=$tmpfile || return 1
+	if [ -e $ball -a -z "$opt_force" ]; then
+		read -p "$me: $ball already exists; do you wish to overwrite it (y/n)? "
+		[ "$REPLY" = y -o "$REPLY" = Y ] || return 1
+	fi
 
-	$opt_prog $opt_level $opt_verb $opt_force $tarfile || return 1
+	# Create intermediate tar archive
+	say "Creating $tarfile"
+	tar $opt_verb -cf $tarfile --files-from=$tmpfile || return 1
 
+	# Create porgball
+	say "Creating $ball"
+	$opt_prog -f $opt_level $opt_verb $tarfile || return 1
+
+	# Test integrity of the created porgball, if needed
 	if [ "$opt_test" ]; then
-
-		case $opt_prog in
-			bzip2)	suf=bz2;;
-			xz)		suf=xz;;
-			*)		suf=gz;;
-		esac
-
-		$opt_prog $opt_verb -t ${tarfile}.$suf
+		say "Testing integrity of $ball"
+		$opt_prog $opt_verb -t $ball
 		return $?
 	fi
 
@@ -140,20 +164,21 @@ while [ "$1" ]; do
 
 	case $1 in
 
-		-V|--version)	do_version;;
-		-h|--help)		do_help;;
-		-t|--test)		opt_test=-t;;
-		-v|--verbose)	opt_verb=-v;;
-		-a|--all)		opt_all=-a;;
-		-g|--gzip)		opt_prog=gzip;;
-		-b|--bzip2)		opt_prog=bzip2;;
-		-x|--xz)		opt_prog=xz;;
-		-[0-9])			opt_level=-${1:1};;
-		--fast)			opt_level=-1;;
-		--best)			opt_level=-9;;
-		-f|--force)		opt_force=-f;;
-		-e|--extract)	opt_extract=1;;
-		-l|--log)		opt_log=1;;
+		-V|--version)		do_version;;
+		-h|--help)			do_help;;
+		-t|--test)			opt_test=-t;;
+		-v|--verbose)		opt_verb=-v;;
+		-a|--all)			opt_all=-a;;
+		-X|--exact-version) opt_exact=-X;;
+		-g|--gzip)			opt_prog=gzip;;
+		-b|--bzip2)			opt_prog=bzip2;;
+		-x|--xz)			opt_prog=xz;;
+		-[0-9])				opt_level=$1;;
+		--fast)				opt_level=-1;;
+		--best)				opt_level=-9;;
+		-f|--force)			opt_force=-f;;
+		-e|--extract)		opt_extract=1;;
+		-l|--log)			opt_log=1;;
 
 		-d|-C|--directory|--dir|--root)
 			[ "$2" ] && opt_dir=$2 || die "Option '$1' requires an argument"
@@ -180,7 +205,7 @@ if [ "$opt_extract" ]; then
 
 	[ "$args" ] || die "No arguments provided"
 
-	opt_dir=${opt_dir:-/}
+	opt_dir=${opt_dir:-/}	# default dir = /
 	do_check_dir $opt_dir
 
 	for ball in $args; do
@@ -192,14 +217,14 @@ if [ "$opt_extract" ]; then
 else
 	[ "$args" -o "$opt_all" ] || die "No arguments provided"
 
-	opt_dir=${opt_dir:-.}
+	opt_dir=${opt_dir:-.}	# default dir = .
 	do_check_dir $opt_dir
 
+	# Create tmpfile and assure it's removed on exit
 	tmpfile=$(mktemp || echo /tmp/$me.$$)
-	# Remove tmp stuff on exit
 	trap 'rm -f $tmpfile' 0
 
-	for pkg in $(porg $opt_verb $opt_all $args); do
+	for pkg in $(porg $opt_verb $opt_exact $opt_all $args); do
 		do_create $pkg
 	done
 fi

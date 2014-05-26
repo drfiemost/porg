@@ -140,8 +140,10 @@ void RemovePkg::remove()
 		}
 	}
 
-	if (m_error)
-		m_label.set_markup("<span fgcolor=\"darkred\"><b>Completed with errors (see Details)</b></span>");
+	if (m_error) {
+		m_label.set_markup("<span fgcolor=\"darkred\"><b>Completed with "
+			"errors (see Details)</b></span>");
+	}
 	else {
 		report("Package '" + m_pkg.name() + "' removed from database", m_tag_ok);
 		m_label.set_markup("<span fgcolor=\"darkgreen\"><b>Done</b></span>");

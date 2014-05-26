@@ -8,12 +8,14 @@
 
 #include "config.h"
 #include "porgrc.h"
+#include "regexp.h"
+#include <wordexp.h>
 #include <fstream>
 
 using std::string;
 using namespace Porg;
 
-static string expand_var(string const& str, string const& var);
+static string sh_expand(string const&);
 
 
 namespace Porg
@@ -24,33 +26,28 @@ namespace Porg
 	string Porgrc::s_remove_skip = string();
 }
 
-			
+
 Porgrc::Porgrc()
 {
 	std::ifstream f(PORGRC);
 	if (!f)
 		return;
 
-	string buf;
+	Regexp re("^([A-Z_]+)=(.*)$");
 
-	while (getline(f, buf)) {
-
-		string::size_type p(buf.find("="));
-
-		if (p == string::npos || buf.at(0) == '#')
-   			continue;
-		
-		string val(buf.substr(p + 1));
-		buf.erase(p);
-   
-		if (buf == "LOGDIR")
-   			s_logdir = expand_var(val, "HOME");
-		else if (buf == "INCLUDE")
-   			s_include = expand_var(val, "HOME");
-		else if (buf == "EXCLUDE")
-   			s_exclude = expand_var(val, "HOME");
-		else if (buf == "REMOVE_SKIP")
-   			s_remove_skip = expand_var(val, "HOME");
+	for (string buf, opt, val; getline(f, buf); ) {
+		if (re.exec(buf)) {
+			opt = re.match(1);
+			val = re.match(2);
+			if (opt == "LOGDIR")
+				s_logdir = sh_expand(val);
+			else if (opt == "INCLUDE")
+				s_include = val;
+			else if (opt == "EXCLUDE")
+   				s_exclude = val;
+			else if (opt == "REMOVE_SKIP")
+   				s_remove_skip = val;
+		}
 	}
 }
 
@@ -61,27 +58,18 @@ bool Porgrc::logdir_writable()
 }
 
 
-//
-// Expand environment variable var in str.
-// var may be given as "$var" or "${var}".
-//
-//XXX Use Regexp
-static string expand_var(string const& str, string const& var)
+static string sh_expand(string const& str)
 {
-	string ret(str);
-	string::size_type p;
+	wordexp_t p;
 
-	if (char* val = getenv(var.c_str())) {
-		
-		// expand occurrences of "$var"
-		for (p = 0; (p = ret.find(string("$") + var, p)) != string::npos; )
-			ret.replace(p, var.length() + 1, val);
-		
-		// expand occurrences of "${var}"
-		for (p = 0; (p = ret.find(string("${") + var + string("}"), p)) != string::npos; )
-			ret.replace(p, var.length() + 3, val);
-    }
+	if (0 != wordexp(str.c_str(), &p, WRDE_NOCMD))
+		return str;
+ 
+ 	string ret = p.we_wordv[0];
+	for (uint i = 1; i < p.we_wordc; ++i)
+		ret += string(" ") + p.we_wordv[i];
 
-	return ret;
+	wordfree(&p);
+  	return ret;
 }
 

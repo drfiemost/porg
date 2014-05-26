@@ -219,7 +219,6 @@ void MainWindow::on_about()
 	dialog.set_comments("Graphic interface of porg,\na source code package organizer");
 	dialog.set_authors(std::vector<Glib::ustring>(1, "David Ricart"));
 	dialog.set_website(PACKAGE_BUGREPORT);
-	//XXX put a nicer (C) here ------v
 	dialog.set_copyright("Copyright (C) 2014 David Ricart");
 	dialog.set_license("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n\nYou should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA");
 	dialog.set_wrap_license(true);

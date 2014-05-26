@@ -62,14 +62,14 @@ Pkg::Pkg(string const& name_, set<string> const& files_)
 void Pkg::print_info_dbg() const
 {
 	Out::dbg_title();
-	Out::dbg("Name: "			+ m_base_name + '\n');
-	Out::dbg("Version: "		+ m_version + '\n');
-	Out::dbg("Summary: "		+ m_summary + '\n');
-	Out::dbg("Author: "			+ m_author + '\n');
-	Out::dbg("URL: "			+ m_url + '\n');
-	Out::dbg("License: "		+ m_license + '\n');
-	Out::dbg("Conf. opts.: "	+ m_conf_opts + '\n');
-	Out::dbg("Icon: "			+ m_icon_path + '\n');
+	Out::dbg("Name:       "	+ m_base_name + '\n');
+	Out::dbg("Version:    "	+ m_version + '\n');
+	Out::dbg("Summary:    "	+ m_summary + '\n');
+	Out::dbg("Author:     "	+ m_author + '\n');
+	Out::dbg("URL:        "	+ m_url + '\n');
+	Out::dbg("License:    "	+ m_license + '\n');
+	Out::dbg("Conf. opt.: "	+ m_conf_opts + '\n');
+	Out::dbg("Icon:       "	+ m_icon_path + '\n');
 	Out::dbg(str_description(true));
 }
 
@@ -77,13 +77,13 @@ void Pkg::print_info_dbg() const
 void Pkg::print_info() const
 {
 	cout
-		<< "Name: " << m_base_name << '\n'
+		<< "Name:    " << m_base_name << '\n'
 		<< "Version: " << m_version << '\n'
 		<< "Summary: " << m_summary << '\n'
-		<< "Author: " << m_author << '\n'
+		<< "Author:  " << m_author << '\n'
 		<< "License: " << m_license << '\n'
-		<< "URL: " << m_url << '\n'
-		<< str_description() << '\n';
+		<< "URL:     " << m_url << "\n\n"
+		<< str_description() << "\n\n";
 }
 
 

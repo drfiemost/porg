@@ -92,4 +92,3 @@ int Preferences::instance(Gtk::Window& parent)
 	return response;
 }
 
-

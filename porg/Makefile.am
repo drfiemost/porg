@@ -18,15 +18,13 @@ porg_SOURCES = \
 	log.cc \
 	dir.cc \
 	opt.cc \
-	global.cc \
-	regexp.cc
+	global.cc
 
 noinst_HEADERS = \
 	global.h \
 	out.h \
 	info.h \
 	pkgset.h \
-	regexp.h \
 	pkg.h \
 	log.h \
 	dir.h \
@@ -39,5 +37,5 @@ logme_files = \
 	$(DESTDIR)$(bindir)/porg
 
 logme:
-	ls $(logme_files) 2>/dev/null | porg -lp+ porg-$(PACKAGE_VERSION)
+	ls $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
 

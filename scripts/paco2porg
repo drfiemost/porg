@@ -1,5 +1,4 @@
 #!/bin/sh
-# vim:ts=4
 #-----------------------------------------------------------------------
 # paco2porg - imports paco logs into a porg database.
 #-----------------------------------------------------------------------
@@ -8,10 +7,7 @@
 # For more information visit http://porg.sourceforge.net
 #----------------------------------------------------------------------
 
-me=`basename $0`
-
-
-version()	{ porg --version | sed "s@^porg@$me@"; exit 0; }
+me=$(basename $0)
 
 
 help()
@@ -23,21 +19,20 @@ Usage:
   $me [OPTIONS]
 
 Options:
-  -h, --help           Display this usage message and exit.
-  -V, --version        Display version information and exit.
-  -v, --verbose        Explain what is being done.
+  -h, --help       Display this usage message and exit.
+  -V, --version    Display version information and exit.
+  -v, --verbose    Explain what is being done.
 
 EOF
 	exit 0
 }
 
-
 # Parse the command line
 
 while [ "$1" ]; do
 	case $1 in
-		-v|--verbose)	verb=yes;;
-		-V|--version)	version;;
+		-v|--verbose) verb=yes;;
+		-V|--version) porg -V | sed "s@^porg@$me@"; exit 0;;
 		*)	help;;
 	esac
 	shift
@@ -45,11 +40,10 @@ done
 
 # Process the packages
 
-for pkg in `paco --all --verbose`; do
+for pkg in $(paco -av); do
 	[ "$verb" ] && echo -n "Importing package ${pkg}...\t"
-	if ( paco --files --no-package-name $pkg | porg --log --package $pkg ); then
-		[ "$verb" ] && echo "done"
-	fi
+	( paco -zf $pkg | porg -lmp $pkg ) && [ "$verb" ] && echo "done"
 done
 
 exit 0
+

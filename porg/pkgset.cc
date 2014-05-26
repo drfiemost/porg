@@ -69,7 +69,7 @@ int PkgSet::get_pkgs(vector<string> const& args)
 	
 	Dir dir(Opt::logdir());
 
-	for (uint i(0); i < args.size(); ++i, dir.rewind()) {
+	for (uint i = 0; i < args.size(); ++i, dir.rewind()) {
 		
 		bool found = false;
 
@@ -353,6 +353,9 @@ inline static int get_width(long size)
 
 static bool match_pkg(string const& str, string const& pkg)
 {
+	if (Opt::exact_version())
+		return str == pkg;
+
 	string str_base = Pkg::get_base(str);
 	string pkg_base = Pkg::get_base(pkg);
 	string str_version = Pkg::get_version(str);
@@ -370,5 +373,4 @@ static bool match_pkg(string const& str, string const& pkg)
 
 	return ispunct(pkg_version.at(str_version.size()));
 }
-
 

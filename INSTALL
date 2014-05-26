@@ -60,7 +60,7 @@ right after "make install":
 
 Don't try this:
 
-    porg -lp porg-x.y.z "make install"
+    porg -lp porg-x.y make install
 
 from the porg sources directory, because the install process will fail,
 printing an error message, more or less like this:

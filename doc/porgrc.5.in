@@ -23,16 +23,14 @@ lines that start with a \fB#\fR symbol. The key-value pairs are on the form:
 where \fBkey\fR contains no whitespace and no equal signs, and
 \fBvalue\fR will be all of the text after the equal sign until (but not
 including) the ending newline.
-.PP
-Occurences of $HOME and ${HOME} in \fBvalue\fR are expanded to the value of
-the environment variable HOME.
 .SH OPTIONS
 The following options can be set. The equivalent command line options (if any),
 are listed in brackets:
 .TP
 \fBLOGDIR\fR [-L|--logdir]
 .br
-Base porg logs directory. Default is '@LOGDIR@'.
+Base porg logs directory. Default is '@LOGDIR@'. Environment variables like
+$HOME are expanded at runtime.
 .TP
 \fBINCLUDE\fR [-I|--include]
 .br
@@ -73,4 +71,4 @@ within that directory.
 .SH AUTHOR
 Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
-porg(8), porgball(8), superporg(8)
+porg(8), porgball(8)

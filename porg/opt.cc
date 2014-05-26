@@ -28,6 +28,7 @@ static string to_lower(string const& str);
 namespace Porg
 {
 	bool Opt::s_all_pkgs = false;
+	bool Opt::s_exact_version = false;
 	bool Opt::s_print_sizes = false;
 	bool Opt::s_print_files = false;
 	bool Opt::s_print_nfiles = false;
@@ -61,14 +62,13 @@ Opt::Opt(int argc, char* argv[])
 :
 	Porgrc()
 {
-	enum { OPT_LOG_MISSING = 1 };
-	
 	struct option opt[] = {
 		// General options
 		{ "help", 0, 0, 'h' },
 		{ "version", 0, 0, 'V' },
 		{ "logdir",	1, 0, 'L' },
 		{ "verbose", 0, 0, 'v' },
+		{ "exact-version", 0, 0, 'X' },
 		{ "all", 0, 0, 'a' },
 	 	// List options
 		{ "date", 0, 0, 'd' },
@@ -95,7 +95,7 @@ Opt::Opt(int argc, char* argv[])
 		{ "exclude", 1, 0, 'E' },
 		{ "append", 0, 0, '+' },
 		{ "dirname", 0, 0, 'D' },
-		{ "log-missing", 0, 0, OPT_LOG_MISSING },
+		{ "log-missing", 0, 0, 'm' },
 		{ 0 ,0, 0, 0 },
 	};
 	
@@ -132,6 +132,7 @@ Opt::Opt(int argc, char* argv[])
 			case 'L': s_logdir = optarg; break;
 			case 'v': Out::inc_verbosity(); break;
 			case 'a': s_all_pkgs = true; break;
+			case 'X': s_exact_version = true; break;
 
 			// General list options
 			case 'i': set_mode(MODE_INFO, op); break;
@@ -175,8 +176,7 @@ Opt::Opt(int argc, char* argv[])
 				break;
 			
 			// Log options
-			case 'l': case 'p': case 'D': case 'I': case 'E': case '+': 
-			case OPT_LOG_MISSING:
+			case 'l': case 'p': case 'D': case 'I': case 'E': case '+': case 'm':
 				set_mode(MODE_LOG, op);
 				switch (op) {
 					case 'p': s_log_pkg_name = optarg; break;
@@ -184,7 +184,7 @@ Opt::Opt(int argc, char* argv[])
 					case 'I': s_include = optarg; break;
 					case 'E': s_exclude = optarg; break;
 					case '+': s_log_append = true; break;
-					case OPT_LOG_MISSING: s_log_missing = true; break;
+					case 'm': s_log_missing = true; break;
 				}
 				break;
 			
@@ -273,12 +273,13 @@ cout <<
 "  porg [OPTIONS] <packages|files|command>\n\n"
 "General options:\n"
 "  -L, --logdir=DIR         Use DIR as the log directory.\n"
-"  -a, --all                Apply to all logged packages (not with -r or -U).\n"
 "  -v, --verbose            Verbose output (-vv produces debugging messages).\n"
+"  -x, --exact-version      Do not expand version of packages given as arguments.\n"
 "  -h, --help               Display this help message.\n"
 "  -V, --version            Display version information.\n\n"
-"List options:\n"
-"  -s, --size               Print the installed size of each packagei or file.\n"
+"Package information options:\n"
+"  -a, --all                Apply to all logged packages (not with -r or -U).\n"
+"  -s, --size               Print the installed size of each package or file.\n"
 "  -d, --date               Print the installation day (-dd prints the hour too).\n"
 "  -F, --nfiles             Print the number of installed files.\n"
 "  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n"
@@ -286,11 +287,9 @@ cout <<
 "  -t, --total              Print totals.\n"
 "  -f, --files              List installed files.\n"
 "  -z, --no-package-name    Don't print the name of the package (with -f).\n"
-"  -y, --symlinks           Print the contents of symbolic links (with -f).\n\n"
-"Information options:\n"
-"  Note: Information may be not available for all packages.\n"
+"  -y, --symlinks           Print the contents of symbolic links (with -f).\n"
 "  -i, --info               Print package information.\n"
-"  -o, --configure-options  Print the options passed to configure when the\n"
+"  -o, --configure-options  Print the arguments passed to configure when the\n"
 "                           package was installed.\n"
 "  -q, --query              Query for the packages that own one or more files.\n\n"
 "Remove options:\n"
@@ -300,12 +299,12 @@ cout <<
 "  -U, --unlog              Unlog the package, without removing any file.\n\n"
 "Log options:\n"
 "  -l, --log                Enable log mode. See the man page.\n"
-"  -p, --package=PKG        Name of the package to log.\n" 
+"  -p, --package=PKG        Name of the package to be logged.\n" 
 "  -D, --dirname            Use the name of the current directory as the name\n"
 "                           of the package.\n"
 "  -+, --append             With -p or -D: If the package is already logged,\n"
 "                           append the list of files to its log.\n"
-"      --log-missing        Do not skip missing files.\n"
+"  -m, --log-missing        Do not skip missing files.\n"
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"
 "Note: The package list mode is enabled by default.\n\n"

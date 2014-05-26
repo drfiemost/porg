@@ -8,10 +8,10 @@
 
 #include "config.h"
 #include "porg/file.h"
+#include "porg/regexp.h"
 #include "out.h"
 #include "info.h"
 #include "pkg.h"
-#include "regexp.h"
 #include <fstream>
 #include <string>
 #include <glob.h>
@@ -37,8 +37,22 @@ Info::Info(Pkg* pkg)
 }
 
 
-void Info::get_spec_desc(string const& spec)
+void Info::get_info_spec()
 {
+	string spec(search_file(m_pkg->m_base_name + ".spec"));
+	if (spec.empty())
+		return;
+
+	get_var(spec, "Icon", m_pkg->m_icon_path);
+	get_var(spec, "Summary", m_pkg->m_summary);
+	get_var(spec, "URL", m_pkg->m_url);
+	get_var(spec, "Vendor", m_pkg->m_author);
+	get_var(spec, "Packager", m_pkg->m_author);
+	get_var(spec, "Copyright", m_pkg->m_license);
+	get_var(spec, "License", m_pkg->m_license);
+
+	// get description field
+
 	std::ifstream f(spec.c_str());
 	if (!f)
 		return;
@@ -57,24 +71,6 @@ void Info::get_spec_desc(string const& spec)
 }
 
 
-void Info::get_info_spec()
-{
-	string spec(search_file(m_pkg->m_base_name + ".spec"));
-	if (spec.empty())
-		return;
-
-	get_var(spec, "Icon", m_pkg->m_icon_path);
-	get_var(spec, "Summary", m_pkg->m_summary);
-	get_var(spec, "URL", m_pkg->m_url);
-	get_var(spec, "Vendor", m_pkg->m_author);
-	get_var(spec, "Packager", m_pkg->m_author);
-	get_var(spec, "Copyright", m_pkg->m_license);
-	get_var(spec, "License", m_pkg->m_license);
-
-	get_spec_desc(spec);
-}
-
-
 void Info::get_info_pc()
 {
 	string pc(search_file(m_pkg->m_base_name + ".pc"));
@@ -82,7 +78,6 @@ void Info::get_info_pc()
 		return;
 
 	get_var(pc, "Description", m_pkg->m_summary);
-	//XXX La URL pot tenir defines!
 	get_var(pc, "URL", m_pkg->m_url);
 }
 
@@ -102,6 +97,13 @@ void Info::get_info_desktop()
 void Info::get_info_config_log()
 {
 	string config("config.log");
+
+	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
+	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
+	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
+	
+	// get configure options
+
 	std::ifstream f(config.c_str());
 	if (!f)
 		return;
@@ -114,12 +116,6 @@ void Info::get_info_config_log()
 			break;
 		}
 	}
-	
-	f.close();
-
-	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
-	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
-	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
 }
 
 
@@ -156,7 +152,7 @@ bool Info::get_var(string const& file, string const& tag,
 	if (!f)
 		return false;
 		
-	Regexp re(tag + "[ \\t:=]+[\"']*(.+[^\"'])", REG_ICASE & icase);
+	Regexp re(tag + "[^[:alnum:]]+([[:alnum:]].*[^\"'])", REG_ICASE & icase);
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {

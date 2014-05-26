@@ -11,6 +11,7 @@
 #include "basepkg.h"
 #include "porgrc.h"
 #include "file.h"
+#include "regexp.h"
 #include <fstream>
 #include <algorithm>
 
@@ -55,7 +56,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	// character defining the info field, and <value> is its value.
 	//	
 	
-	while (getline(f, buf) && buf.at(0) == '#') {
+	while (getline(f, buf) && buf[0] == '#') {
 
 		if (buf.size() < 3) {
 			assert(buf.size() > 2);
@@ -64,7 +65,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 
 		string val(buf.substr(3));
 
-		switch (buf.at(1)) {
+		switch (buf[1]) {
 
 			case CODE_DATE: 		m_date = str2num<int>(val);		break;
 			case CODE_SIZE: 		m_size = str2num<ulong>(val); 	break;
@@ -100,64 +101,36 @@ void BasePkg::unlog() const
 
 void BasePkg::get_files()
 {
-	if (!m_files.empty()) {
-		assert(m_files.empty());
+	assert(m_files.empty());
+	if (!m_files.empty())
 		return;
-	}
-
-	FileStream<std::ifstream> f(m_log);
-	
-	string buf;
-	char path[4096], ln_path[4096];
-	long fsize;
-
-#ifndef NDEBUG
-	ulong cnt_size = 0, cnt_nfiles = 0;
-#endif
 
 	m_files.reserve(m_nfiles);
 
-	while (getline(f, buf)) {
+	ulong cnt_size = 0, cnt_nfiles = 0, fsize;
+	FileStream<std::ifstream> f(m_log);
+	Regexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
 
-		//XXX Use Regexp
+	for (string buf; getline(f, buf); ) {
 
-		// skip header
-		if (buf[0] != '/')
-			continue;
+		assert(buf[0] == '/' || buf[0] == '#');
 		
-		int cnt = sscanf(buf.c_str(), "%[^|]|%ld|%s", path, &fsize, ln_path);
-
-		// syntax error
-		if (cnt < 2) {
-			assert(cnt >= 2);
-			continue;
+		if (re.exec(buf)) {
+			fsize = str2num<ulong>(re.match(2));
+			m_files.push_back(new File(re.match(1), fsize, re.match(3)));
+			cnt_size += fsize;
+			cnt_nfiles++;
 		}
-		
-		// regular file
-		else if (cnt == 2)
-			m_files.push_back(new File(path, fsize));
-		
-		// symlink
-		else
-			m_files.push_back(new File(path, fsize, ln_path));
-
-#ifndef NDEBUG
-		cnt_size += fsize;
-		cnt_nfiles++;
-#endif
 	}
 
 	sort_files();
-
-#ifndef NDEBUG
 	assert(cnt_size == m_size && cnt_nfiles == m_nfiles);
-#endif
 }
 
 
 bool BasePkg::has_file(File* file) const
 {
-	assert(file != NULL);
+	assert(file != 0);
 	return std::binary_search(m_files.begin(), m_files.end(), file, Sorter());
 }
 
@@ -178,7 +151,6 @@ void BasePkg::sort_files(	sort_t type,	// = SORT_BY_NAME
 }
 
 
-//XXX Use Regexp
 string BasePkg::get_base(string const& name)
 {
 	for (string::size_type i = 1; i < name.size(); ++i) {
@@ -189,7 +161,6 @@ string BasePkg::get_base(string const& name)
 }
 
 
-//XXX Use Regexp
 string BasePkg::get_version(string const& name)
 {
 	for (string::size_type i = 1; i < name.size(); ++i) {

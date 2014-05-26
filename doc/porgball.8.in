@@ -20,68 +20,72 @@ installed files. For this to work the input packages have to be
 registered in the porg database.
 .br
 Leading slashes ('/') are stripped from the paths of the files in the
-tarballs.
+tarballs, so they can be extracted into user-defined directories..
 .PP
-With option \fB\-e\fR, \fBporgball\fR admits one or more previously
+With option \fB-e\fR, \fBporgball\fR admits one or more previously
 created tarballs ("porgballs") as arguments, and installs them into the
 system, optionally logging the installation with porg.
 .PP
-Mandatory arguments to long options are mandatory for short options too.
+Short options cannot be joined up, for instance: '\fB-af\fR' is not correct,
+type '\fB-a -f\fR' instead.
 .PP
-Options cannot be joined, for instance: '\fB\-af\fR' is not correct,
-type '\fB\-a \-f\fR' instead.
+Mandatory arguments to long options are mandatory for short options too.
 .SH GENERAL OPTIONS
 .TP
-\fB\-t, \-\-test\fR
+\fB-t, --test\fR
 Test compressed file integrity.
 .TP
-\fB\-h, \-\-help\fR
+\fB-h, --help\fR
 Show usage information and exit.
 .TP
-\fB\-v, \-\-verbose\fR
-Verbose output.
+\fB-v, --verbose\fR
+Explain what is being done.
 .TP
-\fB\-V, \-\-version\fR
-Display version information and exit.
+\fB-V, --version\fR
+Print version information and exit.
 .SH PACKAGE CREATION OPTIONS
 .TP
-\fB\-a, \-\-all\fR
+\fB-a, --all\fR
 Create a porgball for each package logged in the porg database.
 .TP
-\fB\-d, \-\-directory\fR=\fIDIR\fR
+\fB-X, --exact-version\fR
+Disable expansion of package version. See the man page of \fBporg(5)\fR
+for more information.
+.TP
+\fB-d, --directory\fR=\fIDIR\fR
 Create the porgballs in directory DIR (default is '.').
 .TP
-\fB\-g, \-\-gzip\fR
+\fB-g, --gzip\fR
 Compress with gzip (this is the default).
 .TP
-\fB\-b, \-\-bzip2\fR
+\fB-b, --bzip2\fR
 Compress with bzip2.
 .TP
-\fB\-x, \-\-xz\fR
+\fB-x, --xz\fR
 Compress with xz.
 .TP
-\fB\-#\fR
+\fB-#\fR
 Set the compression level (speed/quality balance). '#' is a number between 1
-(faster compression) and 9 (best compression).
+(faster compression) and 9 (best compression). Default is 9.
 .TP
-\fB\-\-fast\fR
+\fB--fast\fR
 An alias for -1.
 .TP
-\fB\-\-best\fR
+\fB--best\fR
 An alias for -9.
 .TP
-\fB\-f, \-\-force\fR
+\fB-f, --force\fR
 Force overwrite of existing output files.
 .SH PACKAGE EXTRACTION OPTIONS
 .TP
-\fB\-e, \-\-extract\fR
-Extract (install) the given <porgballs>, in directory '/' by default.
+\fB-e, --extract\fR
+Extract (install) the given porgballs, in directory '/' by default.
 .TP
-\fB\-l, \-\-log\fR
-Log the file extraction with porg(8), retrieving the appropiate
+\fB-l, --log\fR
+Log the file extraction with porg, retrieving the appropiate
 package name from the name of the porgball.
 .TP
-\fB\-d, \-\-directory\fR=\fIDIR\fR
+\fB-d, --directory\fR=\fIDIR\fR
 Extract the files into directory DIR (as the option -C in tar).
 .SH FILES
 .PP
@@ -91,4 +95,4 @@ Extract the files into directory DIR (as the option -C in tar).
 .SH AUTHOR
 Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
-porg(8), porgrc(5), superporg(8)
+porg(8), porgrc(5)

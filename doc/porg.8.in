@@ -6,11 +6,11 @@
 .\"
 .TH PORG "8" "@RELEASEDATE@" "porg @PACKAGE_VERSION@" "System"
 .SH NAME
-porg \- a source code package organizer
+porg - a source code package organizer
 .SH SYNOPSIS
 \fBporg\fR [OPTIONS] <packages>
 .br
-\fBporg\fR \-l [OPTIONS] <package> <command>
+\fBporg\fR -l [OPTIONS] <package> <command>
 .br
 \fBporg\fR -q <files>
 .SH DESCRIPTION
@@ -18,105 +18,112 @@ porg \- a source code package organizer
 Porg is a program to aid package management when installing packages from source
 code.
 .PP
-When installing a package, porg can be used in log mode (with option \fB\-l\fR)
+When installing a package, porg may be used in log mode (with option \fB-l\fR)
 to wrap the installation command (e.g. "make install"), and log the created
-files. By default the log is stored in directory '@LOGDIR@'.
+files into a text database.
 .PP
-Once some packages are installed and properly registered, porg can be used in list
-mode, which is the default, to display package information. Several options
-are provided to print the information in different formats.
+Porg also provides options for listing package information, removing packages 
+or querying for the owner of files.
 .PP
-There are also options for removing packages, printing the configure options the
-package was installed with, or querying for the package that owns one or more files.
-.PP
-Mandatory arguments to long options are mandatory for short options too.
-.PP
-The special option \fB\-\-\fR forces and end of option-scanning. This is
+The special option \fB--\fR forces and end of option-scanning. This is
 specially useful when entering the install command in log mode.
+.PP
+Mandatory arguments to long options are mandatory to short options too.
 .SH GENERAL OPTIONS
 .TP
-\fB\-h, \-\-help\fR
-Display a help message and exit.
-.TP
-\fB\-L, \-\-logdir\fR=\fIDIR\fR
-Base log directory. Default is '@LOGDIR@', unless variable LOGDIR is set
+\fB-L, --logdir\fR=\fIDIR\fR
+Base log directory. The logs for the installed packages are saved in this
+directory. Default is '@LOGDIR@', unless variable LOGDIR is set
 in the configuration file (type 'man porgrc' for more information).
 .TP
-\fB\-v, \-\-verbose\fR
-Verbose output. \fB\-vv\fR prints also debugging messages.
+\fB-v, --verbose\fR
+Verbose output. \fB-vv\fR prints also debugging messages.
 .TP
-\fB\-V, \-\-version\fR
+\fB-X, --exact-version\fR
+Disable expansion of package version (not with \fB-l\fR).
+.br
+By default, porg automatically expands the package names given as arguments, 
+by adding all the versions of the package that are registered in the porg 
+database. For instance, if foo-1.0  and foo-2.0 are installed, the 
+command 'porg -r foo' would remove both packages, and 'porg -r foo-1' 
+would remove only foo-1.0. 
+.br
+The option \fB-X\fR inhibits this expansion, so that package names must match 
+the basename and the whole version of a registered package.
+.TP
+\fB-h, --help\fR
+Display a help message and exit.
+.TP
+\fB-V, --version\fR
 Display version information and exit.
 .SH PACKAGE INFORMATION OPTIONS
 .TP
-\fB\-a, \-\-all\fR
+\fB-a, --all\fR
 Apply to all installed packages.
 .TP
-\fB\-d, \-\-date\fR
-Print the installation date of the package. Double it ('\fB\-dd\fR') to print
+\fB-d, --date\fR
+Print the installation date of the package. Double it ('\fB-dd\fR') to print
 also the hour.
 .TP
-\fB\-f, \-\-files\fR
-List the installed files of the package.
+\fB-f, --files\fR
+List the files installed by the package.
 .TP
-\fB\-F\fR
+\fB-F\fR
 Print the number of installed files.
 .TP
-\fB\-i, \-\-info\fR
-Print package information, if available.
+\fB-i, --info\fR
+Print package information (like summary, author, URL...), if available.
 .TP
-\fB\-o, \-\-configure\-options\fR
-Print the configure options the package was built with.
+\fB-o, --configure-options\fR
+Print the arguments (command line options and environment variables) passed 
+to the 'configure' script when the package was built.
 .TP
-\fB\-q, \-\-query\fR
-Query for the packages that own one or more files.
+\fB-q, --query\fR
+Query for the packages that own the files specified as arguments.
 .TP
-\fB\-R, \-\-reverse\fR
+\fB-R, --reverse\fR
 Reverse order while sorting.
 .TP
-\fB\-s, \-\-size\fR
-Show the size of each package or file.
+\fB-s, --size\fR
+Print the size of each package or file.
 .TP
-\fB\-S, \-\-sort\fR=\fIWORD\fR
+\fB-S, --sort\fR=\fIWORD\fR
 Sort the list by WORD: When listing files, meaningful values for WORD
 are: 'name' and 'size'. When listing packages, WORD may be
 also: 'date' (or 'time') and 'files'.
 .TP
-\fB\-t, \-\-total\fR
+\fB-t, --total\fR
 Print totals at the bottom of the list, when appliable.
 .TP
-\fB\-y, \-\-symlinks\fR
-With \fB\-f\fR, print the contents of symbolic links.
+\fB-y, --symlinks\fR
+With \fB-f\fR, print the contents of symbolic links.
 .TP
-\fB\-z, \-\-no\-package\-name\fR
-With \fB\-f\fR, do not print the name of the package. Useful for scripts.
+\fB-z, --no-package-name\fR
+With \fB-f\fR, do not print the name of the package. Useful for scripts.
 .SH LOG OPTIONS
 .TP
-\fB\-l, \-\-log\fR
-Enable log mode: If a shell command is given as an argument, execute
-and monitor it, logging the created files, otherwise the list of files
-to log is read from the standard input.
+\fB-l, --log\fR
+Enable log mode. If a shell command is given as argument, execute
+and monitor it, logging the created files; otherwise the list of files
+to be logged is read from the standard input.
 .br
 The list of logged files is printed to the standard output, unless
-any of \fB\-p\fR or \fB\-D\fR options is used, in which case is assumed
-that a package is to be logged into the porg database.
-.br
-When a shell comand is monitorized, porg returns the exit code of that
-command.
+any of \fB-p\fR or \fB-D\fR options is used, in which case is assumed
+that a package is to be registered into the porg database.
 .br
 See EXAMPLES below.
 .TP
-\fB\-p, \-\-package\fR=\fIPKG\fR
-Specify the name of the package to log, which must begin with
-an alphanumeric character. With \fB\-v\fR, the list of logged files
-is also printed to the standard error stream. With \fB\-vv\fR,
+\fB-p, --package\fR=\fIPKG\fR
+Specify the name of the package to be logged, which must begin with
+an alphanumeric character. With \fB-v\fR, the list of logged files
+is also printed to the standard error stream. With \fB-vv\fR,
 porg prints detailed information about the install process. This
-holds for option \fB\-D\fR too.
+holds for option \fB-D\fR too.
 .TP
-\fB\-D, \-\-dirname\fR
+\fB-D, --dirname\fR
 Use the name of the current directory as the name of the package to be logged.
 .TP
-\fB\-E, \-\-exclude\fR=\fIPATH1:PATH2:...\fR
+\fB-E, --exclude\fR=\fIPATH1:PATH2:...\fR
 Colon-separated list of paths to skip when logging. Default is '@EXCLUDE@',
 unless variable EXCLUDE is set in the
 configuration file (type 'man porgrc' for more information).
@@ -124,7 +131,7 @@ configuration file (type 'man porgrc' for more information).
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
-\fB\-I, \-\-include\fR=\fIPATH1:PATH2:...\fR
+\fB-I, --include\fR=\fIPATH1:PATH2:...\fR
 Colon-separated list of paths to scan when logging. Default is '/',
 unless variable INCLUDE is set in the
 configuration file (type 'man porgrc' for more information).
@@ -132,37 +139,36 @@ configuration file (type 'man porgrc' for more information).
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
-\fB\-\-log\-missing\fR
+\fB-m, --log-missing\fR
 By default, when installing a package porg registers only those files 
 that exist in the filesystem right after the installation. Using this
-option, porg registers also the missing files. See \fIEXAMPLES\fR
-below.
+option, porg registers also the missing files.
 .TP
-\fB\-+, \-\-append\fR
-With \fB\-p\fR or \fB\-D\fR, if the package is already logged, append the list
-of files to its log.
+\fB-+, --append\fR
+With \fB-p\fR or \fB-D\fR, if the package is already logged, append the list
+of created files to its log.
 .SH REMOVE OPTIONS
 .TP
-\fB\-r, \-\-remove\fR
+\fB-r, --remove\fR
 Remove a package, keeping the shared files and asking for confirmation by
 default.
 .TP
-\fB\-b, \-\-batch\fR
+\fB-b, --batch\fR
 Don't prompt for confirmation when removing (and assume yes to all questions).
 .TP
-\fB\-e, \-\-skip\fR=\fIPATH1:PATH2:...\fR
+\fB-e, --skip\fR=\fIPATH1:PATH2:...\fR
 Colon-separated list of paths to skip when removing a package. 
 Default is '' (all logged files are removed),
 unless variable REMOVE_SKIP is set in the
 configuration file (type 'man porgrc' for more information).
 .br
-Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
+Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR for
 more details.
 .TP
-\fB\-U, \-\-unlog\fR
-Remove the log of the package from the database, without removing any file.
+\fB-U, --unlog\fR
+Unregister the package from the porg database, without removing any file.
 .SH PATH MATCHING
-Options \fB\-I\fR, \fB\-E\fR and \fB\-e\fR accept a colon-separated list of
+Options \fB-I\fR, \fB-E\fR and \fB-e\fR accept a colon-separated list of
 paths, each of which may contain shell-like wildcards (*, ? and [..]).
 Files are matched against each of those paths, following the standard
 shell-like expansion, but with the following exception: If a path in the list
@@ -188,12 +194,12 @@ Use single quotes if the command already contains double quotes:
 	porg -lp foo-1.0 'echo "hello world" > /var/log/foo.log'
 .PP
 Alternatively, we can use the basename of the current directory as the name of
-the package to log, using the option \fB\-D\fR instead of \fB\-p\fR:
+the package to be logged, using the option \fB-D\fR instead of \fB-p\fR:
 .PP
     porg -lD "make install && make install.man"
 .PP
 If we have forgotten to install a file, it can be added to a previously
-created log with the option \fB\-+\fR:
+created log with the option \fB-+\fR:
 .PP
     porg -lp+ foo-1.0 "install bar /bin/bar"
 .PP
@@ -221,27 +227,13 @@ both commands in one single porg run:
 .PP
 In this case only /usr/bin/bar is logged.
 .PP
-To understand the meaning of the option \fB\-\-log\-missing\fR, consider
-the following example, where the file /foo/bar does not exist:
-.PP
-    echo /foo/bar | porg --log-missing -lp foo
-.PP
-This would log the file /foo/bar, even if it is missing. Without the
-option --log-missing /foo/bar is skipped.
-.PP
 To remove the package foo-3.3, keeping the files in /etc and the files
 ending with ".conf":
 .PP
     porg -r -e '/etc:*.conf' foo-3.3
 .PP
-\fBPlease note\fR that porg automatically expands the version of the packages 
-given as arguments. For example, if foo-1.0 and foo-2.0 are both logged,
-the following command would remove both packages:
-.PP
-    porg -r foo
-.PP
-We have installed the package 'boo-1.9' in prefix '/opt/boo-1.9', but
-we haven't logged the installation with porg. No problem! Just create a log
+You have installed the package 'boo-1.9' in prefix '/opt/boo-1.9', but
+you haven't logged the installation with porg. No problem! Just create a log
 for it thusly:
 .PP
     find /opt/boo-1.9 | porg -lp boo-1.9
@@ -258,4 +250,4 @@ For the same reason, porg does not work with programs that statically link libc.
 .SH AUTHOR
 Written by David Ricart (@PACKAGE_BUGREPORT@)
 .SH SEE ALSO
-porgrc(5), porgball(8), superporg(8)
+porgrc(5), porgball(8)

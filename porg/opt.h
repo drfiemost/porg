@@ -37,6 +37,7 @@ class Opt : public Porgrc
 	static void init(int argc, char* argv[]);
 
 	static bool all_pkgs()			{ return s_all_pkgs; }
+	static bool exact_version()		{ return s_exact_version; }
 	static bool print_sizes()		{ return s_print_sizes; }
 	static bool print_files()		{ return s_print_files; }
 	static bool print_nfiles()		{ return s_print_nfiles; }
@@ -63,6 +64,7 @@ class Opt : public Porgrc
 	static void set_sort_type(std::string const&);
 
 	static bool s_all_pkgs;
+	static bool s_exact_version;
 	static bool s_print_sizes;
 	static bool s_print_files;
 	static bool s_print_nfiles;

@@ -1,14 +1,22 @@
-SVN
----
+Version 0.4 (26/05/2014)
+------------------------
 
 	+ Bugfix: In some cases, tmp files were not removed after installing a 
 	  package.
 	+ Bugfix: Some files were not registered when logging the own porg
 	  installation with "make logme".
 	+ Bugfix: The main window of grop was partially invisible.
+	+ Bugfix: Porgball failed to extract porgballs in some cases.
 	+ New feature: When installing a package, save the environment variables
 	  passed to ./configure, and not only the command line options.
-	+ Enhancement: Improved the code for searching for package information.
+	+ New feature: Expand any environment variable (and not only $HOME),
+	  in variable LOGDIR in porgrc.
+	+ New feature: Added option '-X|--exact-version' to porg and porgball (see 
+	  man page).
+	+ Improved the code for searching for package information.
+	+ Added porg.spec.
+	+ Removed the (buggy) superporg script.
+	+ Added short option '-m' for '--log-missing'.
 
 
 Version 0.3 (19/05/2014)

@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 #
 
-AC_INIT([porg], [svn], [http://porg.sourceforge.net])
+AC_INIT([porg], [0.4], [http://porg.sourceforge.net])
 
-#RELEASEDATE="19 May 2014"
-RELEASEDATE="`date +'%d %B %Y'`"
+RELEASEDATE="26 May 2014"
+#RELEASEDATE="`date +'%d %B %Y'`"
 
 AC_CONFIG_SRCDIR([porg/main.cc])
 AC_CONFIG_HEADERS([config.h])
@@ -29,7 +29,6 @@ AC_CONFIG_FILES([ \
 	doc/porgrc.5 \
 	doc/porg.8 \
 	doc/porgball.8 \
-	doc/superporg.8 \
 ])
 
 AC_GNU_SOURCE
