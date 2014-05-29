@@ -1,3 +1,9 @@
+SVN
+---
+
+	+ Save grop settings in ~/.config/grop/groprc instead of ~/.grop
+
+
 Version 0.4 (26/05/2014)
 ------------------------
 

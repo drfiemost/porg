@@ -30,11 +30,12 @@ Opt::Opt()
 :
 	Porg::Porgrc(),
 	Glib::KeyFile(),
-	m_groprc(Glib::get_home_dir() + "/.grop")
+	m_rcdir(Glib::get_user_config_dir() + "/grop"),
+	m_groprc(m_rcdir + "/groprc")
 {
 	g_assert(s_initialized == false);
 
-	try 
+	try
 	{
 		load_from_file(m_groprc);
 
@@ -66,6 +67,8 @@ Opt::~Opt()
 	set_integer("gui", "xpos", s_xpos);
 	set_integer("gui", "ypos", s_ypos);
 	set_boolean_list("gui", "columns", s_columns);
+
+	mkdir(m_rcdir.c_str(), 0700);
 
 	std::ofstream os(m_groprc.c_str());
 	if (os)

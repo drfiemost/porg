@@ -8,7 +8,7 @@
 
 #include "config.h"
 #include "porgrc.h"
-#include "regexp.h"
+#include "rexp.h"
 #include <wordexp.h>
 #include <fstream>
 
@@ -33,7 +33,7 @@ Porgrc::Porgrc()
 	if (!f)
 		return;
 
-	Regexp re("^([A-Z_]+)=(.*)$");
+	Rexp re("^([A-Z_]+)=(.*)$");
 
 	for (string buf, opt, val; getline(f, buf); ) {
 		if (re.exec(buf)) {

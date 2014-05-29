@@ -11,7 +11,7 @@
 #include "basepkg.h"
 #include "porgrc.h"
 #include "file.h"
-#include "regexp.h"
+#include "rexp.h"
 #include <fstream>
 #include <algorithm>
 
@@ -109,7 +109,7 @@ void BasePkg::get_files()
 
 	ulong cnt_size = 0, cnt_nfiles = 0, fsize;
 	FileStream<std::ifstream> f(m_log);
-	Regexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
+	Rexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
 
 	for (string buf; getline(f, buf); ) {
 

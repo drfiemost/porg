@@ -40,6 +40,7 @@ class Opt : public Porg::Porgrc, public Glib::KeyFile
 	Opt();
 	~Opt();
 
+	std::string m_rcdir;
 	std::string m_groprc;
 
 	static bool s_hour;

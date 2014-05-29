@@ -8,7 +8,7 @@
 
 #include "config.h"
 #include "porg/file.h"
-#include "porg/regexp.h"
+#include "porg/rexp.h"
 #include "out.h"
 #include "info.h"
 #include "pkg.h"
@@ -108,7 +108,7 @@ void Info::get_info_config_log()
 	if (!f)
 		return;
 
-	Regexp re("\\$[ \\t].*/configure[ \\t]+(.*)$");
+	Rexp re("\\$[ \\t].*/configure[ \\t]+(.*)$");
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
@@ -152,7 +152,7 @@ bool Info::get_var(string const& file, string const& tag,
 	if (!f)
 		return false;
 		
-	Regexp re(tag + "[^[:alnum:]]+([[:alnum:]].*[^\"'])", REG_ICASE & icase);
+	Rexp re(tag + "[^[:alnum:]]+([[:alnum:]].*[^\"'])", REG_ICASE & icase);
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
@@ -183,14 +183,14 @@ void Info::get_icon_path()
 	
 	string exp("/" + path);
 	string suf("\\.(png|xpm|jpg|ico|gif|svg)$");
-	Regexp re1(suf, REG_ICASE);
+	Rexp re1(suf, REG_ICASE);
 	
 	if (!re1.exec(path))
 		exp += suf;
 
 	// Search the logged files for the path of the icon
 	
-	Regexp re2(exp, REG_ICASE);
+	Rexp re2(exp, REG_ICASE);
 
 	for (uint i(0); i < m_pkg->m_files.size(); ++i) {
 		if (re2.exec(m_pkg->m_files[i]->name())) {

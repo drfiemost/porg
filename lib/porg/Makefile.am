@@ -5,14 +5,14 @@ libporg_a_SOURCES = \
 	basepkg.cc \
 	common.cc \
 	file.cc \
-	regexp.cc \
+	rexp.cc \
 	porgrc.cc
 
 noinst_HEADERS = \
 	common.h \
 	basepkg.h \
 	porgrc.h \
-	regexp.h \
+	rexp.h \
 	file.h
 
 libporg_a_CXXFLAGS = \

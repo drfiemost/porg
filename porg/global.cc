@@ -33,7 +33,7 @@ string Porg::clear_path(string const& inpath)
 
 	// strip trailing slashes
     
-	//XXX Use Regexp?
+	//XXX Use Rexp?
 
 	while (path[path.size() - 1] == '/')
 		path.erase(path.size() - 1);

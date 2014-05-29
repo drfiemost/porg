@@ -1,13 +1,13 @@
 //=======================================================================
-// regexp.h
+// rexp.h
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
-#ifndef PORG_REGEXP_H
-#define PORG_REGEXP_H
+#ifndef PORG_REXP_H
+#define PORG_REXP_H
 
 #include "config.h"
 #include <iosfwd>
@@ -16,12 +16,12 @@
 namespace Porg
 {
 
-class Regexp
+class Rexp
 {
 	public:
 
-	Regexp(std::string const& exp, int flags = 0);
-	~Regexp();
+	Rexp(std::string const& exp, int flags = 0);
+	~Rexp();
 
 	bool exec(std::string const&);
 	std::string match(int = 0);

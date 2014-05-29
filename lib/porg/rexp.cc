@@ -1,5 +1,5 @@
 //=======================================================================
-// regexp.cc
+// rexp.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
@@ -7,14 +7,14 @@
 //=======================================================================
 
 #include "config.h"
-#include "regexp.h"
+#include "rexp.h"
 #include <string>
 
 using namespace Porg;
 using std::string;
 
 
-Regexp::Regexp(string const& exp, int flags /* = 0 */)
+Rexp::Rexp(string const& exp, int flags /* = 0 */)
 :
 	m_regex(),
 	m_pmatch(),
@@ -26,14 +26,14 @@ Regexp::Regexp(string const& exp, int flags /* = 0 */)
 }
 
 
-Regexp::~Regexp()
+Rexp::~Rexp()
 {
 	if (m_compiled)
 		regfree(&m_regex);
 }
 
 
-bool Regexp::exec(string const& str)
+bool Rexp::exec(string const& str)
 {
 	m_str = str;
 	m_matched = !regexec(&m_regex, str.c_str(), MAX_MATCHES, m_pmatch, 0);
@@ -41,7 +41,7 @@ bool Regexp::exec(string const& str)
 }
 
 
-string Regexp::match(int n /* = 0 */)
+string Rexp::match(int n /* = 0 */)
 {
 	assert(m_matched);
 	assert(n < MAX_MATCHES);
