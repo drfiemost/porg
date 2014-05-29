@@ -94,7 +94,7 @@ MainWindow::~MainWindow()
 void MainWindow::update_statusbar()
 {
 	std::ostringstream os;
-	os << "  " << DB::pkg_cnt() << " packages | " << Porg::fmt_size(DB::total_size());
+	os << DB::pkg_cnt() << " packages | " << Porg::fmt_size(DB::total_size());
 	m_statusbar.push(os.str());
 }
 
