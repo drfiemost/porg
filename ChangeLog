@@ -2,6 +2,7 @@ SVN
 ---
 
 	+ Save grop settings in ~/.config/grop/groprc instead of ~/.grop
+	+ Improved the code for checking for command line option compatibility.
 
 
 Version 0.4 (26/05/2014)

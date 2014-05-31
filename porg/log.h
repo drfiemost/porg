@@ -23,6 +23,7 @@ class Log
 
 	protected:
 
+	std::string				m_package;
 	std::string				m_tmpfile;
 	std::set<std::string> 	m_files;
 	

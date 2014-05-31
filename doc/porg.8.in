@@ -39,7 +39,7 @@ in the configuration file (type 'man porgrc' for more information).
 \fB-v, --verbose\fR
 Verbose output. \fB-vv\fR prints also debugging messages.
 .TP
-\fB-X, --exact-version\fR
+\fB-x, --exact-version\fR
 Disable expansion of package version (not with \fB-l\fR).
 .br
 By default, porg automatically expands the package names given as arguments, 
@@ -48,7 +48,7 @@ database. For instance, if foo-1.0  and foo-2.0 are installed, the
 command 'porg -r foo' would remove both packages, and 'porg -r foo-1' 
 would remove only foo-1.0. 
 .br
-The option \fB-X\fR inhibits this expansion, so that package names must match 
+The option \fB-x\fR inhibits this expansion, so that package names must match 
 the basename and the whole version of a registered package.
 .TP
 \fB-h, --help\fR

@@ -16,18 +16,16 @@ porg_SOURCES = \
 	out.cc \
 	pkgset.cc \
 	log.cc \
-	dir.cc \
 	opt.cc \
-	global.cc
+	util.cc
 
 noinst_HEADERS = \
-	global.h \
+	util.h \
 	out.h \
 	info.h \
 	pkgset.h \
 	pkg.h \
 	log.h \
-	dir.h \
 	opt.h
 
 porg_LDADD = \

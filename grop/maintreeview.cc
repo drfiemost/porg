@@ -74,7 +74,7 @@ void MainTreeView::set_opts()
 		get_column(i)->set_visible(Opt::columns()[i]);
 
 	fill_model(); // so that changes in Opt::hour() will be applied
-	              //XXX There should be a better way to do this...
+	              //XXX There must be a better way to do this...
 }
 
 

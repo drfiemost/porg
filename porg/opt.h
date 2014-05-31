@@ -18,15 +18,16 @@
 namespace Porg {
 
 
-enum Mode {
-   	MODE_LIST_PKGS,
-   	MODE_LIST_FILES,
-   	MODE_QUERY,
-   	MODE_INFO,
-   	MODE_CONF_OPTS,
-   	MODE_LOG,
-   	MODE_REMOVE,
-   	NMODES
+enum {
+	MODE_NONE		= 0,
+   	MODE_LIST_PKGS	= 1 << 0,
+   	MODE_LIST_FILES = 1 << 1,
+   	MODE_QUERY 		= 1 << 2,
+   	MODE_INFO 		= 1 << 3,
+   	MODE_CONF_OPTS 	= 1 << 4,
+   	MODE_LOG 		= 1 << 5,
+   	MODE_REMOVE 	= 1 << 6,
+   	NMODES = 7
 };
 
 
@@ -39,7 +40,6 @@ class Opt : public Porgrc
 	static bool all_pkgs()			{ return s_all_pkgs; }
 	static bool exact_version()		{ return s_exact_version; }
 	static bool print_sizes()		{ return s_print_sizes; }
-	static bool print_files()		{ return s_print_files; }
 	static bool print_nfiles()		{ return s_print_nfiles; }
 	static bool print_totals()		{ return s_print_totals; }
 	static bool print_symlinks()	{ return s_print_symlinks; }
@@ -52,7 +52,7 @@ class Opt : public Porgrc
 	static bool print_date() 		{ return s_print_date; }
 	static bool print_hour() 		{ return s_print_hour; }
 	static sort_t sort_type()		{ return s_sort_type; }
-	static Mode mode()				{ return s_mode; };
+	static int mode()				{ return s_mode; };
 	static std::string const& log_pkg_name()		{ return s_log_pkg_name; }
 	static std::vector<std::string> const& args()	{ return s_args; }
 	
@@ -60,13 +60,13 @@ class Opt : public Porgrc
 
 	Opt(int argc, char* argv[]);
 
-	static void set_mode(Mode m, char optchar);
+	static void check_mode(int modes, char optchar);
+	static void set_mode(int m, char optchar);
 	static void set_sort_type(std::string const&);
 
 	static bool s_all_pkgs;
 	static bool s_exact_version;
 	static bool s_print_sizes;
-	static bool s_print_files;
 	static bool s_print_nfiles;
 	static bool s_print_totals;
 	static bool s_print_symlinks;
@@ -80,8 +80,9 @@ class Opt : public Porgrc
 	static bool s_print_hour;
 	static sort_t	s_sort_type;
 	static std::string s_log_pkg_name;
-	static Mode s_mode;
+	static int s_mode;
 	static std::vector<std::string> s_args;
+	static char s_mode_char;
 
 };	// class Opt
 

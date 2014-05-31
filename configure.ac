@@ -119,7 +119,12 @@ fi
 if test "$GXX" = yes; then
 	MY_CXXFLAGS="$MY_CXXFLAGS -ansi -pedantic -Wno-long-long -Wmissing-declarations -fno-operator-names -Wall"
 fi
-	
+
+if test "$PACKAGE_VERSION" = svn; then
+	MY_CFLAGS="$MY_CFLAGS -Werror"
+	MY_CXXFLAGS="$MY_CXXFLAGS -Werror"
+fi
+
 AC_SUBST([MY_CXXFLAGS])
 AC_SUBST([MY_CFLAGS])
 

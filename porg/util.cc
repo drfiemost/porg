@@ -1,5 +1,5 @@
 //=======================================================================
-// global.cc
+// util.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
@@ -7,10 +7,12 @@
 //=======================================================================
 
 #include "config.h"
-#include "global.h"
+#include "util.h"
+#include "porg/common.h"	// for Error
 #include <string>
 
 using std::string;
+using namespace Porg;
 
 
 //
@@ -33,8 +35,6 @@ string Porg::clear_path(string const& inpath)
 
 	// strip trailing slashes
     
-	//XXX Use Rexp?
-
 	while (path[path.size() - 1] == '/')
 		path.erase(path.size() - 1);
 
@@ -52,5 +52,43 @@ string Porg::clear_path(string const& inpath)
 		return path;
 
 	return string(real) + "/" + base;
+}
+
+
+Dir::Dir(string const& path)
+:
+	m_dir(opendir(path.c_str())),
+	m_dirent(0)
+{
+	if (!m_dir)
+		throw Error("opendir(\"" + path + "\")", errno);
+}
+
+
+Dir::~Dir()
+{
+	if (m_dir)
+		closedir(m_dir);
+}
+
+
+bool Dir::read(string &name)
+{
+	if (!(m_dirent = readdir(m_dir)))
+		return false;
+	
+	name = m_dirent->d_name;
+
+	// skip hidden files and special files '.' and '..'
+	if (name.at(0) == '.')
+		return read(name);
+
+	return true;
+}
+
+
+void Dir::rewind()
+{
+	rewinddir(m_dir);
 }
 

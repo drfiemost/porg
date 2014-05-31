@@ -9,8 +9,7 @@
 #include "config.h"
 #include "porg/file.h"
 #include "pkgset.h"
-#include "dir.h"
-#include "global.h"
+#include "util.h"
 #include "opt.h"
 #include "out.h"
 #include "pkg.h"
@@ -371,6 +370,6 @@ static bool match_pkg(string const& str, string const& pkg)
 		pkg_version.c_str(), str_version.size()))
 		return false;
 
-	return ispunct(pkg_version.at(str_version.size()));
+	return ispunct(pkg_version[str_version.size()]);
 }
 

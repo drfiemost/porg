@@ -10,7 +10,7 @@
 #include "out.h"
 #include "opt.h"
 #include "porg/common.h"	// in_paths()
-#include "global.h"
+#include "util.h"
 #include "pkg.h"
 #include "log.h"
 #include <fstream>
@@ -29,9 +29,16 @@ static void set_env(char const* var, string const& val);
 
 Log::Log()
 :
+	m_package(Opt::log_pkg_name()),
 	m_tmpfile(),
 	m_files()
 {
+	if (!m_package.empty()) {
+		mkdir(Opt::logdir().c_str(), 0755);
+		if (!Opt::logdir_writable())
+			throw Error(Opt::logdir(), errno);
+	}
+
 	if (Opt::args().empty())
 		read_files_from_stream(cin);
 	else
@@ -39,22 +46,23 @@ Log::Log()
 
 	filter_files();
 
-	if (Opt::log_pkg_name().empty())
+	if (m_package.empty())
 		write_files_to_stream(cout);
-	else
+	else {
 		write_files_to_pkg();
+		rmdir(Opt::logdir().c_str());
+	}
 }
 
 
 void Log::write_files_to_pkg() const
 {
 	bool done(false);
-	string pkgname(Opt::log_pkg_name());
 
 	if (Opt::log_append()) {
 		try 
 		{
-			Pkg oldpkg(pkgname);
+			Pkg oldpkg(m_package);
 			oldpkg.append(m_files);
 			done = true;
 		}
@@ -62,7 +70,7 @@ void Log::write_files_to_pkg() const
 	}
 
 	if (!done)
-		Pkg pkg(pkgname, m_files);
+		Pkg pkg(m_package, m_files);
 
 	if (Out::debug()) {
 		Out::dbg_title("logged files");
