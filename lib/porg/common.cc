@@ -19,11 +19,11 @@ using namespace Porg;
 //
 // Create a human readable size
 //
-string Porg::fmt_size(ulong size)
+string Porg::fmt_size(long size)
 {
-	ulong const KILOBYTE = 1024;
-	ulong const MEGABYTE = 1048576;
-	ulong const GIGABYTE = 1073741824;
+	if (size == UNKNOWN_SIZE)
+		return "?";
+
 	std::ostringstream s;
 	
 	if (size < KILOBYTE)

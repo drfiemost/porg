@@ -48,7 +48,7 @@ Package extraction options:
   -l, --log            Log the extraction with porg
 
 Note:
-  Short options cannot be joined up, for instance: '-af' is not correct,
+  Short options cannot be joined up; for instance: '-af' is not correct,
   type '-a -f' instead.
 
 EOF
@@ -99,19 +99,16 @@ do_extract()
 	# Extract files from the tar archive
 	tarfile=$(expr $1 : '\(.*\.tar\)')
 	say "Extracting files from $tarfile"
-	files=$(tar -C $opt_dir -xvf $tarfile) || return 1
+	tar -C $opt_dir -xvf $tarfile > $tmpfile || return 1
 	rm -f $tarfile
-	[ "$opt_verb" ] && ls -1 $files
 
 	# Log the extracted files with porg, if needed
 	if [ "$opt_log" ]; then
 		say "Logging the extracted files with porg"
-		ls $files \
-			| awk '{ print "'"$opt_dir"'/" $0; }' \
-			| porg $opt_verb -lp ${1%.porg.tar.*}
+		sed "s|^|$opt_dir/|" $tmpfile | porg $opt_verb -lp ${1%.porg.tar.*}
 		return $?
 	fi
-	
+
 	return 0
 }
 
@@ -124,7 +121,10 @@ do_create()
 
 	# Write list of files logged by the package into tmpfile.
 	# By using ls, only existing files are written,
-	ls -1 $(porg -Xzf $1) > $tmpfile
+	ls $(porg -zf $1) 2>/dev/null > $tmpfile
+	[ -s $tmpfile ] || { say "No files to process"; return 1; }
+
+	# Get names of tar file and tarball
 
 	tarfile=$(echo $opt_dir/${1}.porg.tar | tr -s /)
 	case $opt_prog in
@@ -135,7 +135,7 @@ do_create()
 	ball=${tarfile}.$suf
 
 	if [ -e $ball -a -z "$opt_force" ]; then
-		read -p "$me: $ball already exists; do you wish to overwrite it (y/n)? "
+		read -p "$me: $ball already exists; do you wish to overwrite it (y/N)? "
 		[ "$REPLY" = y -o "$REPLY" = Y ] || return 1
 	fi
 
@@ -187,7 +187,7 @@ while [ "$1" ]; do
 
 		--directory=*|--dir=*|--root=*)
 			opt_dir=${1#*=}
-			[ "$opt_dir" ] || die "Option '$1' requires an argument"
+			[ "$opt_dir" ] || die "Option '${1%=*}' requires an argument"
 			;;
 
 		-*)	die "$1: Unrecognized option";;
@@ -197,6 +197,11 @@ while [ "$1" ]; do
 	esac
 	shift
 done
+
+# Create tmpfile and assure it's removed on exit
+
+tmpfile=$(mktemp || echo /tmp/$me.$$)
+trap 'rm -f $tmpfile' 0
 
 
 # Extraction of porgballs
@@ -219,10 +224,6 @@ else
 
 	opt_dir=${opt_dir:-.}	# default dir = .
 	do_check_dir $opt_dir
-
-	# Create tmpfile and assure it's removed on exit
-	tmpfile=$(mktemp || echo /tmp/$me.$$)
-	trap 'rm -f $tmpfile' 0
 
 	for pkg in $(porg $opt_verb $opt_exact $opt_all $args); do
 		do_create $pkg

@@ -112,7 +112,7 @@ bool PkgSet::add_pkg(string const& name)
 void PkgSet::get_pkg_list_widths(int& size_w, int& nfiles_w)
 {
 	size_w = Opt::print_totals() ? get_width(m_total_size) : 0;
-	ulong max_nfiles(Opt::print_totals() ? m_total_files : 0);
+	long max_nfiles(Opt::print_totals() ? m_total_files : 0);
 	
 	for (iterator p(begin()); p != end(); ++p) {
 		size_w = max(size_w, get_width((*p)->size()));

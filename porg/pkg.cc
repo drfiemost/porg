@@ -77,13 +77,16 @@ void Pkg::print_info_dbg() const
 void Pkg::print_info() const
 {
 	cout
-		<< "Name:    " << m_base_name << '\n'
-		<< "Version: " << m_version << '\n'
-		<< "Summary: " << m_summary << '\n'
-		<< "Author:  " << m_author << '\n'
-		<< "License: " << m_license << '\n'
-		<< "URL:     " << m_url << "\n\n"
-		<< str_description() << "\n\n";
+		<< string(m_name.size() + 2, '-') << '\n'
+		<< " " << m_name << " \n"
+		<< string(m_name.size() + 2, '-') << '\n'
+		<< "Name:     " << m_base_name << '\n'
+		<< "Version:  " << m_version << '\n'
+		<< "Summary:  " << m_summary << '\n'
+		<< "Author:   " << m_author << '\n'
+		<< "License:  " << m_license << '\n'
+		<< "URL:      " << m_url << "\n\n"
+		<< str_description() << "\n";
 }
 
 
@@ -154,7 +157,8 @@ bool Pkg::add_file(string const& path)
 	{
 		File* file = new File(path);
 		m_files.push_back(file);
-		m_size += file->size();
+		if (file->size() > 0)
+			m_size += file->size();
 		m_nfiles++;
 		return true;
 	}

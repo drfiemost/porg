@@ -1,6 +1,7 @@
 SVN
 ---
 
+	+ Bugfix: Porgball failed when trying to log extractions with porg.
 	+ Save grop settings in ~/.config/grop/groprc instead of ~/.grop
 	+ Improved the code for checking for command line option compatibility.
 

@@ -46,10 +46,10 @@ class BasePkg
 	std::vector<File*> const& files() const	{ return m_files; }
 	std::vector<File*>& files()				{ return m_files; }
 	int date() const						{ return m_date; }
-	ulong size() const						{ return m_size; }
+	long size() const						{ return m_size; }
 	std::string const& name() const			{ return m_name; }
 	std::string const& log() const			{ return m_log; }
-	ulong nfiles() const					{ return m_nfiles; }
+	long nfiles() const						{ return m_nfiles; }
 	std::string const& base_name() const	{ return m_base_name; }
 	std::string const& version() const		{ return m_version; }
 	std::string const& icon_path() const	{ return m_icon_path; }
@@ -89,8 +89,8 @@ class BasePkg
 	std::string const m_base_name;
 	std::string const m_version;
 	int m_date;
-	ulong m_size;
-	ulong m_nfiles;
+	long m_size;
+	long m_nfiles;
 	std::string m_icon_path;
 	std::string m_url;
 	std::string m_license;

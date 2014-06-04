@@ -174,10 +174,6 @@ Opt::Opt(int argc, char* argv[])
 		}
 	}
 
-	// default mode
-	if (s_mode == MODE_NONE)
-		s_mode = MODE_LIST_PKGS;
-
 	// Second pass of getopt
 
 	optind = 1;
@@ -286,6 +282,10 @@ Opt::Opt(int argc, char* argv[])
 		}
 	}
 
+	// default mode
+	if (s_mode == MODE_NONE)
+		s_mode = MODE_LIST_PKGS;
+
 	// save non-option command line arguments into s_args
 	s_args.assign(argv + optind, argv + argc);
 
@@ -311,7 +311,7 @@ Opt::Opt(int argc, char* argv[])
 
 void Opt::check_mode(int modes, char optchar)
 {
-	if (!(s_mode & modes))
+	if (s_mode != MODE_NONE && !(s_mode & modes))
 		die_help(string("-") + s_mode_char + optchar + ": Incompatible options");
 }
 

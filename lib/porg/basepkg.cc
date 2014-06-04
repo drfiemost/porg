@@ -107,18 +107,19 @@ void BasePkg::get_files()
 
 	m_files.reserve(m_nfiles);
 
-	ulong cnt_size = 0, cnt_nfiles = 0, fsize;
+	long cnt_size = 0, cnt_nfiles = 0, fsize;
 	FileStream<std::ifstream> f(m_log);
-	Rexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
+	Rexp re("^(/.+)\\|(-?[0-9]+)\\|(.*)$");
 
 	for (string buf; getline(f, buf); ) {
 
 		assert(buf[0] == '/' || buf[0] == '#');
 		
 		if (re.exec(buf)) {
-			fsize = str2num<ulong>(re.match(2));
+			fsize = str2num<long>(re.match(2));
 			m_files.push_back(new File(re.match(1), fsize, re.match(3)));
-			cnt_size += fsize;
+			if (fsize > 0)
+				cnt_size += fsize;
 			cnt_nfiles++;
 		}
 	}

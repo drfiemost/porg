@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #-----------------------------------------------------------------------
 # paco2porg - imports paco logs into a porg database.
 #-----------------------------------------------------------------------
@@ -9,8 +9,11 @@
 
 me=$(basename $0)
 
+die()			{ echo "$me: $*"; exit 1; }
+say()			{ [ "$opt_verb" ] && echo "$*"; }
+do_version() 	{ porg --version | sed "s/^porg/$me/"; exit 0; }
 
-help()
+do_help()
 {
 cat << EOF
 $me - imports paco logs into a porg database.
@@ -19,31 +22,118 @@ Usage:
   $me [OPTIONS]
 
 Options:
-  -h, --help       Display this usage message and exit.
-  -V, --version    Display version information and exit.
-  -v, --verbose    Explain what is being done.
+  -h, --help              Display this usage message and exit.
+  -V, --version           Display version information and exit.
+  -v, --verbose           Explain what is being done.
+  -f, --force             Force overwrite of existing porg logs.
+      --paco-logdir=DIR   Read paco logs from directory DIR
+                          (default is $paco_dir).
+      --porg-logdir=DIR   Write porg logs into directory DIR
+                          (default is $porg_dir).
+
+Note:
+  Short options cannot be joined up; for instance: '-vf' is not correct,
+  type '-v -f' instead.
 
 EOF
 	exit 0
 }
 
+
+#XXX option --porg-logdir
+
+# Defaults
+
+opt_force=
+opt_verb=
+
+# Get default log directories
+
+for p in paco porg; do
+	[ -r /etc/${p}rc ] && aux=$(sed -n '/^LOGDIR=..*/{s/.*=//p}' /etc/${p}rc)
+	[ "$aux" ] || aux=/var/log/$p
+	eval ${p}_dir=$aux
+done
+
+
 # Parse the command line
 
 while [ "$1" ]; do
 	case $1 in
-		-v|--verbose) verb=yes;;
-		-V|--version) porg -V | sed "s@^porg@$me@"; exit 0;;
-		*)	help;;
+		-v|--verbose) 	opt_verb=-v;;
+		-f|--force)		opt_force=-f;;
+		-V|--version)	do_version;;
+		--paco-logdir=*)
+			paco_dir=${1#*=}
+			[ "$paco_dir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+		--porg-logdir=*)
+			porg_dir=${1#*=}
+			[ "$porg_dir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+		*) do_help;;
 	esac
 	shift
 done
 
+# Check directory permissions
+
+[ -d $paco_dir ] || die "'$paco_dir': No such directory"
+[ -r $paco_dir ] || die "'$paco_dir': Permission denied"
+[ -d $porg_dir ] || die "'$porg_dir': No such directory"
+[ -w $porg_dir ] || die "'$porg_dir': Permission denied"
+
+# Get version of porg
+
+porg_version=$(porg --version | grep -o '^porg[^ ]*') || exit 1
+
 # Process the packages
 
-for pkg in $(paco -av); do
-	[ "$verb" ] && echo -n "Importing package ${pkg}...\t"
-	( paco -zf $pkg | porg -lmp $pkg ) && [ "$verb" ] && echo "done"
+for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
+
+	pkg=$(basename $paco_log)
+	
+	# skip hidden files
+	[ ${pkg:0:1} = . ] && continue
+	
+	say "Importing $pkg"
+
+	# check for '#!paco' header
+	if ! (head -1 $paco_log | grep -q '^#!paco'); then
+		say "$paco_log: paco header missing, skipped"
+		continue
+	fi
+
+	porg_log=$porg_dir/$pkg
+
+	if [ -z "$opt_force" -a -e $porg_log ]; then
+		read -p "$me: $porg_log already exists; do you wish to overwrite it (y/N)? "
+		[ "$REPLY" = y -o "$REPLY" = Y ] || continue
+	fi
+
+	# Actual import:
+
+	echo '#!'$porg_version'' > $porg_log
+	sed -n 's/^#d:/#t:/p' $paco_log >> $porg_log
+	
+
+	# Logged files
+
+	#XXX TODO: restore sizes of missing files
+	#sed -rn 's;^-?(/[^|]+).*;\1;p' $paco_log \
+	#	| porg $opt_verb -lmL $porg_dir -p $pkg \
+	#	|| continue
+
+
+
 done
+
+
+
+#for pkg in $(paco -a $verb); do
+#	[ "$verb" ] && echo -n "Importing package ${pkg}...\t"
+#	( paco -zf $pkg | porg -lmp $pkg ) && [ "$verb" ] && echo "done"
+#done
 
 exit 0
 
