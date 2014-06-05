@@ -11,7 +11,7 @@ me=$(basename $0)
 
 die()			{ echo "$me: $*"; exit 1; }
 say()			{ [ "$opt_verb" ] && echo "$*"; }
-do_version() 	{ porg --version | sed "s/^porg/$me/"; exit 0; }
+do_version() 	{ porg -V | sed "s/^porg/$me/"; exit 0; }
 
 do_help()
 {
@@ -40,21 +40,12 @@ EOF
 }
 
 
-#XXX option --porg-logdir
-
-# Defaults
-
-opt_force=
-opt_verb=
-
-# Get default log directories
+# Default log directories
 
 for p in paco porg; do
-	[ -r /etc/${p}rc ] && aux=$(sed -n '/^LOGDIR=..*/{s/.*=//p}' /etc/${p}rc)
-	[ "$aux" ] || aux=/var/log/$p
-	eval ${p}_dir=$aux
+	logdir=$(sed -n '/^LOGDIR=/ s///p' /etc/${p}rc 2>/dev/null)
+	eval ${p}_dir=${logdir:-/var/log/$p}
 done
-
 
 # Parse the command line
 
@@ -85,7 +76,7 @@ done
 
 # Get version of porg
 
-porg_version=$(porg --version | grep -o '^porg[^ ]*') || exit 1
+porg_version=$(porg -V | grep -o '^porg[^ ]*') || exit 1
 
 # Process the packages
 
@@ -113,11 +104,34 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 
 	# Actual import:
 
-	echo '#!'$porg_version'' > $porg_log
-	sed -n 's/^#d:/#t:/p' $paco_log >> $porg_log
-	
+	# 1. Info header
 
-	# Logged files
+	echo '#!'$porg_version'' > $porg_log
+	
+	sed -n 's/^#d:/#t:/p' $paco_log >> $porg_log
+
+	aux=$(sed -n '/^##:/ s///p' $paco_log)
+	inst_size=$(echo $aux | cut -f1 -d '|')
+	miss_size=$(echo $aux | cut -f2 -d '|')
+	echo "#s:$(($inst_size + $miss_size))" >> $porg_log
+	inst_nfiles=$(echo $aux | cut -f3 -d '|')
+	miss_nfiles=$(echo $aux | cut -f4 -d '|')
+	echo "#f:$(($inst_nfiles + $miss_nfiles))" >> $porg_log
+	
+	echo "#a:$(sed -n '/^#:Author: */  s///p' $paco_log)" >> $porg_log
+	echo "#S:$(sed -n '/^#:Summary: */ s///p' $paco_log)" >> $porg_log
+	echo "#u:$(sed -n '/^#:URL: */     s///p' $paco_log)" >> $porg_log
+	echo "#l:$(sed -n '/^#:License: */ s///p' $paco_log)" >> $porg_log
+
+	(grep '^#c:' $paco_log || echo '#c:') >> $porg_log
+	(grep '^#i:' $paco_log || echo '#i:') >> $porg_log
+
+	desc='^#:Description$'
+	sed -n "/^#:/ { /$desc/,\$ { /$desc/! s/#:/#d:/p } }" $paco_log \
+	| sed '1 { /^#d:$/d }; $ { /^#d:$/d }' >> $porg_log
+	echo '#d:' >> $porg_log
+
+	# 2. Logged files
 
 	#XXX TODO: restore sizes of missing files
 	#sed -rn 's;^-?(/[^|]+).*;\1;p' $paco_log \
@@ -129,11 +143,6 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 done
 
 
-
-#for pkg in $(paco -a $verb); do
-#	[ "$verb" ] && echo -n "Importing package ${pkg}...\t"
-#	( paco -zf $pkg | porg -lmp $pkg ) && [ "$verb" ] && echo "done"
-#done
 
 exit 0
 

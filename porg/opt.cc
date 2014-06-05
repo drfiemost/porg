@@ -170,7 +170,7 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_REMOVE: 	set_mode(MODE_REMOVE, c); break;
 			case OPT_LOG: 		set_mode(MODE_LOG, c); break;
 			// unrecognized option
-			case '?': 			die_help();
+			case '?':	die_help();
 		}
 	}
 
@@ -282,29 +282,35 @@ Opt::Opt(int argc, char* argv[])
 		}
 	}
 
-	// default mode
-	if (s_mode == MODE_NONE)
-		s_mode = MODE_LIST_PKGS;
-
 	// save non-option command line arguments into s_args
 	s_args.assign(argv + optind, argv + argc);
 
 	// Checkings
 
-	if (s_mode == MODE_QUERY) {
-		if (s_args.empty())
-			die_help("No input files");
-	}
-	else if (s_mode != MODE_LOG) {
-		if (!(s_print_sizes || s_print_nfiles))
-			s_print_totals = false;
+	switch (s_mode) {
 
-		if (s_args.empty() && !s_all_pkgs)
-			die_help("No input packages");
+		case MODE_QUERY:
+			if (s_args.empty())
+				die_help("No input files");
+			break;
 
-		// convert package names to lower case
-		for (uint i(0); i < s_args.size(); ++i)
-			s_args[i] = to_lower(s_args[i]);
+		case MODE_LOG:
+			break;
+
+		case MODE_NONE:
+			s_mode = MODE_LIST_PKGS;
+			// no break here
+
+		default:
+			if (!(s_print_sizes || s_print_nfiles))
+				s_print_totals = false;
+
+			if (s_args.empty() && !s_all_pkgs)
+				die_help("No input packages");
+
+			// convert package names to lower case
+			for (uint i(0); i < s_args.size(); ++i)
+				s_args[i] = to_lower(s_args[i]);
 	}
 }
 

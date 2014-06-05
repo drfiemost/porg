@@ -12,7 +12,7 @@ me=$(basename $0)
 warn()			{ echo "$me: $*" >&2; }
 die()			{ warn "$*"; exit 1; }
 say()			{ [ "$opt_verb" ] && echo "$*"; }
-do_version() 	{ porg --version | sed "s/^porg/$me/"; exit 0; }
+do_version() 	{ porg -V | sed "s/^porg/$me/"; exit 0; }
 
 
 do_help()
@@ -65,7 +65,7 @@ opt_level=-9
 do_check_dir()
 {
 	[ -d "$1" ] || die "$1: No such directory"
-	[ -w "$1" ] || die "$1: Directory non writable"
+	[ -w "$1" ] || die "$1: Permission denied"
 }
 
 
