@@ -9,9 +9,9 @@
 
 me=$(basename $0)
 
-die()			{ echo "$me: $*"; exit 1; }
-say()			{ [ "$opt_verb" ] && echo "$*"; }
-do_version() 	{ porg -V | sed "s/^porg/$me/"; exit 0; }
+die()	{ echo "$me: $*"; exit 1; }
+sayf()	{ [ "$opt_verb" ] && printf "$*"; }
+dot()	{ sayf .; }
 
 do_help()
 {
@@ -39,6 +39,9 @@ EOF
 	exit 0
 }
 
+# Get version of porg
+
+porg_version=$(porg -V | grep -o '^porg[^ ]*') || exit 1
 
 # Default log directories
 
@@ -53,7 +56,7 @@ while [ "$1" ]; do
 	case $1 in
 		-v|--verbose) 	opt_verb=-v;;
 		-f|--force)		opt_force=-f;;
-		-V|--version)	do_version;;
+		-V|--version)	porg -V | sed "s/^porg/$me/"; exit 0;;
 		--paco-logdir=*)
 			paco_dir=${1#*=}
 			[ "$paco_dir" ] || die "Option '${1%=*}' requires an argument"
@@ -74,11 +77,9 @@ done
 [ -d $porg_dir ] || die "'$porg_dir': No such directory"
 [ -w $porg_dir ] || die "'$porg_dir': Permission denied"
 
-# Get version of porg
-
-porg_version=$(porg -V | grep -o '^porg[^ ]*') || exit 1
-
 # Process the packages
+
+sayf "Importing logs from '$paco_dir' to '$porg_dir'\n"
 
 for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 
@@ -87,24 +88,25 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 	# skip hidden files
 	[ ${pkg:0:1} = . ] && continue
 	
-	say "Importing $pkg"
+	sayf "${pkg}... "
 
 	# check for '#!paco' header
 	if ! (head -1 $paco_log | grep -q '^#!paco'); then
-		say "$paco_log: paco header missing, skipped"
+		sayf "paco header missing, skipped\n"
 		continue
 	fi
 
 	porg_log=$porg_dir/$pkg
 
 	if [ -z "$opt_force" -a -e $porg_log ]; then
-		read -p "$me: $porg_log already exists; do you wish to overwrite it (y/N)? "
+		sayf "\n"
+		read -p "  $porg_log already exists; do you wish to overwrite it (y/N)? "
 		[ "$REPLY" = y -o "$REPLY" = Y ] || continue
+		sayf "${pkg}... "
 	fi
-
 	# Actual import:
 
-	# 1. Info header
+	# 1) Info header
 
 	echo '#!'$porg_version'' > $porg_log
 	
@@ -131,18 +133,44 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 	| sed '1 { /^#d:$/d }; $ { /^#d:$/d }' >> $porg_log
 	echo '#d:' >> $porg_log
 
-	# 2. Logged files
+	# 2) Logged files
 
-	#XXX TODO: restore sizes of missing files
-	#sed -rn 's;^-?(/[^|]+).*;\1;p' $paco_log \
-	#	| porg $opt_verb -lmL $porg_dir -p $pkg \
-	#	|| continue
+	for buf in $(sed -n '/^-\?\// s//\//p' $paco_log); do
+		
+		path=${buf%%|*}
+		size=-1
+		symlink=
 
+		size_raw=$(echo $buf | cut -f2 -d '|')
+		size_gz=$(echo $buf | cut -f3 -d '|')
+		size_bz2=$(echo $buf | cut -f4 -d '|')
 
+		if [ "$size_raw" -ge 0 ]; then
+			size=$size_raw
+		elif [ "$size_raw" = -1 ]; then
+			symlink=$(readlink $path)
+		elif [ "$size_gz" -ge 0 ]; then
+			path=${path}.gz
+			size=$size_gz
+		elif [ "$size_gz" = -1 ]; then
+			path=${path}.gz
+			symlink=$(readlink $path)
+		elif [ "$size_bz2" -ge 0 ]; then
+			path=${path}.bz2
+			size=$size_bz2
+		elif [ "$size_bz2" = -1 ]; then
+			path=${path}.bz2
+			symlink=$(readlink $path)
+		fi
+
+		[ "$symlink" ] && size=${#symlink}
+		
+		echo "$path|$size|$symlink" >> $porg_log
+
+	done
+	sayf "done\n"
 
 done
-
-
 
 exit 0
 

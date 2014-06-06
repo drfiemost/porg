@@ -26,6 +26,7 @@ using std::set;
 using namespace Porg;
 
 static void remove_parent_dir(string const& path);
+static string strip_trailing_dot(string const& str);
 
 
 //
@@ -137,7 +138,7 @@ void Pkg::write_log() const
 		<< '#' << CODE_NFILES 		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_SIZE 		<< ':' << m_size << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
-		<< '#' << CODE_SUMMARY		<< ':' << m_summary << '\n'
+		<< '#' << CODE_SUMMARY		<< ':' << strip_trailing_dot(m_summary) << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'
 		<< '#' << CODE_LICENSE		<< ':' << m_license << '\n'
 		<< '#' << CODE_CONF_OPTS	<< ':' << m_conf_opts << '\n'
@@ -288,5 +289,13 @@ static void remove_parent_dir(string const& path)
 			remove_parent_dir(dir);
 		}
 	}
+}
+
+
+static string strip_trailing_dot(string const& str)
+{
+	if (!str.empty() && str[str.size() - 1] == '.')
+		return str.substr(0, str.size() - 1);
+	return str;
 }
 
