@@ -1,20 +1,20 @@
 //=======================================================================
-// porgrc.h
+// baseopt.h
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
-#ifndef LIBPORG_PORGRC_H
-#define LIBPORG_PORGRC_H
+#ifndef LIBPORG_BASEOPT_H
+#define LIBPORG_BASEOPT_H
 
 #include "config.h"
 #include <string>
 
 namespace Porg {
 
-class Porgrc
+class BaseOpt
 {
 	public:
 	
@@ -24,20 +24,21 @@ class Porgrc
 	static std::string const& remove_skip()	{ return s_remove_skip; }
 	
 	static bool logdir_writable();
+	static void check_logdir();
 
 	protected:
 
-	Porgrc();
-	virtual ~Porgrc() { };
+	BaseOpt();
+	virtual ~BaseOpt() { };
 
 	static std::string s_logdir;
 	static std::string s_include;
 	static std::string s_exclude;
 	static std::string s_remove_skip;
 
-};	// class Porgrc
+};	// class BaseOpt
 
 }	// namespace Porg
 
-#endif  // LIBPORG_PORGRC_H
+#endif  // LIBPORG_BASEOPT_H
 

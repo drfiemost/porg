@@ -35,7 +35,7 @@ namespace Porg
 	};
 
 	// A safer std::{i,o}fstream
-	template<typename T>	// T = std::{i,o}fstream
+	template <typename T>	// T = std::{i,o}fstream
 	class FileStream : public T
 	{
 		public:
@@ -43,7 +43,6 @@ namespace Porg
 		{
 			if (!this)
 				throw Error(path, errno);
-
 			this->exceptions(std::ios::badbit);
 		}
 	};

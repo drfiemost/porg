@@ -2,16 +2,16 @@ noinst_LIBRARIES = \
 	libporg.a
 
 libporg_a_SOURCES = \
-	basepkg.cc \
 	common.cc \
-	file.cc \
+	basepkg.cc \
+	baseopt.cc \
 	rexp.cc \
-	porgrc.cc
+	file.cc
 
 noinst_HEADERS = \
 	common.h \
 	basepkg.h \
-	porgrc.h \
+	baseopt.h \
 	rexp.h \
 	file.h
 

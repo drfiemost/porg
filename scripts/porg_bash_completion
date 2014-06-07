@@ -52,13 +52,14 @@ _porg()
 		--configure-options \
 		--date \
 		--dirname \
+		--exact-version \
 		--exclude=DIR \
-		--log-missing \
 		--files \
 		--help \
 		--include=DIR \
 		--info \
 		--log \
+		--log-missing \
 		--logdir=DIR \
 		--no-package-name \
 		--package=PKG \
@@ -98,16 +99,19 @@ _porg()
 		-I \
 		-l \
 		-L \
+		-m \
 		-o \
 		-p \
 		-q \
 		-r \
 		-R \
 		-s \
+		-S \
 		-t \
 		-U \
 		-v \
 		-V \
+		-x \
 		-y \
 		-z'
 
@@ -145,7 +149,7 @@ _porg()
 				;;
 
 			# This parameters expect a package
-			unlog | date | size | \
+			exact-version | unlog | date | size | \
 			files | symlinks | size | \
 			info | configure-options | package)
 				pkgs=$(porg -a 2>/dev/null)
@@ -167,7 +171,7 @@ _porg()
 		case "${prev#-}" in
 			
 			*U* | *F* | *d* | *f* | *y* | \
-			*i* | *o* | *V* | *r* | *p*)
+			*i* | *o* | *r* | *p* | *x*)
 				pkgs=$(porg -a 2>/dev/null)
 				COMPREPLY=( $(compgen -W "$pkgs" $cur) )
 				return 0
@@ -175,6 +179,11 @@ _porg()
 
 			*q*)
 				_filedir
+				return 0
+				;;
+
+			*S*)
+				COMPREPLY=( $(compgen -W "$sorts" $cur) )
 				return 0
 				;;
 

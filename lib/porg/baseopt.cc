@@ -1,5 +1,5 @@
 //=======================================================================
-// porgrc.cc
+// baseopt.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
@@ -7,7 +7,8 @@
 //=======================================================================
 
 #include "config.h"
-#include "porgrc.h"
+#include "baseopt.h"
+#include "common.h"		// for Error
 #include "rexp.h"
 #include <wordexp.h>
 #include <fstream>
@@ -20,14 +21,14 @@ static string sh_expand(string const&);
 
 namespace Porg
 {
-	string Porgrc::s_logdir = LOGDIR;
-	string Porgrc::s_include = "/";
-	string Porgrc::s_exclude = EXCLUDE;
-	string Porgrc::s_remove_skip = string();
+	string BaseOpt::s_logdir = LOGDIR;
+	string BaseOpt::s_include = "/";
+	string BaseOpt::s_exclude = EXCLUDE;
+	string BaseOpt::s_remove_skip = string();
 }
 
 
-Porgrc::Porgrc()
+BaseOpt::BaseOpt()
 {
 	std::ifstream f(PORGRC);
 	if (!f)
@@ -52,7 +53,14 @@ Porgrc::Porgrc()
 }
 
 
-bool Porgrc::logdir_writable()
+void BaseOpt::check_logdir()
+{
+	if (in_paths(s_logdir, "/dev:/proc:/sys"))
+		throw Error(s_logdir + ": Invalid log directory");
+}
+
+
+bool BaseOpt::logdir_writable()
 {
 	return !access(s_logdir.c_str(), W_OK);
 }

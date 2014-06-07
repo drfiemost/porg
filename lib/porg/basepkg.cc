@@ -9,7 +9,7 @@
 #include "config.h"
 #include "common.h"
 #include "basepkg.h"
-#include "porgrc.h"
+#include "baseopt.h"
 #include "file.h"
 #include "rexp.h"
 #include <fstream>
@@ -23,7 +23,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 :
 	m_files(),
 	m_name(name_),
-	m_log(Porgrc::logdir() + "/" + name_),
+	m_log(BaseOpt::logdir() + "/" + name_),
 	m_base_name(get_base(name_)),
 	m_version(get_version(name_)),
 	m_date(time(0)),

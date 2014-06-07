@@ -10,25 +10,27 @@
 #define GROP_OPT_H
 
 #include "config.h"
-#include "porg/porgrc.h"
+#include "porg/baseopt.h"
 #include <glibmm/keyfile.h>
+#include <glibmm/optioncontext.h>
 #include <vector>
 
 
 namespace Grop {
 
 
-class Opt : public Porg::Porgrc, public Glib::KeyFile
+class Opt : public Porg::BaseOpt, public Glib::KeyFile
 {
 	public:
 
-	static bool& hour()					{ return s_hour; }
-	static int width()					{ return s_width; }
-	static int height()					{ return s_height; }
-	static int xpos()					{ return s_xpos; }
-	static int ypos()					{ return s_ypos; }
-	static std::vector<bool>& columns()	{ return s_columns; }
-	static bool initialized()			{ return s_initialized; }
+	static bool& hour()						{ return s_hour; }
+	static int width()						{ return s_width; }
+	static int height()						{ return s_height; }
+	static int xpos()						{ return s_xpos; }
+	static int ypos()						{ return s_ypos; }
+	static std::vector<bool>& columns()		{ return s_columns; }
+	static bool initialized()				{ return s_initialized; }
+	static Glib::OptionContext& context()	{ return s_context; }
 
 	static void set_whxy(int w, int h, int x, int y)
 		{ s_width = w; s_height = h; s_xpos = x; s_ypos = y; }
@@ -40,6 +42,9 @@ class Opt : public Porg::Porgrc, public Glib::KeyFile
 	Opt();
 	~Opt();
 
+	void read_config_file();
+	void set_command_line_options();
+	
 	std::string m_rcdir;
 	std::string m_groprc;
 
@@ -51,6 +56,8 @@ class Opt : public Porg::Porgrc, public Glib::KeyFile
 	static std::vector<bool> s_columns;
 	static bool s_initialized;
 	
+	static Glib::OptionContext s_context;
+
 	static int const DEFAULT_WIDTH	= 500;
 	static int const DEFAULT_HEIGHT	= 500;
 	static int const DEFAULT_XPOS	= 0;
@@ -62,4 +69,3 @@ class Opt : public Porg::Porgrc, public Glib::KeyFile
 
 
 #endif  // GROP_OPT_H
-

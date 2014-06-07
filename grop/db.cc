@@ -25,30 +25,22 @@ bool				DB::s_initialized = false;
 DB::DB()
 {
 	g_assert(s_initialized == false);
-	// Opt should have been initialized before
 	g_assert(Opt::initialized());
 
-	try
-	{
-		Glib::Dir dir(Opt::logdir());
-	
-		for (Glib::Dir::iterator d = dir.begin(); d != dir.end(); ++d) {
-			try 
-			{	
-				Pkg* pkg = new Pkg(*d);
-				s_pkgs.push_back(pkg);
-				s_total_size += pkg->size();
-			}
-			catch (Porg::Error const& x) 
-			{
-				g_warning("%s", x.what()); 
-			}
+	Opt::check_logdir();
+	Glib::Dir dir(Opt::logdir());
+
+	for (Glib::Dir::iterator d = dir.begin(); d != dir.end(); ++d) {
+		try 
+		{	
+			Pkg* pkg = new Pkg(*d);
+			s_pkgs.push_back(pkg);
+			s_total_size += pkg->size();
 		}
-	}
-	catch (Glib::Error const& x)
-	{
-		// fatal error opening database dir (abort app.)
-		throw Porg::Error(x.what());
+		catch (std::exception const& x) 
+		{
+			g_warning("%s", x.what()); 
+		}
 	}
 
 	s_initialized = true;

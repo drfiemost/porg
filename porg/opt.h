@@ -11,7 +11,7 @@
 
 #include "config.h"
 #include "porg/common.h"
-#include "porg/porgrc.h"
+#include "porg/baseopt.h"
 #include <vector>
 
 
@@ -31,7 +31,7 @@ enum {
 };
 
 
-class Opt : public Porgrc
+class Opt : public BaseOpt
 {
 	public:
 

@@ -59,7 +59,7 @@ void Opt::init(int argc, char* argv[])
 
 Opt::Opt(int argc, char* argv[])
 :
-	Porgrc()
+	BaseOpt()
 {
 	enum {
 		OPT_ALL				= 'a',
@@ -286,6 +286,8 @@ Opt::Opt(int argc, char* argv[])
 	s_args.assign(argv + optind, argv + argc);
 
 	// Checkings
+
+	check_logdir();
 
 	switch (s_mode) {
 

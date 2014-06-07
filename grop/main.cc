@@ -11,43 +11,27 @@
 #include "db.h"
 #include "mainwindow.h"
 #include "util.h"
-#include "porg/common.h"	// Porg::Error
 #include <gtkmm/main.h>
-
-using namespace Grop;
 
 
 int main(int argc, char* argv[])
 {
-	// Read configuration file
-	Opt::init();
-
-	Glib::OptionContext opt_context;
-	Glib::OptionGroup opt_group("grop", "Grop Options:");
-
-	Glib::OptionEntry opt_logdir;
-	opt_logdir.set_long_name("logdir");
-	opt_logdir.set_short_name('L');
-	opt_logdir.set_description("Porg database directory (default is '"
-		+ Opt::logdir() + "')");
-
-	std::string logdir;
-	opt_group.add_entry_filename(opt_logdir, logdir);
-	opt_context.set_main_group(opt_group);
-
-	Gtk::Main kit(argc, argv, opt_context);
+	Grop::Opt::init();
+	Gtk::Main kit(argc, argv, Grop::Opt::context());
 
 	try
 	{
-		// Open porg database
-		DB::init();
-		// Run GUI
-		MainWindow window;
-		Gtk::Main::run(window);
+		Grop::DB::init();
+		Grop::MainWindow window;
+		kit.run(window);
 	}
-	catch (Porg::Error const& x)
+	catch (std::exception const& x)
 	{
-		run_error_dialog(x.what());
+		Grop::run_error_dialog(x.what());
+	}
+	catch (Glib::Exception const& x)
+	{
+		Grop::run_error_dialog(x.what());
 	}
 }
 

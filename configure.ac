@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 #
 
-AC_INIT([porg], [svn], [http://porg.sourceforge.net])
+AC_INIT([porg],[svn],[http://porg.sourceforge.net])
 
 #RELEASEDATE="26 May 2014"
 RELEASEDATE="`date +'%d %B %Y'`"
@@ -31,7 +31,7 @@ AC_CONFIG_FILES([ \
 	doc/porgball.8 \
 ])
 
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 
 
 #=======================
@@ -54,15 +54,14 @@ AC_DEFINE_UNQUOTED([EXCLUDE], ["$EXCLUDE"], [List of paths to skip])
 AC_SUBST([EXCLUDE])
 
 AC_ARG_WITH([porg-logdir],
-	[AC_HELP_STRING([--with-porg-logdir=DIR],
-		[porg log directory [default=/var/log/porg]])],
+	[AS_HELP_STRING([--with-porg-logdir=DIR],[porg log directory [default=/var/log/porg]])],
 	[LOGDIR=$withval], [LOGDIR=/var/log/porg]
 )
 AC_DEFINE_UNQUOTED([LOGDIR], ["$LOGDIR"], [Default porg logs directory])
 AC_SUBST([LOGDIR])
 
 AC_ARG_ENABLE([grop],
-	AC_HELP_STRING([--disable-grop], [do not install grop (the GUI of porg)]),
+	AS_HELP_STRING([--disable-grop],[do not install grop (the GUI of porg)]),
 	[enable_grop=$enableval], [enable_grop=yes])
 AM_CONDITIONAL([ENABLE_GROP], [test "$enable_grop" = yes])
 
@@ -72,7 +71,7 @@ AM_CONDITIONAL([ENABLE_GROP], [test "$enable_grop" = yes])
 #================
 
 AM_PROG_AR
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_CC
 AC_PROG_CXX
 

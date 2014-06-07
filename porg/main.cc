@@ -51,13 +51,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	catch (Error const& x) 
+	catch (exception const& x) 
 	{
 		cerr << "porg: " << x.what() << '\n';
-		exit_status = EXIT_FAILURE;
-	}
-	catch (...)
-	{
 		exit_status = EXIT_FAILURE;
 	}
 

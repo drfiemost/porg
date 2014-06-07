@@ -2,10 +2,11 @@ SVN
 ---
 
 	+ Bugfix: Porgball failed when trying to log extractions with porg.
-	+ Bugfix (#1): Paco2porg loosed package information.
-	+ New option '-L|--logdir' for grop.
+	+ Bugfix (#1): Paco2porg lost package information when importing logs
+	  from a paco database.
+	+ Let grop accept command line options (run 'grop -h' for more info).
 	+ Save grop settings in ~/.config/grop/groprc instead of ~/.grop
-	+ Improved the code for checking for command line option compatibility.
+	+ Improved checking of command line options compatibility in porg.
 
 
 Version 0.4 (26/05/2014)
@@ -21,7 +22,7 @@ Version 0.4 (26/05/2014)
 	  passed to ./configure, and not only the command line options.
 	+ New feature: Expand any environment variable (and not only $HOME),
 	  in variable LOGDIR in porgrc.
-	+ New feature: Added option '-X|--exact-version' to porg and porgball (see 
+	+ New feature: Added option '-x|--exact-version' to porg and porgball (see 
 	  man page).
 	+ Improved the code for searching for package information.
 	+ Added porg.spec.

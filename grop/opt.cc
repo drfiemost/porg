@@ -17,43 +17,27 @@ using std::vector;
 using namespace Grop;
 
 
-bool Opt::s_hour 	= false;
-int Opt::s_width 	= Opt::DEFAULT_WIDTH;
-int Opt::s_height 	= Opt::DEFAULT_HEIGHT;
-int Opt::s_xpos 	= Opt::DEFAULT_XPOS;
-int Opt::s_ypos 	= Opt::DEFAULT_YPOS;
+bool Opt::s_initialized	= false;
+bool Opt::s_hour 		= false;
+int Opt::s_width 		= Opt::DEFAULT_WIDTH;
+int Opt::s_height 		= Opt::DEFAULT_HEIGHT;
+int Opt::s_xpos 		= Opt::DEFAULT_XPOS;
+int Opt::s_ypos 		= Opt::DEFAULT_YPOS;
 vector<bool> Opt::s_columns;
-bool Opt::s_initialized = false;
+Glib::OptionContext Opt::s_context;
 
 
 Opt::Opt()
 :
-	Porg::Porgrc(),
+	Porg::BaseOpt(),
 	Glib::KeyFile(),
 	m_rcdir(Glib::get_user_config_dir() + "/grop"),
 	m_groprc(m_rcdir + "/groprc")
 {
 	g_assert(s_initialized == false);
 
-	try
-	{
-		load_from_file(m_groprc);
-
-		s_hour 		= get_boolean("gui", "hour");
-		s_width 	= get_integer("gui", "width");
-		s_height 	= get_integer("gui", "height");
-		s_xpos		= get_integer("gui", "xpos");
-		s_ypos		= get_integer("gui", "ypos");
-		s_columns	= get_boolean_list("gui", "columns");
-	}
-	catch (...) 
-	{
-		// On error, remove config file (will be rebuild in ~Opt())
-		unlink(m_groprc.c_str());
-	}
-
-	if (s_columns.size() != MainTreeView::NCOLS)
-		s_columns = vector<bool>(MainTreeView::NCOLS, true);
+	read_config_file();
+	set_command_line_options();
 
 	s_initialized = true;
 }
@@ -75,6 +59,45 @@ Opt::~Opt()
 		os << to_data();
 	else
 		g_warning("Cannot open file '%s' for writing", m_groprc.c_str());
+}
+
+
+void Opt::read_config_file()
+{
+	try
+	{
+		load_from_file(m_groprc);
+
+		s_hour 		= get_boolean("gui", "hour");
+		s_width 	= get_integer("gui", "width");
+		s_height 	= get_integer("gui", "height");
+		s_xpos		= get_integer("gui", "xpos");
+		s_ypos		= get_integer("gui", "ypos");
+		s_columns	= get_boolean_list("gui", "columns");
+	}
+	catch (...) 
+	{
+		// On error, remove config file (will be rebuild in ~Opt())
+		unlink(m_groprc.c_str());
+	}
+
+	if (s_columns.size() != MainTreeView::NCOLS)
+		s_columns = vector<bool>(MainTreeView::NCOLS, true);
+}
+
+
+void Opt::set_command_line_options()
+{
+	static Glib::OptionGroup opt_group("grop", "Grop Options:");
+	static Glib::OptionEntry opt_logdir;
+
+	opt_logdir.set_long_name("logdir");
+	opt_logdir.set_short_name('L');
+	opt_logdir.set_description("Porg database directory (default is '" + s_logdir + "')");
+
+	opt_group.add_entry_filename(opt_logdir, s_logdir);
+
+	s_context.set_main_group(opt_group);
 }
 
 

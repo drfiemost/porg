@@ -287,7 +287,7 @@ void MainWindow::unlog_pkg(Pkg* pkg)
 		m_treeview.remove_pkg(pkg);
 		update_statusbar();
 	}
-	catch (Porg::Error const& x)
+	catch (std::exception const& x)
 	{
 		run_error_dialog(x.what(), this);
 	}
