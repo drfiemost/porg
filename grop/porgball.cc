@@ -48,9 +48,16 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 	m_filechooser_button(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER),
 	m_button_test("_Integrity test", true),
 	m_progressbar(),
-	m_tmpfile()
+	m_tmpfile(),
+	m_children()
 {
 	set_border_width(8);
+
+	// Widgets to be unsensitivized when creating the porgball
+	m_children.push_back(&m_combo_prog);
+	m_children.push_back(&m_combo_level);
+	m_children.push_back(&m_filechooser_button);
+	m_children.push_back(&m_button_test);
 
 	m_label.set_ellipsize(Pango::ELLIPSIZE_MIDDLE);
 	m_label_tarball.set_ellipsize(Pango::ELLIPSIZE_MIDDLE);
@@ -138,8 +145,17 @@ void Porgball::instance(Pkg const& pkg, Gtk::Window& parent)
 }
 
 
+void Porgball::set_children_sensitive(bool setting /* = true */)
+{
+	for (uint i = 0; i < m_children.size(); ++i)
+		m_children[i]->set_sensitive(setting);
+}
+
+
 void Porgball::create_porgball()
 {
+	set_children_sensitive(false);
+
 	// Check whether we have write permissions on the dest. directory
 	ustring dir = m_filechooser_button.get_filename();
 	if (access(dir.c_str(), W_OK) < 0) {

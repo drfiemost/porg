@@ -7,6 +7,7 @@ SVN
 	+ Let grop accept command line options (run 'grop -h' for more info).
 	+ Save grop settings in ~/.config/grop/groprc instead of ~/.grop
 	+ Improved checking of command line options compatibility in porg.
+	+ Added paths {/run,/mnt,/media,/cdrom,/etc/mtab} to the default EXCLUDE.
 
 
 Version 0.4 (26/05/2014)

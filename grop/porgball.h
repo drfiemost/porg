@@ -52,7 +52,9 @@ class Porgball : public Gtk::Dialog
 	Gtk::CheckButton		m_button_test;
 	Gtk::ProgressBar		m_progressbar;
 	std::string				m_tmpfile;
+	std::vector<Gtk::Widget*> m_children;
 
+	void set_children_sensitive(bool = true);
 	void on_change_prog();
 	void create_porgball();
 	bool spawn_async(std::vector<std::string>&);

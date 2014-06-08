@@ -38,7 +38,9 @@ AC_USE_SYSTEM_EXTENSIONS
 # Set configure options
 #=======================
 
-if test "$PACKAGE_VERSION" != svn; then
+if test "$PACKAGE_VERSION" = svn; then
+	AC_DEFINE([GTK_DISABLE_DEPRECATED], [1], [Disable gtkmm-2.4 API])
+else
 	AC_DEFINE([NDEBUG], [1], [Disable libc assertions])
 	AC_DEFINE([G_DISABLE_ASSERT], [1], [Disable glib assertions])
 fi
@@ -46,8 +48,8 @@ fi
 AC_DEFINE_UNQUOTED([RELEASEDATE], ["$RELEASEDATE"], [Release date])
 AC_SUBST([RELEASEDATE])
 
-EXCLUDE="/tmp"
-for dir in /dev /proc /selinux /sys; do
+EXCLUDE="/tmp:/etc/mtab"
+for dir in /dev /proc /selinux /sys /run /mnt /media /cdrom; do
 	test -e "$dir" && EXCLUDE="$EXCLUDE:$dir"
 done
 AC_DEFINE_UNQUOTED([EXCLUDE], ["$EXCLUDE"], [List of paths to skip])
