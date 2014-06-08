@@ -19,16 +19,8 @@ using namespace Porg;
 namespace Porg
 {
 	int Out::s_verbosity = QUIET;
-	int Out::s_screen_width = get_screen_width();
 }
 	
-
-int Out::get_screen_width()
-{
-	char* columns = getenv("COLUMNS");
-	return columns ? str2num<int>(columns) : DEFAULT_SCREEN_WIDTH;
-}
-
 
 void Out::vrb(string const& msg, int errno_ /* = 0 */)
 {
@@ -64,8 +56,12 @@ void Out::dbg_title(string const& title /* = "" */)
 		cnt += str.size();
 	}
 	
-	if (s_screen_width > cnt)
-		cerr << string(s_screen_width - cnt, '-');
+	// Get screen width
+	char* columns = getenv("COLUMNS");
+	int width = columns ? str2num<int>(columns) : DEFAULT_SCREEN_WIDTH;
+	
+	if (width > cnt)
+		cerr << string(width - cnt, '-');
 	
 	cerr << '\n';
 }

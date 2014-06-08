@@ -146,16 +146,6 @@ void PkgSet::get_files()
 }
 
 
-Pkg* PkgSet::find_pkg(string const& name) const
-{
-	for (const_iterator p(begin()); p != end(); ++p) {
-		if ((*p)->name() == name)
-			return *p;
-	}
-	return 0;
-}
-
-
 void PkgSet::print_conf_opts() const
 {
 	for (const_iterator p(begin()); p != end(); ++p) {

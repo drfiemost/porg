@@ -28,7 +28,6 @@ class PkgSet : public std::vector<Pkg*>
 	int get_pkgs(std::vector<std::string> const& args);
 	void get_all_pkgs();
 
-	Pkg* find_pkg(std::string const& name) const;
 	void list();
 	void list_files();
 	void print_conf_opts() const;

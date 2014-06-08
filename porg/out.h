@@ -31,12 +31,9 @@ class Out
 
 	enum { QUIET, VERBOSE, DEBUG };
 
-	static const int DEFAULT_SCREEN_WIDTH = 80;
-
-	static int get_screen_width();
+	static const int DEFAULT_SCREEN_WIDTH = 70;
 
 	static int s_verbosity;
-	static int s_screen_width;
 };
 
 }	// namespace Porg
