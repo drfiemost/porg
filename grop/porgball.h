@@ -32,6 +32,8 @@ class Porgball : public Gtk::Dialog
 	Porgball(Pkg const&, Gtk::Window&);
 	~Porgball();
 
+	virtual bool on_delete_event(GdkEventAny*);
+
 	typedef struct {
 		std::string	folder;
 		int			prog;

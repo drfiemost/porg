@@ -127,6 +127,8 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 
 Porgball::~Porgball()
 {
+	kill_process();
+
 	unlink(m_tmpfile.c_str());
 
 	s_last.folder = m_filechooser_button.get_filename();
@@ -138,10 +140,22 @@ Porgball::~Porgball()
 
 void Porgball::instance(Pkg const& pkg, Gtk::Window& parent)
 {
-	Porgball porgball(pkg, parent);
+	Porgball obj(pkg, parent);
 	
-	while (porgball.run() == Gtk::RESPONSE_OK)
-		porgball.create_porgball();
+	while (obj.run() == Gtk::RESPONSE_OK) {
+		obj.set_children_sensitive(false);
+		obj.create_porgball();
+		obj.set_children_sensitive();
+	}
+
+	//XXX need this here? --> obj.kill_process();
+}
+
+
+bool Porgball::on_delete_event(GdkEventAny*)
+{
+	kill_process();
+	return true;
 }
 
 
@@ -154,8 +168,6 @@ void Porgball::set_children_sensitive(bool setting /* = true */)
 
 void Porgball::create_porgball()
 {
-	set_children_sensitive(false);
-
 	// Check whether we have write permissions on the dest. directory
 	ustring dir = m_filechooser_button.get_filename();
 	if (access(dir.c_str(), W_OK) < 0) {
@@ -177,7 +189,7 @@ void Porgball::create_porgball()
 	g_assert(Glib::path_get_basename(zip) == m_label_tarball.get_text());
 
 	if (!access(zip.c_str(), F_OK)) {
-		if (!run_question_dialog("File " + zip + " already exists.\n"
+		if (!run_question_dialog("File '" + zip + "' already exists.\n"
 		"Do you want to overwrite it ?"))
 			return;
 	}
