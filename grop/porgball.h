@@ -15,6 +15,7 @@
 #include <gtkmm/progressbar.h>
 #include <gtkmm/checkbutton.h>
 #include <gtkmm/filechooserbutton.h>
+#include <glibmm/spawn.h>
 
 namespace Grop
 {
@@ -41,12 +42,12 @@ class Porgball : public Gtk::Dialog
 		bool		test;
 	} Last;
 		
-	enum { USE_GZIP, USE_BZIP2, USE_XZ };
+	enum { PROG_GZIP, PROG_BZIP2, PROG_XZ };
 
 	static Last s_last;
 
 	Pkg const&				m_pkg;
-	Gtk::Label				m_label;
+	Gtk::Label				m_label_progress;
 	Gtk::Label				m_label_tarball;
 	Gtk::ComboBoxText		m_combo_prog;
 	Gtk::ComboBoxText		m_combo_level;
@@ -54,12 +55,14 @@ class Porgball : public Gtk::Dialog
 	Gtk::CheckButton		m_button_test;
 	Gtk::ProgressBar		m_progressbar;
 	std::string				m_tmpfile;
+	Glib::Pid				m_pid;
+	bool					m_close;
 	std::vector<Gtk::Widget*> m_children;
 
 	void set_children_sensitive(bool = true);
 	void on_change_prog();
 	void create_porgball();
-	bool spawn_async(std::vector<std::string>&);
+	bool spawn(std::vector<std::string>&);
 	void end_create(bool done = true);
 };
 
