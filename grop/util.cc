@@ -22,7 +22,7 @@ void Grop::main_iter()
 }
 
 
-bool Grop::run_question_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
+bool Grop::run_question_dialog(string const& msg, Gtk::Window* parent)
 {
 	Gtk::MessageDialog dialog(msg, false, Gtk::MESSAGE_QUESTION, Gtk::BUTTONS_YES_NO, true);
 	if (parent)
@@ -32,7 +32,7 @@ bool Grop::run_question_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
 }
 
 
-void Grop::run_error_dialog(string const& msg, Gtk::Window* parent /* = 0 */)
+void Grop::run_error_dialog(string const& msg, Gtk::Window* parent)
 {
 	Gtk::MessageDialog dialog(msg, false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
 	if (parent)

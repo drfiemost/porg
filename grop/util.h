@@ -17,8 +17,8 @@ namespace Grop
 {
 
 	extern void main_iter();
-	extern bool run_question_dialog(std::string const&, Gtk::Window* = 0);
-	extern void run_error_dialog(std::string const&, Gtk::Window* = 0);
+	extern bool run_question_dialog(std::string const&, Gtk::Window*);
+	extern void run_error_dialog(std::string const&, Gtk::Window*);
 
 }	// namespace Grop
 

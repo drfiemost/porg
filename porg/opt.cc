@@ -75,7 +75,7 @@ Opt::Opt(int argc, char* argv[])
 		OPT_INFO			= 'i',
 		OPT_LOGDIR			= 'L',
 		OPT_LOG				= 'l',
-		OPT_LOG_MISSING		= 'm',
+		OPT_LOG_MISSING		= 1,	// no short opt.
 		OPT_CONF_OPTS		= 'o',
 		OPT_PACKAGE			= 'p',
 		OPT_QUERY			= 'q',
@@ -276,7 +276,7 @@ Opt::Opt(int argc, char* argv[])
 				break;
 
 			case OPT_LOG_MISSING:
-				check_mode(MODE_LOG, c);
+				//check_mode(MODE_LOG, c);
 				s_log_missing = true;
 				break;
 		}
@@ -388,7 +388,7 @@ cout <<
 "                           of the package.\n"
 "  -+, --append             With -p or -D: If the package is already logged,\n"
 "                           append the list of files to its log.\n"
-"  -m, --log-missing        Do not skip missing files.\n"
+"      --log-missing        Do not skip missing files.\n"
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"
 "Note: The package list mode is enabled by default.\n\n"

@@ -15,11 +15,8 @@
 #include <gtkmm/label.h>
 #include <gtkmm/stock.h>
 
-using Glib::ustring;
-using namespace Grop;
 
-
-Properties::Properties(Pkg const& pkg, Gtk::Window& parent)
+Grop::Properties::Properties(Grop::Pkg const& pkg, Gtk::Window& parent)
 :
 	Gtk::Dialog("grop :: properties", parent),
 	m_notebook()
@@ -38,11 +35,11 @@ Properties::Properties(Pkg const& pkg, Gtk::Window& parent)
 	box->pack_start(m_notebook, Gtk::PACK_EXPAND_WIDGET);
 
 	Gtk::ScrolledWindow* scrolled_window_files = Gtk::manage(new Gtk::ScrolledWindow());
-	scrolled_window_files->add(*(Gtk::manage(new FilesTreeView(pkg))));
+	scrolled_window_files->add(*(Gtk::manage(new Grop::FilesTreeView(pkg))));
 	m_notebook.append_page(*scrolled_window_files, "Files");
 
 	Gtk::ScrolledWindow* scrolled_window_info = Gtk::manage(new Gtk::ScrolledWindow());
-	scrolled_window_info->add(*(Gtk::manage(new InfoTextView(pkg))));
+	scrolled_window_info->add(*(Gtk::manage(new Grop::InfoTextView(pkg))));
 	m_notebook.append_page(*scrolled_window_info, "Info");
 
 	add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
@@ -52,8 +49,8 @@ Properties::Properties(Pkg const& pkg, Gtk::Window& parent)
 }
 
 
-void Properties::instance(Pkg const& pkg, Gtk::Window& parent)
+void Grop::Properties::instance(Pkg const& pkg, Gtk::Window& parent)
 {
-	Properties properties(pkg, parent);
+	Grop::Properties properties(pkg, parent);
 }
 

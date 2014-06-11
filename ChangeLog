@@ -1,17 +1,26 @@
-SVN
----
+Version 0.5 (11 June 2014)
+--------------------------
 
-	+ Bugfix: Porgball failed when trying to log extractions with porg.
-	+ Bugfix (#1): Paco2porg lost package information when importing logs
-	  from a paco database.
-	+ Let grop accept command line options (run 'grop -h' for more info).
-	+ Save grop settings in ~/.config/grop/groprc instead of ~/.grop
-	+ Improved checking of command line options compatibility in porg.
+	Changes in porg:
+
+	+ Improved checking of command line options compatibility.
 	+ Added paths {/run,/mnt,/media,/cdrom,/etc/mtab} to the default EXCLUDE.
 
+	Changes in grop:
 
-Version 0.4 (26/05/2014)
-------------------------
+	+ Accept command line options (run 'grop -h' for more info).
+	+ Added a "Cancel" button to the porgball creation dialog. Fixed some minor
+	  bugs.
+	+ Save settings in ~/.config/grop/groprc instead of ~/.grop
+
+	Changes in scripts:
+
+	+ Bugfix: Porgball failed when trying to log extractions with porg.
+	+ Bugfix (#1): Paco2porg lost package information (thanks Leandro Nini).
+
+
+Version 0.4 (26 May 2014)
+-------------------------
 
 	+ Bugfix: In some cases, tmp files were not removed after installing a 
 	  package.
@@ -28,11 +37,10 @@ Version 0.4 (26/05/2014)
 	+ Improved the code for searching for package information.
 	+ Added porg.spec.
 	+ Removed the (buggy) superporg script.
-	+ Added short option '-m' for '--log-missing'.
 
 
-Version 0.3 (19/05/2014)
-------------------------
+Version 0.3 (19 May 2014)
+-------------------------
 
 	+ Readded GPL License and Copyright.
 	+ Bugfix: Properly log files with spaces in their names.
@@ -41,8 +49,8 @@ Version 0.3 (19/05/2014)
 	  porg_bash_completion, to avoid errors from foreign software.
 
 
-Version 0.2 (23/04/2014)
-------------------------
+Version 0.2 (23 April 2014)
+---------------------------
 
 	+ Several bugs fixed thanks to the contribution of Masahiro Kasahara:
 	  - paco2porg failed when importing paco logs with no logged files
@@ -57,8 +65,8 @@ Version 0.2 (23/04/2014)
 	+ Removed porg.pc from distribution, as porg is not a library.
 
 
-Version 0.1 (16/03/2014)
-------------------------
+Version 0.1 (16 March 2014)
+---------------------------
 
 	+ Removed question 3 of the FAQ, which discusses logging of directories.
 	+ Removed getopt from the distribution. Use native getopt.
@@ -68,8 +76,8 @@ Version 0.1 (16/03/2014)
 	  more than one line (thanks Gordon Findlay).
 
 
-Version 0.0 (14/03/2014)
-------------------------
+Version 0.0 (14 March 2014)
+---------------------------
 
 Changes from the last version of paco:
 

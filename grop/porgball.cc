@@ -25,18 +25,13 @@
 #include <fstream>
 #include <sys/wait.h>
 
-using sigc::mem_fun;
-using std::vector;
-using std::string;
-using Glib::ustring;
-using namespace Grop;
 
-static void unlink_async(string const&);
+static void unlink_async(std::string const&);
 
-Porgball::Last Porgball::s_last = { Glib::get_home_dir(), PROG_GZIP, 6, false };
+Grop::Porgball::Last Grop::Porgball::s_last = { Glib::get_home_dir(), PROG_GZIP, 6, false };
 
 
-Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
+Grop::Porgball::Porgball(Grop::Pkg const& pkg, Gtk::Window& parent)
 :
 	Gtk::Dialog("grop :: porgball", parent, true),
 	m_pkg(pkg),
@@ -46,6 +41,9 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 	m_combo_level(),
 	m_filechooser_button(Gtk::FILE_CHOOSER_ACTION_SELECT_FOLDER),
 	m_button_test("_Integrity test", true),
+	mp_button_close(add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE)),
+	mp_button_cancel(add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL)),
+	mp_button_ok(add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK)),
 	m_progressbar(),
 	m_tmpfile(),
 	m_pid(0),
@@ -59,6 +57,7 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 	m_children.push_back(&m_combo_level);
 	m_children.push_back(&m_filechooser_button);
 	m_children.push_back(&m_button_test);
+	m_children.push_back(mp_button_close);
 
 	m_label_progress.set_ellipsize(Pango::ELLIPSIZE_MIDDLE);
 	m_label_tarball.set_ellipsize(Pango::ELLIPSIZE_MIDDLE);
@@ -68,7 +67,7 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 		m_combo_prog.append("bzip2");
 	if (Glib::find_program_in_path("xz").size())
 		m_combo_prog.append("xz");
-	m_combo_prog.signal_changed().connect(mem_fun(this, &Porgball::on_change_prog));
+	m_combo_prog.signal_changed().connect(sigc::mem_fun(this, &Grop::Porgball::on_change_prog));
 
 	m_combo_level.append("1 (faster)");
 	char num[2];
@@ -107,8 +106,7 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 
 	get_content_area()->pack_start(*grid, Gtk::PACK_EXPAND_WIDGET);
 
-	add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
-	add_button(Gtk::Stock::EXECUTE, Gtk::RESPONSE_OK);
+	mp_button_cancel->signal_clicked().connect(sigc::mem_fun(*this, &Grop::Porgball::on_cancel));
 	get_action_area()->set_layout(Gtk::BUTTONBOX_EDGE);
 
 	if (::close(Glib::file_open_tmp(m_tmpfile, "grop")) < 0)
@@ -121,11 +119,15 @@ Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 
 	show_all();
 	m_progressbar.hide();
+	mp_button_cancel->hide();
 }
 
 
-Porgball::~Porgball()
+Grop::Porgball::~Porgball()
 {
+	if (m_pid)
+		kill(m_pid, SIGKILL);
+
 	unlink(m_tmpfile.c_str());
 
 	s_last.folder = m_filechooser_button.get_filename();
@@ -135,63 +137,75 @@ Porgball::~Porgball()
 }
 
 
-void Porgball::instance(Pkg const& pkg, Gtk::Window& parent)
+void Grop::Porgball::instance(Pkg const& pkg, Gtk::Window& parent)
 {
-	Porgball obj(pkg, parent);
+	Grop::Porgball obj(pkg, parent);
 	
-	while (!obj.m_close && obj.run() == Gtk::RESPONSE_OK) {
-	// start_create()
-		obj.set_children_sensitive(false);
-		obj.create_porgball();
-	// end_create()
-		obj.set_children_sensitive();
-	}
+	while (!obj.m_close && obj.run() == Gtk::RESPONSE_OK)
+		obj.end_create(obj.create_porgball());
 }
 
 
-bool Porgball::on_delete_event(GdkEventAny*)
+void Grop::Porgball::on_cancel()
+{
+	g_assert(m_pid > 0);
+
+	if (m_pid)
+		kill(m_pid, SIGKILL);
+
+	mp_button_cancel->hide();
+	mp_button_ok->show();
+}
+
+
+bool Grop::Porgball::on_delete_event(GdkEventAny*)
 {
 	if (m_pid && kill(m_pid, SIGSTOP) == 0) {
-		if (run_question_dialog("A process is running. Do you want to terminate it ?")) {
+
+		if (run_question_dialog("A process is running. "
+			"Do you want to terminate it ?", this)) {
 			kill(m_pid, SIGKILL);
+			m_pid = 0;
 			m_close = true;
 		}
-		else
-			kill(m_pid, SIGCONT);
-
-		return true;
+		else if (kill(m_pid, SIGCONT) == 0)
+			return true;
 	}
 
 	return false;
 }
 
 
-void Porgball::set_children_sensitive(bool setting /* = true */)
+void Grop::Porgball::set_children_sensitive(bool setting /* = true */)
 {
 	for (guint i = 0; i < m_children.size(); ++i)
 		m_children[i]->set_sensitive(setting);
 }
 
 
-void Porgball::create_porgball()
+bool Grop::Porgball::create_porgball()
 {
 	// check whether we have write permissions on the dest. directory
 	
-	ustring dir = m_filechooser_button.get_filename();
+	std::string dir = m_filechooser_button.get_filename();
 	if (access(dir.c_str(), W_OK) < 0) {
-		run_error_dialog(dir + ": " + Glib::strerror(errno));
-		return;
+		run_error_dialog(dir + ": " + Glib::strerror(errno), this);
+		return false;
 	}
 
 	// build porgball name
 
-    string zipfile = dir + "/" + m_label_tarball.get_text();
+    std::string zipfile = dir + "/" + m_label_tarball.get_text();
 	
 	if (!access(zipfile.c_str(), F_OK)) {
 		if (!run_question_dialog("File '" + zipfile + "' already exists.\n"
-			"Do you want to overwrite it ?"))
-			return;
+			"Do you want to overwrite it ?", this))
+			return false;
 	}
+
+	set_children_sensitive(false);
+	mp_button_ok->hide();
+	mp_button_cancel->show();
 
 	// get list of logged files
 
@@ -199,8 +213,8 @@ void Porgball::create_porgball()
 	
 	if (!ftmp) {
 		run_error_dialog("Error opening temporary file '" 
-			+ m_tmpfile + "':" + Glib::strerror(errno));
-		return;
+			+ m_tmpfile + "':" + Glib::strerror(errno), this);
+		return false;
 	}
 		
 	m_progressbar.show();
@@ -215,45 +229,41 @@ void Porgball::create_porgball()
 	}
 
 	if (!ftmp.tellp()) {
-		end_create(false);
-		run_error_dialog("Empty package");
-		return;
+		run_error_dialog("Empty package", this);
+		return false;
 	}
 	
 	ftmp.close();
 	
 	// build tar command and run it
 
-	string tarfile = dir + "/" + m_pkg.name() + ".porg.tar";
+	std::string tarfile = dir + "/" + m_pkg.name() + ".porg.tar";
 	
-	vector<string> argv;
+	std::vector<std::string> argv;
 	argv.push_back("tar");
 	argv.push_back("--create");
 	argv.push_back("--file=" + tarfile);
 	argv.push_back("--files-from=" + m_tmpfile);
 	argv.push_back("--ignore-failed-read");
-	if (m_button_test.get_active())
-		argv.push_back("--verify");
 
 	m_label_progress.set_text("Creating " + Glib::path_get_basename(tarfile));
 	main_iter();
 
 	if (!spawn(argv)) {
 		unlink_async(tarfile);
-		end_create(false);
-		return;
+		return false;
 	}
 
 	// build compression command and run it
 
-	string prog = m_combo_prog.get_active_text();
+	std::string prog = m_combo_prog.get_active_text();
 
 	std::ostringstream level;
 	level << (m_combo_level.get_active_row_number() + 1);
 	
 	argv.clear();
 	argv.push_back(prog);
-	argv.push_back(string("-") + level.str());
+	argv.push_back(std::string("-") + level.str());
 	argv.push_back("--force");
 	argv.push_back(tarfile);
 	
@@ -263,16 +273,13 @@ void Porgball::create_porgball()
 	if (!spawn(argv)) {
 		unlink_async(tarfile);
 		unlink_async(zipfile);
-		end_create(false);
-		return;
+		return false;
 	}
 
 	// if needed, build test command and run it
 
-	if (!m_button_test.get_active()) {
-		end_create();
-		return;
-	}
+	if (!m_button_test.get_active())
+		return true;
 	
 	argv.clear();
 	argv.push_back(prog);
@@ -282,22 +289,26 @@ void Porgball::create_porgball()
 	m_label_progress.set_text("Testing " + Glib::path_get_basename(zipfile));
 	main_iter();
 
-	end_create(spawn(argv));
+	return spawn(argv);
 }
 
 
-void Porgball::end_create(bool done /* = true */)
+void Grop::Porgball::end_create(bool done /* = true */)
 {
 	m_pid = 0;
+	set_children_sensitive();
 	m_progressbar.hide();
-	m_label_progress.set_text(done ? "Done" : "");
+	mp_button_ok->show();
+	mp_button_cancel->hide();
+	m_label_progress.set_markup(
+		done ? "<span fgcolor=\"darkgreen\"><b>Done</b></span>" : "");
 	main_iter();
 }
 
 
-void Porgball::on_change_prog()
+void Grop::Porgball::on_change_prog()
 {
-	string suffix;
+	std::string suffix;
 
 	switch (m_combo_prog.get_active_row_number()) {
 		case PROG_GZIP:		suffix = "gz";	break;
@@ -310,7 +321,7 @@ void Porgball::on_change_prog()
 }
 
 
-bool Porgball::spawn(vector<string>& argv)
+bool Grop::Porgball::spawn(std::vector<std::string>& argv)
 {
 	int std_err, status;
 
@@ -321,17 +332,17 @@ bool Porgball::spawn(vector<string>& argv)
 	Glib::RefPtr<Glib::IOChannel> io = Glib::IOChannel::create_from_fd(std_err);
 	io->set_close_on_unref(true);
 
-	while (waitpid(m_pid, &status, WNOHANG) != m_pid) {
+	while (!m_close && waitpid(m_pid, &status, WNOHANG) != m_pid) {
 		m_progressbar.pulse();
 		main_iter();
 		g_usleep(2000);	
 	}
 
 	if (WIFEXITED(status) && WEXITSTATUS(status) != EXIT_SUCCESS) {
-		ustring aux, err = "Error while running the " + argv[0] + " process";
+		Glib::ustring aux, err = "Error while running the " + argv[0] + " process";
 		if (io->read_to_end(aux) == Glib::IO_STATUS_NORMAL)
 			err += ":\n\n" + aux;
-		run_error_dialog(err);
+		run_error_dialog(err, this);
 		return false;
 	}
 
@@ -339,9 +350,9 @@ bool Porgball::spawn(vector<string>& argv)
 }
 
 
-static void unlink_async(string const& file)
+static void unlink_async(std::string const& file)
 {
-	vector<string> argv;
+	std::vector<std::string> argv;
 	argv.push_back("unlink");
 	argv.push_back(file);
 

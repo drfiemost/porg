@@ -13,25 +13,40 @@
 #include "util.h"
 #include <gtkmm/main.h>
 
+static void show_error(std::string msg, bool gtk_started);
+
 
 int main(int argc, char* argv[])
 {
-	Grop::Opt::init();
-	Gtk::Main kit(argc, argv, Grop::Opt::context());
+	bool gtk_started = false;
 
 	try
 	{
+		Grop::Opt::init();
+		Gtk::Main kit(argc, argv, Grop::Opt::context());
+		gtk_started = true;
 		Grop::DB::init();
 		Grop::MainWindow window;
 		kit.run(window);
 	}
+
 	catch (std::exception const& x)
 	{
-		Grop::run_error_dialog(x.what());
+		show_error(x.what(), gtk_started);
 	}
+	
 	catch (Glib::Exception const& x)
 	{
-		Grop::run_error_dialog(x.what());
+		show_error(x.what(), gtk_started);
 	}
+}
+
+
+void show_error(std::string msg, bool gtk_started)
+{
+	if (gtk_started)
+		Grop::run_error_dialog(msg, 0);
+	else
+		std::cerr << "grop: " << msg << '\n';
 }
 

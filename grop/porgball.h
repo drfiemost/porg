@@ -53,6 +53,9 @@ class Porgball : public Gtk::Dialog
 	Gtk::ComboBoxText		m_combo_level;
 	Gtk::FileChooserButton	m_filechooser_button;
 	Gtk::CheckButton		m_button_test;
+	Gtk::Button*			mp_button_close;
+	Gtk::Button*			mp_button_cancel;
+	Gtk::Button*			mp_button_ok;
 	Gtk::ProgressBar		m_progressbar;
 	std::string				m_tmpfile;
 	Glib::Pid				m_pid;
@@ -60,8 +63,9 @@ class Porgball : public Gtk::Dialog
 	std::vector<Gtk::Widget*> m_children;
 
 	void set_children_sensitive(bool = true);
+	void on_cancel();
 	void on_change_prog();
-	void create_porgball();
+	bool create_porgball();
 	bool spawn(std::vector<std::string>&);
 	void end_create(bool done = true);
 };

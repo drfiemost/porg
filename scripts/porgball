@@ -73,19 +73,21 @@ do_check_dir()
 
 do_extract()
 {
-	say "Processing $1"
-		
+#XXX do not run zip and tar separately
+
 	[ -e $1 ] || { warn "$1: No such file"; return 1; }
 
 	case $1 in
 		*.porg.tar.gz)	zprog=gzip;;
 		*.porg.tar.bz2)	zprog=bzip2;;
 		*.porg.tar.xz)	zprog=xz;;
-		*)	warn "$1: Does not look like a porgball. Skipping"
+		*)	warn "$1: Does not look like a porgball; skipped"
 			return 1
 			;;
 	esac
 
+	say "Processing $1"
+		
 	# Test integrity of porgball, if needed
 	if [ "$opt_test" ]; then
 		say "Testing integrity of $1"
@@ -97,17 +99,15 @@ do_extract()
 	$zprog $opt_verb $opt_force --keep --decompress $1 || return 1
 
 	# Extract files from the tar archive
-	tarfile=$(expr $1 : '\(.*\.tar\)')
 	say "Extracting files from $tarfile"
-	tar -C $opt_dir -xvf $tarfile > $tmpfile || return 1
-	rm -f $tarfile
-
-	# Log the extracted files with porg, if needed
+	tarfile=$(expr $1 : '\(.*\.tar\)')
+	cmd="tar -C $opt_dir -xvf $tarfile"
 	if [ "$opt_log" ]; then
-		say "Logging the extracted files with porg"
-		sed "s|^|$opt_dir/|" $tmpfile | porg $opt_verb -lp ${1%.porg.tar.*}
-		return $?
+		porg $opt_verb -lp ${1%.porg.tar.*} -- $cmd || return 1
+	else
+		$cmd || return 1
 	fi
+	rm -f $tarfile
 
 	return 0
 }
@@ -141,7 +141,7 @@ do_create()
 
 	# Create intermediate tar archive
 	say "Creating $tarfile"
-	tar $opt_verb -cf $tarfile --files-from=$tmpfile || return 1
+	tar $opt_verb -cf $tarfile --ignore-failed-read --files-from=$tmpfile || return 1
 
 	# Create porgball
 	say "Creating $ball"
@@ -198,12 +198,6 @@ while [ "$1" ]; do
 	shift
 done
 
-# Create tmpfile and assure it's removed on exit
-
-tmpfile=$(mktemp || echo /tmp/$me.$$)
-trap 'rm -f $tmpfile' 0
-
-
 # Extraction of porgballs
 
 if [ "$opt_extract" ]; then
@@ -224,6 +218,10 @@ else
 
 	opt_dir=${opt_dir:-.}	# default dir = .
 	do_check_dir $opt_dir
+
+	# Create tmpfile and assure it's removed on exit
+	tmpfile=$(mktemp || echo /tmp/$me.$$)
+	trap 'rm -f $tmpfile' 0
 
 	for pkg in $(porg $opt_verb $opt_exact $opt_all $args); do
 		do_create $pkg

@@ -241,8 +241,6 @@ void PkgSet::list()
 	
 	if (Opt::print_totals()) {
 		
-		cout << '\n';
-
 		if (Opt::print_sizes())
 			cout << setw(size_w) << fmt_size(m_total_size) << "  ";
 		
@@ -270,7 +268,7 @@ void PkgSet::list_files()
 	}
 
 	if (Opt::print_totals())
-		cout << '\n' << setw(size_w) << fmt_size(m_total_size) << "  TOTAL\n";
+		cout << setw(size_w) << fmt_size(m_total_size) << "  TOTAL\n";
 }
 
 
