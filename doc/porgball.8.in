@@ -20,13 +20,13 @@ installed files. For this to work the input packages have to be
 registered in the porg database.
 .br
 Leading slashes ('/') are stripped from the paths of the files in the
-tarballs, so they can be extracted into user-defined directories..
+tarballs, so they can be extracted into user-defined directories.
 .PP
 With option \fB-e\fR, \fBporgball\fR admits one or more previously
 created tarballs ("porgballs") as arguments, and installs them into the
-system, optionally logging the installation with porg.
+system, optionally logging the installation with porg(8).
 .PP
-Short options cannot be joined up, for instance: '\fB-af\fR' is not correct,
+\fBNote\fR: Options cannot be joined up, for instance: '\fB-af\fR' is not correct,
 type '\fB-a -f\fR' instead.
 .PP
 Mandatory arguments to long options are mandatory for short options too.
@@ -43,20 +43,23 @@ Explain what is being done.
 .TP
 \fB-V, --version\fR
 Print version information and exit.
-.SH PACKAGE CREATION OPTIONS
+.TP
+\fB-L, --logdir\fR=\fIDIR\fR
+Porg log directory (default is '@LOGDIR@')
+.SH PORGBALL CREATION OPTIONS
 .TP
 \fB-a, --all\fR
 Create a porgball for each package logged in the porg database.
 .TP
 \fB-X, --exact-version\fR
-Disable expansion of package version. See the man page of \fBporg(5)\fR
+Disable expansion of package version. See the man page of \fBporg(8)\fR
 for more information.
 .TP
 \fB-d, --directory\fR=\fIDIR\fR
 Create the porgballs in directory DIR (default is '.').
 .TP
 \fB-g, --gzip\fR
-Compress with gzip (this is the default).
+Compress with gzip (default).
 .TP
 \fB-b, --bzip2\fR
 Compress with bzip2.
@@ -76,7 +79,7 @@ An alias for -9.
 .TP
 \fB-f, --force\fR
 Force overwrite of existing output files.
-.SH PACKAGE EXTRACTION OPTIONS
+.SH PORGBALL EXTRACTION OPTIONS
 .TP
 \fB-e, --extract\fR
 Extract (install) the given porgballs, in directory '/' by default.

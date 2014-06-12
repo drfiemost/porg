@@ -46,7 +46,13 @@ porg_version=$(porg -V | grep -o '^porg[^ ]*') || exit 1
 # Default log directories
 
 for p in paco porg; do
-	logdir=$(sed -n '/^LOGDIR=/ s///p' /etc/${p}rc 2>/dev/null)
+	logdir=
+	for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
+		if [ -f $dir/${p}rc ]; then
+			logdir=$(sed -n '/^LOGDIR=/ s///p' $dir/${p}rc 2>/dev/null)
+			break;
+		fi
+	done
 	eval ${p}_dir=${logdir:-/var/log/$p}
 done
 

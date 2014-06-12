@@ -21,7 +21,8 @@ using namespace Porg;
 //
 string Porg::clear_path(string const& inpath)
 {
-	assert(!inpath.empty());
+	if (inpath.empty())
+		return inpath;
 
 	string path(inpath);
 

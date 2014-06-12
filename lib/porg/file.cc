@@ -11,10 +11,9 @@
 #include "common.h"
 
 using std::string;
-using namespace Porg;
 
 
-File::File(string const& name_, long size_, string const& ln_name_ /* = "" */)
+Porg::File::File(string const& name_, long size_, string const& ln_name_ /* = "" */)
 :
 	m_name(name_),
 	m_size(size_),
@@ -22,7 +21,7 @@ File::File(string const& name_, long size_, string const& ln_name_ /* = "" */)
 { }
 
 
-File::File(string const& name_)
+Porg::File::File(string const& name_)
 :
 	m_name(name_),
 	m_size(UNKNOWN_SIZE),

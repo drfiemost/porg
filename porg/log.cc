@@ -153,14 +153,10 @@ void Log::get_tmpfile()
 {
 	char* tmpdir = getenv("TMPDIR");
 	char name[4096];
+
 	snprintf(name, sizeof(name), "%s/porgXXXXXX", tmpdir ? tmpdir : "/tmp");
 	
-	int fd = mkstemp(name);
-	if (fd > 0) {
-		fchmod(fd, 0644);
-		close(fd);
-	}
-	else
+	if (close(mkstemp(name)) < 0)
 		snprintf(name, sizeof(name), "/tmp/porg%d", getpid());
 
 	m_tmpfile = name;
@@ -177,6 +173,9 @@ void Log::filter_files()
 	struct stat s;
 	
 	for (set<string>::iterator p = m_files.begin(); p != m_files.end(); ++p) {
+
+		if ((*p).empty())
+			continue;
 
 		// get absolute path
 		string path(clear_path((*p)));
@@ -227,14 +226,7 @@ static string search_libporg()
 
 static void set_env(char const* var, string const& val)
 {
-#if HAVE_SETENV
 	if (setenv(var, val.c_str(), 1) < 0)
 		throw Error(string("setenv('") + var + "', '" + val + "', 1)", errno);
-#else
-	string str(var + "=" + val);
-	if (putenv(str.c_str()) < 0)
-		throw Error("putenv('" + str + "')", errno);
-#endif
 }
-
 

@@ -13,7 +13,6 @@
 #include <fnmatch.h>
 
 using std::string;
-using namespace Porg;
 
 
 //
@@ -52,9 +51,8 @@ string Porg::fmt_date(time_t date, bool print_hour)
 	char str[32] = "";
 	string fmt(string("%x") + (print_hour ? " %H:%M" : ""));
 
-	if (date 
-	&& (t = localtime(&date))
-	&& strftime(str, sizeof(str) - 1, fmt.c_str(), t))
+	if (date && (t = localtime(&date))
+		&& strftime(str, sizeof(str) - 1, fmt.c_str(), t))
 		return string(str);
 	else
 		// if date == 0, or an error occurs, return a string
@@ -73,10 +71,15 @@ bool Porg::in_paths(string const& path, string const& list)
 	std::istringstream s(list + ":");
 
 	for (string buf; getline(s, buf, ':'); ) {
+
 		if (buf.empty())
 			continue;
-		else if (buf == "/" || !fnmatch(buf.c_str(), path.c_str(), 0) 
-		|| !path.find(buf + "/"))
+		
+		// XXX this could be MUCH better (check buf is a directory without wildcards ?)
+		else if (buf == "/" || !path.find(buf + "/"))
+			return true;
+		
+		else if (!fnmatch(buf.c_str(), path.c_str(), 0))
 			return true;
 	}
 

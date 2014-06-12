@@ -326,7 +326,7 @@ void Opt::check_mode(int modes, char optchar)
 
 void Opt::set_mode(int mode, char optchar)
 {
-	if (s_mode_char)
+	if (s_mode_char && s_mode_char != optchar)
 		die_help(string("-") + s_mode_char + optchar + ": Incompatible options");
 	
 	s_mode_char = optchar;

@@ -105,36 +105,36 @@ With \fB-f\fR, do not print the name of the package. Useful for scripts.
 \fB-l, --log\fR
 Enable log mode. If a shell command is given as argument, execute
 and monitor it, logging the created files; otherwise the list of files
-to be logged is read from the standard input.
+to be logged is read from the standard input. In either case, the relative
+paths are automatically resolved.
 .br
 The list of logged files is printed to the standard output, unless
-any of \fB-p\fR or \fB-D\fR options is used, in which case is assumed
+any of \fB-p\fR or \fB-D\fR options is used, in which case it is assumed
 that a package is to be registered into the porg database.
 .br
-See EXAMPLES below.
+See \fIEXAMPLES\fR and \fIFILE NAMES WITH SPACES\fR below.
 .TP
 \fB-p, --package\fR=\fIPKG\fR
-Specify the name of the package to be logged, which must begin with
-an alphanumeric character. With \fB-v\fR, the list of logged files
-is also printed to the standard error stream. With \fB-vv\fR,
-porg prints detailed information about the install process. This
-holds for option \fB-D\fR too.
+Specify the name of the package to be logged. With \fB-v\fR, the list of logged
+files is also printed to the standard error stream. With \fB-vv\fR, porg prints
+detailed information about the install process. This holds for option \fB-D\fR
+too.
 .TP
 \fB-D, --dirname\fR
 Use the name of the current directory as the name of the package to be logged.
 .TP
 \fB-E, --exclude\fR=\fIPATH1:PATH2:...\fR
-Colon-separated list of paths to skip when logging. Default is '@EXCLUDE@',
-unless variable EXCLUDE is set in the
-configuration file (type 'man porgrc' for more information).
+Colon-separated list of paths to skip when logging the installed files. Default 
+is '@EXCLUDE@', unless variable EXCLUDE is set in the configuration file 
+(type 'man porgrc' for more information).
 .br
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
 \fB-I, --include\fR=\fIPATH1:PATH2:...\fR
-Colon-separated list of paths to scan when logging. Default is '/',
-unless variable INCLUDE is set in the
-configuration file (type 'man porgrc' for more information).
+Colon-separated list of paths to scan when logging the installed files. Default 
+is '/', unless variable INCLUDE is set in the configuration file 
+(type 'man porgrc' for more information).
 .br
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
@@ -177,6 +177,25 @@ within that directory.
 .br
 Note that if wildcards are to be used, the whole list of paths must be enclosed
 in single quotes (') to protect it from being expanded by the shell.
+.SH FILE NAMES WITH SPACES
+As of version \fB0.3\fR, porg accepts filenames with spaces when logging 
+package installations. Although IMHO this should be seen as an improvement in
+general terms, it may cause problems when trying to feed 'porg -l' with a list
+of files separated by spaces. For example, the following command:
+.PP
+    echo /bin/foo /bin/bar | porg -l
+.PP
+would try to log the file "/bin/foo /bin/bar" instead of logging /bin/foo and
+/bin/bar separately. To fix this, one may use newlines to separate file names,
+and pass option \fB-e\fR to echo so it honours escape characters, like this:
+.PP
+	echo -e "/bin/foo\\n/bin/bar" | porg -l
+.PP
+or either write the list of files separated by newlines into a temporary file,
+and run:
+.PP
+	cat tmpfile | porg -l
+
 .SH EXAMPLES
 To log the installation of the package 'foo-1.0', which is installed
 with the command 'make -C src install':

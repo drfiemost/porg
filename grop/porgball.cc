@@ -26,8 +26,6 @@
 #include <sys/wait.h>
 
 
-static void unlink_async(std::string const&);
-
 Grop::Porgball::Last Grop::Porgball::s_last = { Glib::get_home_dir(), PROG_GZIP, 6, false };
 
 
@@ -250,7 +248,7 @@ bool Grop::Porgball::create_porgball()
 	main_iter();
 
 	if (!spawn(argv)) {
-		unlink_async(tarfile);
+		unlink(tarfile.c_str());
 		return false;
 	}
 
@@ -271,8 +269,7 @@ bool Grop::Porgball::create_porgball()
 	main_iter();
 
 	if (!spawn(argv)) {
-		unlink_async(tarfile);
-		unlink_async(zipfile);
+		unlink(tarfile.c_str());
 		return false;
 	}
 
@@ -347,15 +344,5 @@ bool Grop::Porgball::spawn(std::vector<std::string>& argv)
 	}
 
 	return !WIFSIGNALED(status);
-}
-
-
-static void unlink_async(std::string const& file)
-{
-	std::vector<std::string> argv;
-	argv.push_back("unlink");
-	argv.push_back(file);
-
-	Glib::spawn_async(Glib::get_current_dir(), argv, Glib::SPAWN_SEARCH_PATH);
 }
 

@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 #
 
-AC_INIT([porg],[0.5],[http://porg.sourceforge.net])
+AC_INIT([porg],[svn],[http://porg.sourceforge.net])
 
-RELEASEDATE="11 June 2014"
-#RELEASEDATE="`date +'%d %B %Y'`"
+#RELEASEDATE="11 June 2014"
+RELEASEDATE="`date +'%d %B %Y'`"
 
 AC_CONFIG_SRCDIR([porg/main.cc])
 AC_CONFIG_HEADERS([config.h])
@@ -48,7 +48,7 @@ fi
 AC_DEFINE_UNQUOTED([RELEASEDATE], ["$RELEASEDATE"], [Release date])
 AC_SUBST([RELEASEDATE])
 
-EXCLUDE="/tmp:/etc/mtab"
+EXCLUDE="/tmp"
 for dir in /dev /proc /selinux /sys /run /mnt /media /cdrom; do
 	test -e "$dir" && EXCLUDE="$EXCLUDE:$dir"
 done
@@ -143,8 +143,7 @@ AC_CHECK_FUNCS_ONCE([ \
 	creat64 \
 	fopen64 \
 	freopen64 \
-	openat64 \
-	setenv
+	openat64
 ])
 
 AC_CHECK_DECLS([__open, __open64], [], [], [[#include <fcntl.h>]])

@@ -28,8 +28,9 @@ General options:
   -v, --verbose        Explain what is being done
   -V, --version        Display version information and exit
   -h, --help           Display this help message and exit
+  -L, --logdir=DIR     Porg log directory (default is $def_logdir)
   
-Package creation options:
+Porgball creation options:
   -a, --all            Create a porgball for each logged package
   -X, --exact-version  Do not expand version of packages given as arguments
   -d, --directory=DIR  Create the porgballs in DIR (default is '.')
@@ -41,14 +42,14 @@ Package creation options:
       --best           Like -9: Compress better (default)
   -f, --force          Force overwrite of existing output files
   
-Package extraction options:
+Porgball extraction options:
   -e, --extract        Extract the porgballs given as arguments
   -d, --directory=DIR  Extract the files into root directory DIR
                        (default is '/')
   -l, --log            Log the extraction with porg
 
 Note:
-  Short options cannot be joined up; for instance: '-af' is not correct,
+  Options cannot be joined up; for instance: '-af' is not correct,
   type '-a -f' instead.
 
 EOF
@@ -56,16 +57,13 @@ EOF
 }
 
 
-# Defaults
-
-opt_prog=gzip
-opt_level=-9
-
-
+# 1st parameter ($1) = flag to test (-w, -r, ...)
+# 2nd parameter ($2) = directory
+#
 do_check_dir()
 {
-	[ -d "$1" ] || die "$1: No such directory"
-	[ -w "$1" ] || die "$1: Permission denied"
+	[ -d "$2" ] || die "$2: No such directory"
+	eval [ $1 "$2" ] || die "$2: Permission denied"
 }
 
 
@@ -101,9 +99,9 @@ do_extract()
 	# Extract files from the tar archive
 	say "Extracting files from $tarfile"
 	tarfile=$(expr $1 : '\(.*\.tar\)')
-	cmd="tar -C $opt_dir -xvf $tarfile"
+	cmd="tar -C $opt_destdir -xvf $tarfile"
 	if [ "$opt_log" ]; then
-		porg $opt_verb -lp ${1%.porg.tar.*} -- $cmd || return 1
+		porg $opt_logdir $opt_verb -lp ${1%.porg.tar.*} -- $cmd || return 1
 	else
 		$cmd || return 1
 	fi
@@ -121,12 +119,12 @@ do_create()
 
 	# Write list of files logged by the package into tmpfile.
 	# By using ls, only existing files are written,
-	ls $(porg -zf $1) 2>/dev/null > $tmpfile
+	ls $(porg $opt_logdir -zf $1) 2>/dev/null > $tmpfile
 	[ -s $tmpfile ] || { say "No files to process"; return 1; }
 
 	# Get names of tar file and tarball
 
-	tarfile=$(echo $opt_dir/${1}.porg.tar | tr -s /)
+	tarfile=$(echo $opt_destdir/${1}.porg.tar | tr -s /)
 	case $opt_prog in
 		bzip2)	suf=bz2;;
 		xz)		suf=xz;;
@@ -157,6 +155,22 @@ do_create()
 	return 0
 }
 
+#-------
+
+# Defaults
+
+opt_prog=gzip
+opt_level=-9
+
+for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
+	if [ -f $dir/porgrc ]; then
+		def_logdir=$(sed -n '/^LOGDIR=/ s///p' $dir/porgrc 2>/dev/null)
+		break;
+	fi
+done
+def_logdir=${def_logdir:-/var/log/porg}
+logdir=$def_logdir
+
 
 # Parse the command line
 
@@ -180,14 +194,24 @@ while [ "$1" ]; do
 		-e|--extract)		opt_extract=1;;
 		-l|--log)			opt_log=1;;
 
+		-L|--logdir)
+			[ "$2" ] && logdir=$2 || die "Option '$1' requires an argument"
+			shift
+			;;
+
+		--logdir=*)
+			logdir=${1#*=}
+			[ "$logdir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+
 		-d|-C|--directory|--dir|--root)
-			[ "$2" ] && opt_dir=$2 || die "Option '$1' requires an argument"
+			[ "$2" ] && opt_destdir=$2 || die "Option '$1' requires an argument"
 			shift
 			;;
 
 		--directory=*|--dir=*|--root=*)
-			opt_dir=${1#*=}
-			[ "$opt_dir" ] || die "Option '${1%=*}' requires an argument"
+			opt_destdir=${1#*=}
+			[ "$opt_destdir" ] || die "Option '${1%=*}' requires an argument"
 			;;
 
 		-*)	die "$1: Unrecognized option";;
@@ -198,14 +222,18 @@ while [ "$1" ]; do
 	shift
 done
 
+do_check_dir -r $logdir
+opt_logdir="--logdir=$logdir"
+
+
 # Extraction of porgballs
 
 if [ "$opt_extract" ]; then
 
 	[ "$args" ] || die "No arguments provided"
 
-	opt_dir=${opt_dir:-/}	# default dir = /
-	do_check_dir $opt_dir
+	opt_destdir=${opt_destdir:-/}	# default dir = /
+	do_check_dir -w $opt_destdir
 
 	for ball in $args; do
 		do_extract $ball
@@ -216,14 +244,14 @@ if [ "$opt_extract" ]; then
 else
 	[ "$args" -o "$opt_all" ] || die "No arguments provided"
 
-	opt_dir=${opt_dir:-.}	# default dir = .
-	do_check_dir $opt_dir
+	opt_destdir=${opt_destdir:-.}	# default dir = .
+	do_check_dir -w $opt_destdir
 
 	# Create tmpfile and assure it's removed on exit
 	tmpfile=$(mktemp || echo /tmp/$me.$$)
 	trap 'rm -f $tmpfile' 0
 
-	for pkg in $(porg $opt_verb $opt_exact $opt_all $args); do
+	for pkg in $(porg $opt_logdir $opt_verb $opt_exact $opt_all $args); do
 		do_create $pkg
 	done
 fi

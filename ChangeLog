@@ -1,3 +1,14 @@
+SVN
+---
+
+	+ New command line option --logdir for porgball.
+	+ Bugfix: porg erroniously complained about command line option
+	  incompatibility when some options were doubled (like in -rr).
+	+ Added section 'FILE NAMES WITH SPACES' to the man page of porg.
+	  Reading it is recommended.
+	+ Removed path /etc/mtab from the default EXCLUDE.
+
+
 Version 0.5 (11 June 2014)
 --------------------------
 
