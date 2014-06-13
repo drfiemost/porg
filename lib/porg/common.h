@@ -24,10 +24,9 @@ namespace Porg
 		SORT_BY_DATE
 	} sort_t;
 
-	long const UNKNOWN_SIZE = -1;
-	long const KILOBYTE = 1024;
-	long const MEGABYTE = 1048576;
-	long const GIGABYTE = 1073741824;
+	ulong const KILOBYTE = 1024;
+	ulong const MEGABYTE = 1048576;
+	ulong const GIGABYTE = 1073741824;
 
 	class Error : public std::runtime_error
 	{
@@ -47,7 +46,7 @@ namespace Porg
 		}
 	};
 
-	extern std::string fmt_size(long size);
+	extern std::string fmt_size(ulong size);
 	extern std::string fmt_date(time_t date, bool print_hour);
 	extern std::string strip_trailing(std::string const&, char);
 	extern std::string strip_repeated(std::string const&, char);

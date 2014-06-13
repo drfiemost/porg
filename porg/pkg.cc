@@ -134,8 +134,6 @@ void Pkg::write_log() const
 
 	of	<< "#!porg-" PACKAGE_VERSION "\n"
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
-		<< '#' << CODE_NFILES 		<< ':' << m_nfiles << '\n'
-		<< '#' << CODE_SIZE 		<< ':' << m_size << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
 		<< '#' << CODE_SUMMARY		<< ':' << Porg::strip_trailing(m_summary, '.') << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'
@@ -157,8 +155,7 @@ bool Pkg::add_file(string const& path)
 	{
 		File* file = new File(path);
 		m_files.push_back(file);
-		if (file->size() > 0)
-			m_size += file->size();
+		m_size += file->size();
 		m_nfiles++;
 		return true;
 	}

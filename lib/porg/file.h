@@ -18,21 +18,20 @@ class File
 {
 	public:
 
-	File(std::string const& name_, long size_, std::string const& ln_name_ = "");
+	File(std::string const& name_, ulong size_, std::string const& ln_name_ = "");
 	File(std::string const& name_);
 
-	long size() const					{ return m_size; }
+	ulong size() const					{ return m_size; }
 	std::string const& name() const		{ return m_name; }
 	std::string const& ln_name() const	{ return m_ln_name; }
 	bool is_symlink() const				{ return !m_ln_name.empty(); }
+	bool is_installed() const			{ return m_installed; }
 
 	private:
 
-	// name of file
 	std::string m_name;
-
-	// size of file, in bytes
-	long m_size;
+	ulong m_size;
+	bool m_installed;
 	
 	// if the file is a symlink, name of the file it refers to,
 	// or an empty string otherwise

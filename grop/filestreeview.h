@@ -28,10 +28,12 @@ class FilesTreeView : public Gtk::TreeView
 		{
 			add(m_name);
 			add(m_size);
+			add(m_file_p);
 		}
 
-		Gtk::TreeModelColumn<Glib::ustring>		m_name;
-		Gtk::TreeModelColumn<long>				m_size;
+		Gtk::TreeModelColumn<File*>			m_file_p;
+		Gtk::TreeModelColumn<Glib::ustring>	m_name;
+		Gtk::TreeModelColumn<long>			m_size;
 
 	};	// class FilesTreeView::ModelColumns
 

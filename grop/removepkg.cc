@@ -44,6 +44,7 @@ RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 	set_border_width(4);
 	set_default_size(450, 0);
 
+//XXX better way to make this ?
 	Glib::signal_timeout().connect_once(mem_fun(this, &RemovePkg::remove), 100);
 
 	m_expander.property_expanded().signal_changed().connect(

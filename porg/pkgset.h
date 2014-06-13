@@ -60,8 +60,8 @@ class PkgSet : public std::vector<Pkg*>
 
 	};	// class PkgSet::Sorter
 
-	long m_total_size;
-	long m_total_files;
+	ulong m_total_size;
+	ulong m_total_files;
 
 };		// class PkgSet
 

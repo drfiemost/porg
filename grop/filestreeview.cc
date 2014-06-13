@@ -35,10 +35,11 @@ void FilesTreeView::fill_model()
 	m_model->clear();
 
 	for (uint i = 0; i < m_pkg.files().size(); ++i) {
-		File* file = m_pkg.files()[i];
 		iterator it = m_model->append();
-		(*it)[m_columns.m_name]	= file->name();
-		(*it)[m_columns.m_size]	= file->size();
+		File* file = m_pkg.files()[i];
+		(*it)[m_columns.m_file_p] = file;
+		(*it)[m_columns.m_name] = file->name();
+		(*it)[m_columns.m_size] = file->size();
 	}
 }
 
@@ -49,10 +50,12 @@ void FilesTreeView::add_columns()
 	Gtk::CellRenderer* cell;
 
 	id = append_column("Name", m_columns.m_name) - 1;
+	g_assert(id == COL_NAME);
 	cell = get_column_cell_renderer(id);
 	get_column(id)->set_cell_data_func(*cell, mem_fun(this, &FilesTreeView::name_cell_func));
 
 	id = append_column("Size", m_columns.m_size) - 1;
+	g_assert(id == COL_SIZE);
 	cell = get_column_cell_renderer(id);
 	cell->set_alignment(1, 0.5);
 	get_column(id)->set_cell_data_func(*cell, mem_fun(this, &FilesTreeView::size_cell_func));
@@ -67,26 +70,19 @@ void FilesTreeView::add_columns()
 void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, iterator const& it)
 {
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
-	Glib::ustring name = (*it)[m_columns.m_name];
+	File* file_p = (*it)[m_columns.m_file_p];
 	
 	// Print missing files in red
-	if (access(name.c_str(), F_OK) < 0)
-		cell_text->property_foreground() = "red";
-	else
-		cell_text->property_foreground() = "black";
+	cell_text->property_foreground() = file_p->is_installed() ? "black" : "red";
 }
 
 
 void FilesTreeView::size_cell_func(Gtk::CellRenderer* cell, iterator const& it)
 {
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
-	Glib::ustring name = (*it)[m_columns.m_name];
+	File* file_p = (*it)[m_columns.m_file_p];
 	
-	if (access(name.c_str(), F_OK) < 0)
-		cell_text->property_foreground() = "red";
-	else
-		cell_text->property_foreground() = "black";
-
-	cell_text->property_text() = Porg::fmt_size((*it)[m_columns.m_size]);
+	cell_text->property_foreground() = file_p->is_installed() ? "black" : "red";
+	cell_text->property_text() = Porg::fmt_size(file_p->size());
 }
 

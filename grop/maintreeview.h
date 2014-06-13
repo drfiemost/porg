@@ -51,7 +51,7 @@ class MainTreeView : public Gtk::TreeView
 	MainTreeView();
 	
 	enum {
-		COL_NAME = 0,
+		COL_NAME,
 		COL_SIZE,
 		COL_NFILES,
 		COL_DATE,

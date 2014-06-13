@@ -68,8 +68,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 		switch (buf[1]) {
 
 			case CODE_DATE: 		m_date = str2num<int>(val);		break;
-			case CODE_SIZE: 		m_size = str2num<ulong>(val); 	break;
-			case CODE_NFILES: 		m_nfiles = str2num<long>(val);	break;
 			case CODE_CONF_OPTS:	m_conf_opts = val; 				break;
 			case CODE_ICON_PATH:	m_icon_path = val;				break;
 			case CODE_SUMMARY: 		m_summary = val; 				break;
@@ -105,10 +103,10 @@ void BasePkg::get_files()
 	if (!m_files.empty())
 		return;
 
-	m_files.reserve(m_nfiles);
+	ulong fsize;
 
-	long cnt_size = 0, cnt_nfiles = 0, fsize;
 	FileStream<std::ifstream> f(m_log);
+	
 	Rexp re("^(/.+)\\|(-?[0-9]+)\\|(.*)$");
 
 	for (string buf; getline(f, buf); ) {
@@ -116,16 +114,14 @@ void BasePkg::get_files()
 		assert(buf[0] == '/' || buf[0] == '#');
 		
 		if (re.exec(buf)) {
-			fsize = str2num<long>(re.match(2));
+			fsize = str2num<ulong>(re.match(2));
 			m_files.push_back(new File(re.match(1), fsize, re.match(3)));
-			if (fsize > 0)
-				cnt_size += fsize;
-			cnt_nfiles++;
+			m_size += fsize;
+			m_nfiles++;
 		}
 	}
 
 	sort_files();
-	assert(cnt_size == m_size && cnt_nfiles == m_nfiles);
 }
 
 

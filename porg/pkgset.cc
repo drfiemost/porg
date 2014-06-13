@@ -23,8 +23,8 @@ using std::string;
 using std::max;
 using namespace Porg;
 
-static int get_digits(long);
-static int get_width(long);
+static int get_digits(ulong);
+static int get_width(ulong);
 static bool match_pkg(string const&, string const&);
 
 
@@ -95,8 +95,6 @@ bool PkgSet::add_pkg(string const& name)
 	{
 		Pkg* pkg = new Pkg(name);
 		push_back(pkg);
-		m_total_size += pkg->size();
-		m_total_files += pkg->nfiles();
 		return true;
 	}
 	catch (...) 
@@ -112,7 +110,7 @@ bool PkgSet::add_pkg(string const& name)
 void PkgSet::get_pkg_list_widths(int& size_w, int& nfiles_w)
 {
 	size_w = Opt::print_totals() ? get_width(m_total_size) : 0;
-	long max_nfiles(Opt::print_totals() ? m_total_files : 0);
+	ulong max_nfiles(Opt::print_totals() ? m_total_files : 0);
 	
 	for (iterator p(begin()); p != end(); ++p) {
 		size_w = max(size_w, get_width((*p)->size()));
@@ -142,7 +140,11 @@ int PkgSet::get_file_size_width()
 
 void PkgSet::get_files()
 {
-	for (iterator p(begin()); p != end(); (*p++)->get_files()) ;
+	for (iterator p(begin()); p != end(); ++p) {
+		(*p)->get_files();
+		m_total_size += (*p)->size();
+		m_total_files += (*p)->nfiles();
+	}
 }
 
 
@@ -222,6 +224,9 @@ void PkgSet::del_pkg(string const& name)
 
 void PkgSet::list()
 {
+	if (Opt::print_sizes() || Opt::print_nfiles())
+		get_files();
+
 	// sort list of packages
 	
 	std::sort(begin(), end(), Sorter(Opt::sort_type()));
@@ -263,7 +268,7 @@ void PkgSet::list_files()
 
 	for (iterator p(begin()); p != end(); ++p) {
 		(*p)->list_files(size_w);
-		if (size() > 1 && p != end() - 1)
+		if (size() > 1)
 			cout << '\n';
 	}
 
@@ -324,7 +329,7 @@ inline bool PkgSet::Sorter::sort_by_date(Pkg* left, Pkg* right) const
 //
 // Return the number of digits of a number
 //
-static int get_digits(long n)
+static int get_digits(ulong n)
 {
 	int ret;
 	for (ret = 0; n; n /= 10, ret++) ;
@@ -332,7 +337,7 @@ static int get_digits(long n)
 }
 
 
-inline static int get_width(long size)
+inline static int get_width(ulong size)
 {
 	return fmt_size(size).size();
 }

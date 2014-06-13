@@ -13,27 +13,36 @@
 using std::string;
 
 
-Porg::File::File(string const& name_, long size_, string const& ln_name_ /* = "" */)
+//
+// Ctor used when reading the logs of the packages from the database
+//
+Porg::File::File(string const& name_, ulong size_, string const& ln_name_ /* = "" */)
 :
 	m_name(name_),
 	m_size(size_),
+	m_installed(),
 	m_ln_name(ln_name_)
-{ }
+{
+	struct stat s;
+	m_installed = !lstat(m_name.c_str(), &s);
+	//XXX update file size to the log ? (complicated)
+}
 
 
+//
+// Ctor used when logging package installations
+//
 Porg::File::File(string const& name_)
 :
 	m_name(name_),
-	m_size(UNKNOWN_SIZE),
+	m_size(0),
+	m_installed(false),
 	m_ln_name()
 {
 	struct stat s;
 
 	if (lstat(m_name.c_str(), &s) < 0)
 		return;
-
-	else if (S_ISDIR(s.st_mode))
-		throw Error(m_name + ": Is a directory");
 
 	else if (S_ISLNK(s.st_mode)) {
 		char ln[4096];
@@ -44,6 +53,7 @@ Porg::File::File(string const& name_)
 		}
 	}
 
+	m_installed = true;
 	m_size = s.st_size;
 }
 

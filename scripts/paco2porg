@@ -118,14 +118,6 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 	
 	sed -n 's/^#d:/#t:/p' $paco_log >> $porg_log
 
-	aux=$(sed -n '/^##:/ s///p' $paco_log)
-	inst_size=$(echo $aux | cut -f1 -d '|')
-	miss_size=$(echo $aux | cut -f2 -d '|')
-	echo "#s:$(($inst_size + $miss_size))" >> $porg_log
-	inst_nfiles=$(echo $aux | cut -f3 -d '|')
-	miss_nfiles=$(echo $aux | cut -f4 -d '|')
-	echo "#f:$(($inst_nfiles + $miss_nfiles))" >> $porg_log
-	
 	echo "#a:$(sed -n '/^#:Author: */  s///p' $paco_log)" >> $porg_log
 	echo "#S:$(sed -n '/^#:Summary: */ s///p' $paco_log)" >> $porg_log
 	echo "#u:$(sed -n '/^#:URL: */     s///p' $paco_log)" >> $porg_log

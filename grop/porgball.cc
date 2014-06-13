@@ -219,10 +219,8 @@ bool Grop::Porgball::create_porgball()
 	m_label_progress.set_text("Reading logged files");
 	main_iter();
 
-	struct stat s;
-
 	for (guint i = 0; i < m_pkg.files().size(); ++i) {
-		if (0 == lstat(m_pkg.files()[i]->name().c_str(), &s))
+		if (m_pkg.files()[i]->is_installed())
 			ftmp << m_pkg.files()[i]->name() << "\n";
 	}
 

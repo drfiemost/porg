@@ -18,11 +18,8 @@ using std::string;
 //
 // Create a human readable size
 //
-string Porg::fmt_size(long size)
+string Porg::fmt_size(ulong size)
 {
-	if (size == UNKNOWN_SIZE)
-		return "?";
-
 	std::ostringstream s;
 	
 	if (size < KILOBYTE)
