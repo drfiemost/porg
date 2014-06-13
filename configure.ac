@@ -82,7 +82,6 @@ AC_PROG_CXX
 # Check libs
 #============
 
-#XXX: This could be better:
 AC_SEARCH_LIBS([dlopen], [dl], [], AC_MSG_ERROR([*** dlopen not found ***]))
 
 if test "$enable_grop" = yes; then

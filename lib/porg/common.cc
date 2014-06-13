@@ -61,23 +61,34 @@ string Porg::fmt_date(time_t date, bool print_hour)
 }
 
 
+
+// 
+// Match @inpath against each path in @list, following the standard shell-like
+// expansion, but with the following exception: If a path in the list does not
+// contain any wildcard, and it is a directory, it matches any file within that
+// directory.
 //
-// Check whether a path matches any path in a given colon-separated list 
-// of paths.
-// Shell-like wildcards in the list are expanded.
-//
-bool Porg::in_paths(string const& path, string const& list)
-{   
+bool Porg::in_paths(string const& inpath, string const& list)
+{
+	assert(inpath[0] == '/');
+
 	std::istringstream s(list + ":");
+	string path = strip_trailing(inpath, '/');
 
 	for (string buf; getline(s, buf, ':'); ) {
 
 		if (buf.empty())
 			continue;
+
+		buf = strip_repeated(strip_trailing(buf, '/'), '/');
 		
-		// XXX this could be MUCH better (check buf is a directory without wildcards ?)
-		else if (buf == "/" || !path.find(buf + "/"))
+		if (buf == "/")
 			return true;
+
+		else if (buf.find_first_of("*?[") == string::npos) {
+			if (buf == path || !path.find(buf + "/"))
+				return true;
+		}
 		
 		else if (!fnmatch(buf.c_str(), path.c_str(), 0))
 			return true;
@@ -87,6 +98,39 @@ bool Porg::in_paths(string const& path, string const& list)
 }
 
 
+//
+// Strip consecutive repeated occurrences of character c in str.
+//
+string Porg::strip_repeated(string const& str, char c)
+{
+	string ret = str, cc(2, c);
+	string::size_type p;
+
+	while ((p = ret.find(cc)) != string::npos)
+		ret.erase(p, 1);
+	
+	return ret;
+}
+
+
+//
+// Strip trailing occurrences of character i@c in @str. If all characters in
+// @str are @c, leave one of them unstripped.
+//
+string Porg::strip_trailing(string const& str, char c)
+{
+	string ret = str;
+
+	while (ret.size() > 1 && ret[ret.size() - 1] == c)
+		ret.erase(ret.size() - 1);
+	
+	return ret;
+}
+
+
+//
+// Generic exception with errno support
+//
 Porg::Error::Error(string const& msg, int errno_ /* = 0 */)
 :
 	std::runtime_error(msg + (errno_ ? (string(": ") + strerror(errno_)) : ""))

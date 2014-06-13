@@ -41,7 +41,7 @@ EOF
 
 # Get version of porg
 
-porg_version=$(porg -V | grep -o '^porg[^ ]*') || exit 1
+porg_version=$(porg --version | grep --only-matching '^porg[^ ]*') || exit 1
 
 # Default log directories
 
@@ -62,7 +62,7 @@ while [ "$1" ]; do
 	case $1 in
 		-v|--verbose) 	opt_verb=-v;;
 		-f|--force)		opt_force=-f;;
-		-V|--version)	porg -V | sed "s/^porg/$me/"; exit 0;;
+		-V|--version)	porg --version | sed "s/^porg/$me/"; exit 0;;
 		--paco-logdir=*)
 			paco_dir=${1#*=}
 			[ "$paco_dir" ] || die "Option '${1%=*}' requires an argument"
@@ -97,7 +97,7 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 	sayf "${pkg}... "
 
 	# check for '#!paco' header
-	if ! (head -1 $paco_log | grep -q '^#!paco'); then
+	if ! (head -1 $paco_log | grep --quiet '^#!paco'); then
 		sayf "paco header missing, skipped\n"
 		continue
 	fi

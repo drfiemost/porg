@@ -32,8 +32,9 @@ MainTreeView::MainTreeView()
 		mem_fun(this, &MainTreeView::on_selection_changed));
 
 	add_columns();
-	set_opts();
-	// fill_model();
+	set_columns_visibility();
+
+	fill_model();
 	set_model(m_model);
 }
 
@@ -68,13 +69,24 @@ void MainTreeView::add_columns()
 }
 
 
-void MainTreeView::set_opts()
+void MainTreeView::reset_opts()
+{
+	set_columns_visibility();
+	m_model->foreach_iter(sigc::mem_fun(this, &MainTreeView::on_refresh_date));
+}
+
+
+bool MainTreeView::on_refresh_date(iterator const& i)
+{
+	m_model->row_changed(m_model->get_path(i), i);
+	return false;
+}
+
+
+void MainTreeView::set_columns_visibility()
 {
 	for (int i = 0; i < NCOLS; ++i)
 		get_column(i)->set_visible(Opt::columns()[i]);
-
-	fill_model(); // so that changes in Opt::hour() will be applied
-	              //XXX There must be a better way to do this...
 }
 
 

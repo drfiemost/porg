@@ -8,7 +8,7 @@
 
 #include "config.h"
 #include "util.h"
-#include "porg/common.h"	// for Error
+#include "porg/common.h"	// Error, strip_trailing()
 #include <string>
 
 using std::string;
@@ -34,10 +34,7 @@ string Porg::clear_path(string const& inpath)
 			path.insert(0, string(cwd) + "/");
 	}
 
-	// strip trailing slashes
-    
-	while (path[path.size() - 1] == '/')
-		path.erase(path.size() - 1);
+	path = strip_trailing(path, '/');
 
 	// separate dirname from basename
 

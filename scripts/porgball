@@ -24,29 +24,31 @@ Usage:
   $me [OPTIONS] [<packages>|<porgballs>]
 
 General options:
-  -t, --test           Test compressed file integrity
-  -v, --verbose        Explain what is being done
-  -V, --version        Display version information and exit
-  -h, --help           Display this help message and exit
-  -L, --logdir=DIR     Porg log directory (default is $def_logdir)
+  -v, --verbose          Explain what is being done
+  -V, --version          Display version information and exit
+  -h, --help             Display this help message and exit
+  -L, --logdir=DIR       Porg log directory (default is $def_logdir)
   
 Porgball creation options:
-  -a, --all            Create a porgball for each logged package
-  -X, --exact-version  Do not expand version of packages given as arguments
-  -d, --directory=DIR  Create the porgballs in DIR (default is '.')
-  -g, --gzip           Compress with gzip (default)
-  -b, --bzip2          Compress with bzip2
-  -x, --xz             Compress with xz
-  -<1..9>              Compression level (speed/quality balance)
-      --fast           Like -1: Compress faster
-      --best           Like -9: Compress better (default)
-  -f, --force          Force overwrite of existing output files
+  -a, --all              Create a porgball for each logged package
+  -X, --exact-version    Do not expand version of packages given as arguments
+  -d, --directory=DIR    Create the porgballs in DIR (default is '.')
+  -g, --gzip             Compress with gzip (default)
+  -b, --bzip2            Compress with bzip2
+  -x, --xz               Compress with xz
+  -<1..9>                Compression level (speed/quality balance)
+      --fast             Like -1: Compress faster
+      --best             Like -9: Compress better (default)
+  -f, --force            Force overwrite of existing output files
+  -t, --test             Test integrity of the porgball after creating it
+  -n, --no-porg-suffix   Do not append '.porg' suffix to the name of the
+                         porgballs.
   
 Porgball extraction options:
-  -e, --extract        Extract the porgballs given as arguments
-  -d, --directory=DIR  Extract the files into root directory DIR
-                       (default is '/')
-  -l, --log            Log the extraction with porg
+  -e, --extract          Extract the porgballs given as arguments
+  -d, --directory=DIR    Extract the files into root directory DIR
+                         (default is '/')
+  -l, --log              Log the extraction with porg
 
 Note:
   Options cannot be joined up; for instance: '-af' is not correct,
@@ -71,43 +73,27 @@ do_check_dir()
 
 do_extract()
 {
-#XXX do not run zip and tar separately
+	[ -e $1 ] || { warn "$1: No such file"; exit_status=1; return; }
 
-	[ -e $1 ] || { warn "$1: No such file"; return 1; }
-
-	case $1 in
-		*.porg.tar.gz)	zprog=gzip;;
-		*.porg.tar.bz2)	zprog=bzip2;;
-		*.porg.tar.xz)	zprog=xz;;
-		*)	warn "$1: Does not look like a porgball; skipped"
-			return 1
-			;;
-	esac
-
-	say "Processing $1"
-		
-	# Test integrity of porgball, if needed
-	if [ "$opt_test" ]; then
-		say "Testing integrity of $1"
-		$zprog $opt_verb --test $1 || return 1;
+	if ! echo $1 | egrep --quiet '\.tar\.(gz|bz2|xz)$'; then
+		warn "$1: Does not look like a porgball; skipped"
+		exit_status=1
+		return
 	fi
 
-	# Decompress porgball into a tar archive
-	say "Decompressing $1"
-	$zprog $opt_verb $opt_force --keep --decompress $1 || return 1
+	say "Extracting files from $1"
 
-	# Extract files from the tar archive
-	say "Extracting files from $tarfile"
-	tarfile=$(expr $1 : '\(.*\.tar\)')
-	cmd="tar -C $opt_destdir -xvf $tarfile"
+	cmd="tar --directory=$destdir $opt_verb --auto-compress --extract --file=$1"
+
 	if [ "$opt_log" ]; then
-		porg $opt_logdir $opt_verb -lp ${1%.porg.tar.*} -- $cmd || return 1
+		pkg=${1%.tar.*}
+		pkg=${pkg%.porg}
+		porg $opt_logdir $opt_verb --log --package="$pkg" -- $cmd
 	else
-		$cmd || return 1
+		eval $cmd
 	fi
-	rm -f $tarfile
 
-	return 0
+	exit_status=$?
 }
 
 
@@ -119,12 +105,13 @@ do_create()
 
 	# Write list of files logged by the package into tmpfile.
 	# By using ls, only existing files are written,
-	ls $(porg $opt_logdir -zf $1) 2>/dev/null > $tmpfile
-	[ -s $tmpfile ] || { say "No files to process"; return 1; }
+	
+	ls $(porg $opt_logdir --no-package-name --files $1) 2>/dev/null > $tmpfile
+	[ -s $tmpfile ] || { say "No files to process"; exit_status=1; return; }
 
 	# Get names of tar file and tarball
 
-	tarfile=$(echo $opt_destdir/${1}.porg.tar | tr -s /)
+	tarfile=$(echo $destdir/${1}${porg_suffix}.tar | tr -s /)
 	case $opt_prog in
 		bzip2)	suf=bz2;;
 		xz)		suf=xz;;
@@ -134,33 +121,44 @@ do_create()
 
 	if [ -e $ball -a -z "$opt_force" ]; then
 		read -p "$me: $ball already exists; do you wish to overwrite it (y/N)? "
-		[ "$REPLY" = y -o "$REPLY" = Y ] || return 1
+		[ "$REPLY" = y -o "$REPLY" = Y ] || return
 	fi
 
 	# Create intermediate tar archive
+	
 	say "Creating $tarfile"
-	tar $opt_verb -cf $tarfile --ignore-failed-read --files-from=$tmpfile || return 1
-
-	# Create porgball
-	say "Creating $ball"
-	$opt_prog -f $opt_level $opt_verb $tarfile || return 1
-
-	# Test integrity of the created porgball, if needed
-	if [ "$opt_test" ]; then
-		say "Testing integrity of $ball"
-		$opt_prog $opt_verb -t $ball
-		return $?
+	if ! tar $opt_verb --create --file=$tarfile --ignore-failed-read --files-from=$tmpfile
+	then
+		exit_status=1
+		return
 	fi
 
-	return 0
+	# Create porgball
+	
+	say "Creating $ball"
+	if ! eval $opt_prog --force $opt_level $opt_verb $tarfile; then
+		exit_status=1
+		return
+	fi
+
+	# Test integrity of the created porgball, if needed
+	
+	if [ "$opt_test" ]; then
+		say "Testing integrity of $ball"
+		eval $opt_prog $opt_verb --test $ball
+		exit_status=$?
+	fi
 }
 
 #-------
+
+exit_status=0
 
 # Defaults
 
 opt_prog=gzip
 opt_level=-9
+porg_suffix=".porg"
 
 for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
 	if [ -f $dir/porgrc ]; then
@@ -178,21 +176,22 @@ while [ "$1" ]; do
 
 	case $1 in
 
-		-V|--version)		do_version;;
-		-h|--help)			do_help;;
-		-t|--test)			opt_test=-t;;
-		-v|--verbose)		opt_verb=-v;;
-		-a|--all)			opt_all=-a;;
-		-X|--exact-version) opt_exact=-X;;
-		-g|--gzip)			opt_prog=gzip;;
-		-b|--bzip2)			opt_prog=bzip2;;
-		-x|--xz)			opt_prog=xz;;
-		-[0-9])				opt_level=$1;;
-		--fast)				opt_level=-1;;
-		--best)				opt_level=-9;;
-		-f|--force)			opt_force=-f;;
-		-e|--extract)		opt_extract=1;;
-		-l|--log)			opt_log=1;;
+		-V|--version)		 do_version;;
+		-h|--help)			 do_help;;
+		-t|--test)			 opt_test=-t;;
+		-v|--verbose)		 opt_verb=-v;;
+		-a|--all)			 opt_all=-a;;
+		-X|--exact-version)  opt_exact=-X;;
+		-g|--gzip)			 opt_prog=gzip;;
+		-b|--bzip2)			 opt_prog=bzip2;;
+		-x|--xz)			 opt_prog=xz;;
+		-[0-9])				 opt_level=$1;;
+		--fast)				 opt_level=-1;;
+		--best)				 opt_level=-9;;
+		-f|--force)			 opt_force=-f;;
+		-e|--extract)		 opt_extract=1;;
+		-l|--log)			 opt_log=1;;
+		-n|--no-porg-suffix) porg_suffix="";;
 
 		-L|--logdir)
 			[ "$2" ] && logdir=$2 || die "Option '$1' requires an argument"
@@ -205,13 +204,13 @@ while [ "$1" ]; do
 			;;
 
 		-d|-C|--directory|--dir|--root)
-			[ "$2" ] && opt_destdir=$2 || die "Option '$1' requires an argument"
+			[ "$2" ] && destdir=$2 || die "Option '$1' requires an argument"
 			shift
 			;;
 
 		--directory=*|--dir=*|--root=*)
-			opt_destdir=${1#*=}
-			[ "$opt_destdir" ] || die "Option '${1%=*}' requires an argument"
+			destdir=${1#*=}
+			[ "$destdir" ] || die "Option '${1%=*}' requires an argument"
 			;;
 
 		-*)	die "$1: Unrecognized option";;
@@ -232,8 +231,8 @@ if [ "$opt_extract" ]; then
 
 	[ "$args" ] || die "No arguments provided"
 
-	opt_destdir=${opt_destdir:-/}	# default dir = /
-	do_check_dir -w $opt_destdir
+	destdir=${destdir:-/}	# default dir = /
+	do_check_dir -w $destdir
 
 	for ball in $args; do
 		do_extract $ball
@@ -244,8 +243,8 @@ if [ "$opt_extract" ]; then
 else
 	[ "$args" -o "$opt_all" ] || die "No arguments provided"
 
-	opt_destdir=${opt_destdir:-.}	# default dir = .
-	do_check_dir -w $opt_destdir
+	destdir=${destdir:-.}	# default dir = .
+	do_check_dir -w $destdir
 
 	# Create tmpfile and assure it's removed on exit
 	tmpfile=$(mktemp || echo /tmp/$me.$$)
@@ -256,5 +255,5 @@ else
 	done
 fi
 
-exit 0
+exit $exit_status
 

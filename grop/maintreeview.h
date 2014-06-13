@@ -65,7 +65,7 @@ class MainTreeView : public Gtk::TreeView
 	sigc::signal<void, GdkEventKey*> signal_key_press;
 	sigc::signal<void, Pkg*> signal_pkg_selected;
 
-	void set_opts();
+	void reset_opts();
 	void remove_pkg(Pkg const* const);
 
 	private:
@@ -73,6 +73,7 @@ class MainTreeView : public Gtk::TreeView
 	typedef Gtk::TreeModel::iterator iterator;
 
 	void add_columns();
+	void set_columns_visibility();
 	void fill_model();
 	void size_cell_func(Gtk::CellRenderer*, iterator const&);
 	void date_cell_func(Gtk::CellRenderer*, iterator const&);
@@ -82,6 +83,7 @@ class MainTreeView : public Gtk::TreeView
 	virtual bool on_key_press_event(GdkEventKey*);
 
 	void on_selection_changed();
+	bool on_refresh_date(iterator const&);
 
 	ModelColumns					m_columns;
 	Glib::RefPtr<Gtk::ListStore>	m_model;

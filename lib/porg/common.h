@@ -49,6 +49,8 @@ namespace Porg
 
 	extern std::string fmt_size(long size);
 	extern std::string fmt_date(time_t date, bool print_hour);
+	extern std::string strip_trailing(std::string const&, char);
+	extern std::string strip_repeated(std::string const&, char);
 	extern bool in_paths(std::string const&, std::string const&);
 
 	// convert string to numeric

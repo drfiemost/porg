@@ -16,7 +16,7 @@ porgball - Binary package support for porg(8).
 By default, \fBporgball\fR may be given one or more
 package names as arguments, and for each of those packages it creates
 a binary tarball containing all the currently
-installed files. For this to work the input packages have to be
+installed files. For this to work the packages have to be
 registered in the porg database.
 .br
 Leading slashes ('/') are stripped from the paths of the files in the
@@ -32,9 +32,6 @@ type '\fB-a -f\fR' instead.
 Mandatory arguments to long options are mandatory for short options too.
 .SH GENERAL OPTIONS
 .TP
-\fB-t, --test\fR
-Test compressed file integrity.
-.TP
 \fB-h, --help\fR
 Show usage information and exit.
 .TP
@@ -45,15 +42,22 @@ Explain what is being done.
 Print version information and exit.
 .TP
 \fB-L, --logdir\fR=\fIDIR\fR
-Porg log directory (default is '@LOGDIR@')
+Porg log directory. Default is '@LOGDIR@', unless option LOGDIR is set
+in \fBporgrc(5)\fR.
 .SH PORGBALL CREATION OPTIONS
 .TP
 \fB-a, --all\fR
 Create a porgball for each package logged in the porg database.
 .TP
 \fB-X, --exact-version\fR
-Disable expansion of package version. See the man page of \fBporg(8)\fR
-for more information.
+Disable expansion of package version.
+.br
+By default, porgball automatically expands the package names given as arguments, 
+by adding all the versions of the package that are registered in the porg 
+database.
+.br
+The option \fB-X\fR inhibits this expansion, so that package names must match 
+the basename and the whole version of a registered package.
 .TP
 \fB-d, --directory\fR=\fIDIR\fR
 Create the porgballs in directory DIR (default is '.').
@@ -79,6 +83,13 @@ An alias for -9.
 .TP
 \fB-f, --force\fR
 Force overwrite of existing output files.
+.TP
+\fB-t, --test\fR
+Test intergity of the porgball after creating it.
+.TP
+\fB-n, --no-porg-suffix\fR
+Do not append '.porg' suffix to the name of the porgballs.
+For instance, create 'foo-1.0.tar.gz' instead of 'foo-1.0.porg.tar.gz'.
 .SH PORGBALL EXTRACTION OPTIONS
 .TP
 \fB-e, --extract\fR
