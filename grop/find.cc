@@ -17,7 +17,6 @@
 #include <gtkmm/filechooserdialog.h>
 #include <glibmm/miscutils.h>	// Glib::get_home_dir()
 
-using sigc::mem_fun;
 using namespace Grop;
 
 Find* Find::s_find = 0;
@@ -32,21 +31,21 @@ Find::Find(Gtk::Window& parent)
 	set_border_width(8);
 	set_default_size(200, 200);
 	
-	Gtk::Button* button_browse = Gtk::manage(new Gtk::Button("_Browse", true));
-	button_browse->signal_clicked().connect(mem_fun(*this, &Find::browse));
+	Gtk::Button* p_button_browse = Gtk::manage(new Gtk::Button("_Browse", true));
+	p_button_browse->signal_clicked().connect(sigc::mem_fun(*this, &Find::browse));
 
-	Gtk::Grid* grid = Gtk::manage(new Gtk::Grid());
-	grid->set_column_spacing(get_border_width());
-	grid->attach(m_entry, 0, 0, 1, 1);
-	grid->attach(*button_browse, 1, 0, 1, 1);
+	Gtk::Grid* p_grid = Gtk::manage(new Gtk::Grid());
+	p_grid->set_column_spacing(get_border_width());
+	p_grid->attach(m_entry, 0, 0, 1, 1);
+	p_grid->attach(*p_button_browse, 1, 0, 1, 1);
 
-	Gtk::ScrolledWindow* scrolled_window = Gtk::manage(new Gtk::ScrolledWindow());
-	scrolled_window->add(m_treeview);
+	Gtk::ScrolledWindow* p_scrolled_window = Gtk::manage(new Gtk::ScrolledWindow());
+	p_scrolled_window->add(m_treeview);
 
-	Gtk::Box* box = get_content_area();
-	box->set_spacing(8);
-	box->pack_start(*grid, Gtk::PACK_SHRINK);
-	box->pack_start(*scrolled_window, Gtk::PACK_EXPAND_WIDGET);
+	Gtk::Box* p_box = get_content_area();
+	p_box->set_spacing(8);
+	p_box->pack_start(*p_grid, Gtk::PACK_SHRINK);
+	p_box->pack_start(*p_scrolled_window, Gtk::PACK_EXPAND_WIDGET);
 
 	add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
 	add_button(Gtk::Stock::FIND, Gtk::RESPONSE_APPLY);
@@ -103,7 +102,7 @@ void Find::find()
 	
 	int cnt = 0;
 
-	for (DB::pkg_it p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
+	for (DB::const_iter p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
 		if ((*p)->has_file(path)) {
 			if (cnt++ > 0)
 				it = m_treeview.m_model->append();

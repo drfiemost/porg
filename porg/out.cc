@@ -8,7 +8,6 @@
 
 #include "config.h"
 #include "out.h"
-#include "porg/common.h"
 #include <string>
 
 using std::string;
@@ -56,10 +55,7 @@ void Out::dbg_title(string const& title /* = "" */)
 		cnt += str.size();
 	}
 	
-	// Get screen width
-	char* columns = getenv("COLUMNS");
-	int width = columns ? str2num<int>(columns) : DEFAULT_SCREEN_WIDTH;
-	
+	int width = DEFAULT_SCREEN_WIDTH;
 	if (width > cnt)
 		cerr << string(width - cnt, '-');
 	

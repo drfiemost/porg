@@ -33,15 +33,13 @@ class FilesTreeView : public Gtk::TreeView
 
 		Gtk::TreeModelColumn<File*>			m_file_p;
 		Gtk::TreeModelColumn<Glib::ustring>	m_name;
-		Gtk::TreeModelColumn<long>			m_size;
+		Gtk::TreeModelColumn<ulong>			m_size;
 
 	};	// class FilesTreeView::ModelColumns
 
 	enum { COL_NAME, COL_SIZE, NCOLS };
 
 	public:
-
-	typedef Gtk::TreeModel::iterator iterator;
 
 	FilesTreeView(Pkg const&);
 
@@ -54,11 +52,11 @@ class FilesTreeView : public Gtk::TreeView
 	ModelColumns					m_columns;
 	Glib::RefPtr<Gtk::ListStore>	m_model;
 
-	void size_cell_func(Gtk::CellRenderer*, iterator const&);
-	void name_cell_func(Gtk::CellRenderer*, iterator const&);
+	void size_cell_func(Gtk::CellRenderer*, Gtk::TreeModel::iterator const&);
+	void name_cell_func(Gtk::CellRenderer*, Gtk::TreeModel::iterator const&);
 
-};	// class FilesTreeView
+};		// class FilesTreeView
 
-} // namespace Grop
+}		// namespace Grop
 
-#endif  // GROP_FILES_TREE_VIEW_H
+#endif	// GROP_FILES_TREE_VIEW_H

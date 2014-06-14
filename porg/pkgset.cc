@@ -315,7 +315,7 @@ bool PkgSet::Sorter::sort_by_nfiles(Pkg* left, Pkg* right) const
 	return left->nfiles() < right->nfiles();
 }
 
-inline bool PkgSet::Sorter::sort_by_date(Pkg* left, Pkg* right) const
+bool PkgSet::Sorter::sort_by_date(Pkg* left, Pkg* right) const
 {
 	return left->date() > right->date();
 }

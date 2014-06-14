@@ -12,7 +12,6 @@
 #include "config.h"
 #include <stdexcept>
 #include <iosfwd>
-#include <sstream>
 
 
 namespace Porg
@@ -49,18 +48,7 @@ namespace Porg
 	extern std::string fmt_size(ulong size);
 	extern std::string fmt_date(time_t date, bool print_hour);
 	extern std::string strip_trailing(std::string const&, char);
-	extern std::string strip_repeated(std::string const&, char);
 	extern bool in_paths(std::string const&, std::string const&);
-
-	// convert string to numeric
-	template <typename T>	// T = {int,long,unsigned,...}
-	T str2num(std::string const& s)
-	{
-		std::istringstream is(s);
-		T t;
-		is >> t;
-		return t;
-	}
 
 }		// namespace Porg
 

@@ -12,8 +12,6 @@
 #include "db.h"
 #include <glibmm/fileutils.h>	// Dir
 
-using std::string;
-
 using namespace Grop;
 
 
@@ -49,7 +47,7 @@ DB::DB()
 
 DB::~DB()
 {
-	for (pkg_it p(s_pkgs.begin()); p != s_pkgs.end(); delete *p++) ;
+	for (const_iter p(s_pkgs.begin()); p != s_pkgs.end(); delete *p++) ;
 }
 
 
@@ -65,7 +63,7 @@ void DB::remove_pkg(Pkg* pkg)
 
 	pkg->unlog();
 
-	for (pkg_it p(s_pkgs.begin()); p != s_pkgs.end(); ++p) {
+	for (iter p(s_pkgs.begin()); p != s_pkgs.end(); ++p) {
 		if (*p == pkg) {
 			s_total_size -= pkg->size();
 			s_pkgs.erase(p);

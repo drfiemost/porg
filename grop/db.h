@@ -21,8 +21,8 @@ class DB
 {
 	public:
 
-	typedef std::vector<Pkg*>::iterator			pkg_it;
-	typedef std::vector<Pkg*>::const_iterator	pkg_cit;
+	typedef std::vector<Pkg*>::iterator			iter;
+	typedef std::vector<Pkg*>::const_iterator	const_iter;
 	
 	static void init();
 

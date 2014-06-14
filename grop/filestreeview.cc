@@ -35,7 +35,7 @@ void FilesTreeView::fill_model()
 	m_model->clear();
 
 	for (uint i = 0; i < m_pkg.files().size(); ++i) {
-		iterator it = m_model->append();
+		Gtk::TreeModel::iterator it = m_model->append();
 		File* file = m_pkg.files()[i];
 		(*it)[m_columns.m_file_p] = file;
 		(*it)[m_columns.m_name] = file->name();
@@ -67,7 +67,7 @@ void FilesTreeView::add_columns()
 }
 
 
-void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, iterator const& it)
+void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iterator const& it)
 {
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
 	File* file_p = (*it)[m_columns.m_file_p];
@@ -77,7 +77,7 @@ void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, iterator const& it)
 }
 
 
-void FilesTreeView::size_cell_func(Gtk::CellRenderer* cell, iterator const& it)
+void FilesTreeView::size_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iterator const& it)
 {
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
 	File* file_p = (*it)[m_columns.m_file_p];

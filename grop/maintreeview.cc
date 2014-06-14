@@ -94,7 +94,7 @@ void MainTreeView::fill_model()
 {
 	m_model->clear();
 
-	for (DB::pkg_cit p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
+	for (DB::const_iter p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
 		iterator i = m_model->append();
 		(*i)[m_columns.m_pkg] 		= (*p);
 		(*i)[m_columns.m_name] 		= (*p)->name();

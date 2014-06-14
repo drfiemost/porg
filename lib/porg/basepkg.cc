@@ -7,16 +7,18 @@
 //=======================================================================
 
 #include "config.h"
-#include "common.h"
 #include "basepkg.h"
 #include "baseopt.h"
 #include "file.h"
 #include "rexp.h"
 #include <fstream>
 #include <algorithm>
+#include <sstream>
 
 using std::string;
 using namespace Porg;
+
+template<typename T> static T str2num(string const&);
 
 
 BasePkg::BasePkg(string const& name_, bool logged /* = true */)
@@ -165,6 +167,17 @@ string BasePkg::get_version(string const& name)
 			return name.substr(i);
 	}
 	return "";
+}
+
+
+// convert string to numeric
+template <typename T>	// T = {int,long,unsigned,...}
+T str2num(std::string const& s)
+{
+	std::istringstream is(s);
+	T t;
+	is >> t;
+	return t;
 }
 
 

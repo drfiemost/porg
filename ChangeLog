@@ -8,6 +8,7 @@ SVN
 	+ Added section 'FILE NAMES WITH SPACES' to the man page of porg.
 	  Reading it is recommended.
 	+ Removed path /etc/mtab from the default EXCLUDE.
+	+ Check file sizes at runtime.
 
 	Changes in grop:
 

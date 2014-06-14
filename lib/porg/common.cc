@@ -14,6 +14,8 @@
 
 using std::string;
 
+static string strip_repeated(string const&, char);
+
 
 //
 // Create a human readable size
@@ -98,7 +100,7 @@ bool Porg::in_paths(string const& inpath, string const& list)
 //
 // Strip consecutive repeated occurrences of character c in str.
 //
-string Porg::strip_repeated(string const& str, char c)
+string strip_repeated(string const& str, char c)
 {
 	string ret = str, cc(2, c);
 	string::size_type p;
