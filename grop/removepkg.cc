@@ -113,7 +113,7 @@ void RemovePkg::remove()
 {
 	int cnt = 1;
 
-	for (Pkg::file_it f(m_pkg.files().begin()); f != m_pkg.files().end(); ++f) {
+	for (Pkg::const_iter f(m_pkg.files().begin()); f != m_pkg.files().end(); ++f) {
 		
 		string file = (*f)->name();
 

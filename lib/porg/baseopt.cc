@@ -18,28 +18,28 @@ using namespace Porg;
 
 static string sh_expand(string const&);
 
-
-namespace Porg
-{
-	string BaseOpt::s_logdir = LOGDIR;
-	string BaseOpt::s_include = "/";
-	string BaseOpt::s_exclude = EXCLUDE;
-	string BaseOpt::s_remove_skip = string();
-}
+string BaseOpt::s_logdir		= LOGDIR;
+string BaseOpt::s_include		= "/";
+string BaseOpt::s_exclude		= EXCLUDE;
+string BaseOpt::s_remove_skip	= "";
 
 
 BaseOpt::BaseOpt()
 {
-	std::ifstream f(PORGRC);
-	if (!f)
+	std::ifstream porgrc(PORGRC);
+	assert(porgrc.is_open());
+	if (!porgrc)
 		return;
 
 	Rexp re("^([A-Z_]+)=(.*)$");
 
-	for (string buf, opt, val; getline(f, buf); ) {
+	for (string buf, opt, val; getline(porgrc, buf); ) {
+
 		if (re.exec(buf)) {
+			
 			opt = re.match(1);
 			val = re.match(2);
+			
 			if (opt == "LOGDIR")
 				s_logdir = sh_expand(val);
 			else if (opt == "INCLUDE")
@@ -55,7 +55,7 @@ BaseOpt::BaseOpt()
 
 void BaseOpt::check_logdir()
 {
-	if (in_paths(s_logdir, "/dev:/proc:/sys"))
+	if (in_paths(s_logdir, "/dev:/proc:/sys:/run"))
 		throw Error(s_logdir + ": Invalid log directory");
 }
 

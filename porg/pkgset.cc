@@ -32,7 +32,9 @@ PkgSet::PkgSet()
 :
 	vector<Pkg*>(),
 	m_total_size(0),
-	m_total_files(0)
+	m_total_files(0),
+	m_total_size_miss(0),
+	m_total_files_miss(0)
 { }
 
 
@@ -130,7 +132,7 @@ int PkgSet::get_file_size_width()
 	int size_w = Opt::print_totals() ? get_width(m_total_size) : 0;
 
 	for (iterator p(begin()); p != end(); ++p) {
-		for (Pkg::file_it f((*p)->files().begin()); f != (*p)->files().end(); ++f)
+		for (Pkg::const_iter f((*p)->files().begin()); f != (*p)->files().end(); ++f)
 			size_w = max(size_w, get_width((*f)->size()));
 	}
 
@@ -144,6 +146,8 @@ void PkgSet::get_files()
 		(*p)->get_files();
 		m_total_size += (*p)->size();
 		m_total_files += (*p)->nfiles();
+		m_total_size_miss += (*p)->size_miss();
+		m_total_files_miss += (*p)->nfiles_miss();
 	}
 }
 

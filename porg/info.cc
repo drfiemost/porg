@@ -100,15 +100,22 @@ void Info::get_info_config_log()
 
 	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
 	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
+	get_var(config, "PACKAGE_NAME", m_pkg->m_summary, false);
 	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
 	
 	// get configure options
 
+	Rexp re;
 	std::ifstream f(config.c_str());
-	if (!f)
-		return;
 
-	Rexp re("\\$[ \\t].*/configure[ \\t]+(.*)$");
+	if (f)
+		re.compile("^ *\\$ .*/configure[[:space:]]+(.*)$");
+	else {
+		f.open("configure.log");
+		if (!f)
+			return;
+		re.compile("./configure[[:space:]]+(.*)$");
+	}
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
@@ -151,8 +158,8 @@ bool Info::get_var(string const& file, string const& tag,
 	std::ifstream f(file.c_str());
 	if (!f)
 		return false;
-		
-	Rexp re(tag + "[^[:alnum:]]+([[:alnum:]].*[^\"'])", REG_ICASE & icase);
+
+	Rexp re("\\<" + tag + "\\>[^[:alnum:]]+([[:alnum:]].*[^\"'])", REG_ICASE & icase);
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
@@ -191,13 +198,17 @@ void Info::get_icon_path()
 	// Search the logged files for the path of the icon
 	
 	Rexp re2(exp, REG_ICASE);
+	bool found = false;
 
-	for (uint i(0); i < m_pkg->m_files.size(); ++i) {
+	for (uint i(0); !found && i < m_pkg->m_files.size(); ++i) {
 		if (re2.exec(m_pkg->m_files[i]->name())) {
 			path = m_pkg->m_files[i]->name();
-			if (0 == access(path.c_str(), F_OK))
-				break;
+			struct stat s;
+			found = !lstat(path.c_str(), &s);
 		}
 	}
+
+	if (!found)
+		path.clear();
 }
 

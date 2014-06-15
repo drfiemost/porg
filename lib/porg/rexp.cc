@@ -14,22 +14,28 @@ using namespace Porg;
 using std::string;
 
 
-Rexp::Rexp(string const& exp, int flags /* = 0 */)
+Rexp::Rexp(string const& exp /* = "" */, int flags /* = 0 */)
 :
 	m_regex(),
 	m_pmatch(),
 	m_str(),
 	m_matched(false),
-	m_compiled(0 == regcomp(&m_regex, exp.c_str(), REG_EXTENDED | flags))
-{ 
-	assert(m_compiled);
-}
+	m_compiled(exp.empty() ? false : compile(exp, flags))
+{ }
 
 
 Rexp::~Rexp()
 {
 	if (m_compiled)
 		regfree(&m_regex);
+}
+
+
+bool Rexp::compile(string const& exp, int flags /* = 0 */)
+{
+	m_compiled = !regcomp(&m_regex, exp.c_str(), REG_EXTENDED | flags);
+	assert(m_compiled);
+	return m_compiled;
 }
 
 

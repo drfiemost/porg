@@ -14,6 +14,9 @@
 
 namespace Porg {
 
+//
+// Common options for porg and grop, set in configuration file porgrc.
+//
 class BaseOpt
 {
 	public:

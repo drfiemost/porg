@@ -31,6 +31,8 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_date(time(0)),
 	m_size(0),
 	m_nfiles(0),
+	m_size_miss(0),
+	m_nfiles_miss(0),
 	m_icon_path(),
 	m_url(),
 	m_license(),
@@ -39,6 +41,8 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_conf_opts(),
 	m_author()
 {
+	// logged is false for packages that are being installed and are
+	// not registered in the database yet.
 	if (!logged)
 		return;
 	
@@ -50,13 +54,13 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	// read '#!porg' header or die
 	
 	if (!(getline(f, buf) && buf.find("#!porg") == 0))
-		throw Error(m_log + ": Not a porg log file");
+		throw Error(m_log + ": '#!porg' header missing");
 
 	//
-	// Read info header:
-	// Each line in header has the form '#<char>:<value>', where <char> is a single
-	// character defining the info field, and <value> is its value.
-	//	
+	// Read info header.
+	// Each line in the header has the form '#<char>:<value>', where <char> is
+	// a single character defining the info field, and <value> is its value.
+	//
 	
 	while (getline(f, buf) && buf[0] == '#') {
 
@@ -88,7 +92,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 
 BasePkg::~BasePkg()
 {
-	for (file_it f(m_files.begin()); f != m_files.end(); delete *f++) ;
+	for (iter f(m_files.begin()); f != m_files.end(); delete *f++) ;
 }
 
 
@@ -109,17 +113,26 @@ void BasePkg::get_files()
 
 	FileStream<std::ifstream> f(m_log);
 	
-	Rexp re("^(/.+)\\|(-?[0-9]+)\\|(.*)$");
+	Rexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
 
 	for (string buf; getline(f, buf); ) {
 
 		assert(buf[0] == '/' || buf[0] == '#');
-		
+
 		if (re.exec(buf)) {
+
 			fsize = str2num<ulong>(re.match(2));
-			m_files.push_back(new File(re.match(1), fsize, re.match(3)));
-			m_size += fsize;
-			m_nfiles++;
+			File* file = new File(re.match(1), fsize, re.match(3));
+			m_files.push_back(file);
+			
+			if (file->is_installed()) {
+				m_size += fsize;
+				m_nfiles++;
+			}
+			else {
+				m_size_miss += fsize;
+				m_nfiles_miss++;
+			}
 		}
 	}
 

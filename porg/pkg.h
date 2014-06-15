@@ -29,7 +29,7 @@ class Pkg : public BasePkg
 	Pkg(std::string const& name_);
 	Pkg(std::string const& name_, std::set<std::string> const& files);
 	
-	void unlog() const;
+	void unlog(bool ask = true) const;
 	bool remove(PkgSet const&);
 	void print_conf_opts(bool print_pkg_name) const;
 	void print_info() const;

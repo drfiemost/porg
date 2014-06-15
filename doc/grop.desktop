@@ -5,6 +5,6 @@ GenericName=Package Organizer
 Comment=Manages software installed from source code
 Exec=grop
 Icon=/usr/share/pixmaps/grop.png
-StartupNotify=false
+StartupNotify=true
 Terminal=false
 Categories=System;PackageManager;Settings;GTK;

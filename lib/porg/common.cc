@@ -52,7 +52,7 @@ string Porg::fmt_date(time_t date, bool print_hour)
 
 	if (date && (t = localtime(&date))
 		&& strftime(str, sizeof(str) - 1, fmt.c_str(), t))
-		return string(str);
+		return str;
 	else
 		// if date == 0, or an error occurs, return a string
 		// of whitespaces with the proper length

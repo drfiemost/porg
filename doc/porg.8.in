@@ -154,7 +154,8 @@ Remove a package, keeping the shared files and asking for confirmation by
 default.
 .TP
 \fB-b, --batch\fR
-Don't prompt for confirmation when removing (and assume yes to all questions).
+Don't prompt for confirmation when removing or unlogging (and assume yes 
+to all questions).
 .TP
 \fB-e, --skip\fR=\fIPATH1:PATH2:...\fR
 Colon-separated list of paths to skip when removing a package. 

@@ -20,11 +20,12 @@ class Rexp
 {
 	public:
 
-	Rexp(std::string const& exp, int flags = 0);
+	Rexp(std::string const& exp = "", int flags = 0);
 	~Rexp();
 
+	bool compile(std::string const& exp, int flags = 0);
 	bool exec(std::string const&);
-	std::string match(int = 0);
+	std::string match(int);
 		
 	private:
 
@@ -34,7 +35,7 @@ class Rexp
 	regmatch_t	m_pmatch[MAX_MATCHES];
 	std::string	m_str;
 	bool		m_matched;
-	bool const	m_compiled;
+	bool 		m_compiled;
 };
 
 }

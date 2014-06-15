@@ -29,7 +29,7 @@ class File
 
 	private:
 
-	std::string m_name;
+	std::string const m_name;
 	ulong m_size;
 	bool m_installed;
 	

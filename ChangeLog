@@ -9,6 +9,9 @@ SVN
 	  Reading it is recommended.
 	+ Removed path /etc/mtab from the default EXCLUDE.
 	+ Check file sizes at runtime.
+	+ Search package info in configure.log if config.log is not found.
+	+ Ask the user when unlogging a package (option -U), unless option -b
+	  is enabled.
 
 	Changes in grop:
 

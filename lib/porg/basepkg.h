@@ -11,7 +11,7 @@
 
 #include "config.h"
 #include "common.h"
-#include <string>
+#include <iosfwd>
 #include <vector>
 
 
@@ -23,8 +23,8 @@ class BasePkg
 {
 	public:
 
-	typedef std::vector<File*>::iterator 		file_it;
-	typedef std::vector<File*>::const_iterator 	file_cit;
+	typedef std::vector<File*>::iterator 		iter;
+	typedef std::vector<File*>::const_iterator 	const_iter;
 
 	// codes used to identify fields in the header of log files
 	
@@ -42,12 +42,13 @@ class BasePkg
 	virtual ~BasePkg();
 
 	std::vector<File*> const& files() const	{ return m_files; }
-	std::vector<File*>& files()				{ return m_files; }
 	int date() const						{ return m_date; }
 	ulong size() const						{ return m_size; }
+	ulong nfiles() const					{ return m_nfiles; }
+	ulong size_miss() const					{ return m_size_miss; }
+	ulong nfiles_miss() const				{ return m_nfiles_miss; }
 	std::string const& name() const			{ return m_name; }
 	std::string const& log() const			{ return m_log; }
-	ulong nfiles() const						{ return m_nfiles; }
 	std::string const& base_name() const	{ return m_base_name; }
 	std::string const& version() const		{ return m_version; }
 	std::string const& icon_path() const	{ return m_icon_path; }
@@ -89,6 +90,8 @@ class BasePkg
 	int m_date;
 	ulong m_size;
 	ulong m_nfiles;
+	ulong m_size_miss;
+	ulong m_nfiles_miss;
 	std::string m_icon_path;
 	std::string m_url;
 	std::string m_license;
@@ -97,7 +100,7 @@ class BasePkg
 	std::string m_conf_opts;
 	std::string m_author;
 
-	// This nested class is used to sort the files of the package
+
 	class Sorter
 	{
 		public:

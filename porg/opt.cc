@@ -378,7 +378,7 @@ cout <<
 "  -q, --query              Query for the packages that own one or more files.\n\n"
 "Remove options:\n"
 "  -r, --remove             Remove the (non shared) files of the package.\n"
-"  -b, --batch              Do not ask for confirmation when removing.\n"
+"  -b, --batch              Do not ask for confirmation when removing or unlogging\n"
 "  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n"
 "  -U, --unlog              Unlog the package, without removing any file.\n\n"
 "Log options:\n"

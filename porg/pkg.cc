@@ -26,6 +26,7 @@ using std::set;
 using namespace Porg;
 
 static void remove_parent_dir(string const& path);
+static bool ask_user(string const& question);
 
 
 //
@@ -144,7 +145,7 @@ void Pkg::write_log() const
 
 	// write installed files
 	
-	for (file_cit f(m_files.begin()); f != m_files.end(); ++f)
+	for (const_iter f(m_files.begin()); f != m_files.end(); ++f)
 		of << (*f)->name() << '|' << (*f)->size() << '|' << (*f)->ln_name() << '\n';
 }
 
@@ -182,10 +183,14 @@ void Pkg::append(set<string> const& files_)
 }
 
 
-void Pkg::unlog() const
+void Pkg::unlog(bool ask /* = true */) const
 {
+	if (ask && !Opt::remove_batch()
+	&& !ask_user("Remove package '" + m_name + "' from database (y/N) ? "))
+		return;
+
 	try 
-	{ 
+	{
 		BasePkg::unlog(); 
 		Out::vrb("Package '" + m_name + "' removed from database\n");
 	}
@@ -218,7 +223,7 @@ void Pkg::list_files(int size_w)
 	if (!Opt::print_no_pkg_name())
 		cout << m_name << ":\n";
 
-	for (file_it f(m_files.begin()); f != m_files.end(); ++f) {
+	for (const_iter f(m_files.begin()); f != m_files.end(); ++f) {
 		
 		if (Opt::print_sizes())
 			cout << setw(size_w) << fmt_size((*f)->size()) << "  ";
@@ -235,14 +240,10 @@ void Pkg::list_files(int size_w)
 
 bool Pkg::remove(PkgSet const& pset)
 {
-	if (!Opt::remove_batch()) {
-		cout << "Remove package '" << m_name << "' (y/N) ? ";
-		string buf;
-		if (!(getline(std::cin, buf) && (buf == "y" || buf == "yes")))
-			return false;
-	}
+	if (!Opt::remove_batch() && !ask_user("Remove package '" + m_name + "' (y/N) ? "))
+		return false;
 
-	for (file_it f(m_files.begin()); f != m_files.end(); ++f) {
+	for (iter f(m_files.begin()); f != m_files.end(); ++f) {
 
 		// skip excluded
 		if (in_paths((*f)->name(), Opt::remove_skip()))
@@ -263,7 +264,7 @@ bool Pkg::remove(PkgSet const& pset)
 			throw Error("unlink(" + (*f)->name() + ")", errno);
 	}
 
-	unlog();
+	unlog(false);
 
 	return true;
 }
@@ -285,5 +286,13 @@ static void remove_parent_dir(string const& path)
 			remove_parent_dir(dir);
 		}
 	}
+}
+
+
+bool ask_user(string const& question)
+{
+	cout << question;
+	string buf;
+	return getline(std::cin, buf) && (buf == "y" || buf == "Y" || buf == "yes");
 }
 

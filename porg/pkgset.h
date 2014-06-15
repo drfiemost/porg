@@ -62,6 +62,8 @@ class PkgSet : public std::vector<Pkg*>
 
 	ulong m_total_size;
 	ulong m_total_files;
+	ulong m_total_size_miss;
+	ulong m_total_files_miss;
 
 };		// class PkgSet
 
