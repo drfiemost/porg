@@ -21,19 +21,8 @@ Porg::File::File(string const& name_, ulong size_, string const& ln_name_ /* = "
 :
 	m_name(name_),
 	m_size(size_),
-	m_installed(),
 	m_ln_name(ln_name_)
-{
-	// Just need to check for file existence here.
-
-	struct stat s;
-
-	m_installed = !lstat(m_name.c_str(), &s);
-	
-	// TODO: update size
-	// m_size = m_installed ? s.st_size : size_;
-	// TODO: write new size to the log
-}
+{ }
 
 
 //
@@ -44,7 +33,6 @@ Porg::File::File(string const& name_)
 :
 	m_name(name_),
 	m_size(0),
-	m_installed(false),
 	m_ln_name()
 {
 	struct stat s;
@@ -61,7 +49,6 @@ Porg::File::File(string const& name_)
 		}
 	}
 
-	m_installed = true;
 	m_size = s.st_size;
 }
 

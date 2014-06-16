@@ -11,9 +11,8 @@ bin_SCRIPTS = \
 	porgball
 
 install-exec-local:
-	test -f /etc/bash_completion && \
-		$(mkinstalldirs) /etc/bash_completion.d && \
-		$(INSTALL_DATA) porg_bash_completion /etc/bash_completion.d
+		$(mkinstalldirs) $(DESTDIR)$(sysconfdir)/bash_completion.d && \
+		$(INSTALL_DATA) porg_bash_completion $(DESTDIR)$(sysconfdir)/bash_completion.d
 
 logme_files = \
 	$(DESTDIR)$(sysconfdir)/bash_completion.d/porg_bash_completion \

@@ -56,20 +56,49 @@ Display a help message and exit.
 .TP
 \fB-V, --version\fR
 Display version information and exit.
-.SH PACKAGE INFORMATION OPTIONS
+
+.SH GENERAL LIST OPTIONS
+These options can be used to list packages or files.
 .TP
 \fB-a, --all\fR
 Apply to all installed packages.
 .TP
+\fB-s, --size\fR
+Print the size of each package or file.
+.TP
+\fB-S, --sort\fR=\fIWORD\fR
+Sort the list by WORD: When listing files, meaningful values for WORD
+are: 'name' and 'size'. When listing packages, WORD may be
+also: 'date' (or 'time') and 'files'.
+.TP
+\fB-R, --reverse\fR
+Reverse order while sorting.
+.TP
+\fB-t, --total\fR
+Print totals at the bottom of the list, when appliable.
+.TP
+\fB-z, --no-package-name\fR
+Do not print the name of the package when listing. Useful for scripts.
+
+.SH PACKAGE LIST OPTIONS
+.TP
+\fB-F, --nfiles\fR
+Print the number of installed files.
+.TP
 \fB-d, --date\fR
 Print the installation date of the package. Double it ('\fB-dd\fR') to print
 also the hour.
+
+.SH FILE LIST OPTIONS
 .TP
 \fB-f, --files\fR
 List the files installed by the package.
 .TP
-\fB-F\fR
-Print the number of installed files.
+\fB-y, --symlinks\fR
+Print the contents of symbolic links.
+
+.SH PACKAGE INFORMATION OPTIONS
+Only one of these options may be used at once.
 .TP
 \fB-i, --info\fR
 Print package information (like summary, author, URL...), if available.
@@ -80,27 +109,8 @@ to the 'configure' script when the package was built.
 .TP
 \fB-q, --query\fR
 Query for the packages that own the files specified as arguments.
-.TP
-\fB-R, --reverse\fR
-Reverse order while sorting.
-.TP
-\fB-s, --size\fR
-Print the size of each package or file.
-.TP
-\fB-S, --sort\fR=\fIWORD\fR
-Sort the list by WORD: When listing files, meaningful values for WORD
-are: 'name' and 'size'. When listing packages, WORD may be
-also: 'date' (or 'time') and 'files'.
-.TP
-\fB-t, --total\fR
-Print totals at the bottom of the list, when appliable.
-.TP
-\fB-y, --symlinks\fR
-With \fB-f\fR, print the contents of symbolic links.
-.TP
-\fB-z, --no-package-name\fR
-With \fB-f\fR, do not print the name of the package. Useful for scripts.
-.SH LOG OPTIONS
+
+.SH PACKAGE LOG OPTIONS
 .TP
 \fB-l, --log\fR
 Enable log mode. If a shell command is given as argument, execute
@@ -147,7 +157,8 @@ option, porg registers also the missing files.
 \fB-+, --append\fR
 With \fB-p\fR or \fB-D\fR, if the package is already logged, append the list
 of created files to its log.
-.SH REMOVE OPTIONS
+
+.SH PACKAGE REMOVE OPTIONS
 .TP
 \fB-r, --remove\fR
 Remove a package, keeping the shared files and asking for confirmation by
@@ -257,6 +268,9 @@ you haven't logged the installation with porg. No problem! Just create a log
 for it thusly:
 .PP
     find /opt/boo-1.9 | porg -lp boo-1.9
+.PP
+By the way, porg internally converts all package names to lower case; 'FooBar'
+and 'foobar' are the same package.
 
 .SH BUGS
 Due to LD_PRELOAD limitations, porg can't follow the trace of suid programs.

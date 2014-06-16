@@ -33,8 +33,12 @@ Rexp::~Rexp()
 
 bool Rexp::compile(string const& exp, int flags /* = 0 */)
 {
+	if (m_compiled)
+		regfree(&m_regex);
+
 	m_compiled = !regcomp(&m_regex, exp.c_str(), REG_EXTENDED | flags);
 	assert(m_compiled);
+	
 	return m_compiled;
 }
 

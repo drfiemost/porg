@@ -214,6 +214,11 @@ Opt::Opt(int argc, char* argv[])
 				s_print_sizes = true;
 				break;
 
+			case OPT_NO_PACKAGE_NAME:
+				check_mode(MODE_LIST_FILES | MODE_LIST_PKGS, c);
+				s_print_no_pkg_name = true;
+				break;
+			
 			case OPT_DATE:
 				check_mode(MODE_LIST_PKGS, c);
 				s_print_hour = s_print_date; 
@@ -230,11 +235,6 @@ Opt::Opt(int argc, char* argv[])
 				s_print_symlinks = true;
 				break;
 
-			case OPT_NO_PACKAGE_NAME:
-				check_mode(MODE_LIST_FILES, c);
-				s_print_no_pkg_name = true;
-				break;
-			
 			case OPT_SKIP:
 				check_mode(MODE_REMOVE, c);
 				s_remove_skip = optarg; 
@@ -304,8 +304,11 @@ Opt::Opt(int argc, char* argv[])
 			// no break here
 
 		default:
-			if (!(s_print_sizes || s_print_nfiles))
+			if (!(s_print_sizes || s_print_nfiles)) {
 				s_print_totals = false;
+				if (s_mode == MODE_LIST_PKGS && s_print_no_pkg_name && !s_print_date)
+					die_help("Option '-z|--no-package-name' requires at least any of '-sdfF'");
+			}
 
 			if (s_args.empty() && !s_all_pkgs)
 				die_help("No input packages");
@@ -361,27 +364,30 @@ cout <<
 "  -x, --exact-version      Do not expand version of packages given as arguments.\n"
 "  -h, --help               Display this help message.\n"
 "  -V, --version            Display version information.\n\n"
-"Package information options:\n"
+"General list options:\n"
 "  -a, --all                Apply to all logged packages (not with -r or -U).\n"
 "  -s, --size               Print the installed size of each package or file.\n"
-"  -d, --date               Print the installation day (-dd prints the hour too).\n"
-"  -F, --nfiles             Print the number of installed files.\n"
 "  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n"
 "  -R, --reverse            Reverse order while sorting.\n"
 "  -t, --total              Print totals.\n"
-"  -f, --files              List installed files.\n"
-"  -z, --no-package-name    Don't print the name of the package (with -f).\n"
-"  -y, --symlinks           Print the contents of symbolic links (with -f).\n"
+"  -z, --no-package-name    Don't print the name of the package.\n\n"
+"Package list options:\n"
+"  -d, --date               Print the installation day (-dd prints the hour too).\n"
+"  -F, --nfiles             Print the number of installed files.\n\n"
+"File list options:\n"
+"  -f, --files              List the files installed by the package.\n"
+"  -y, --symlinks           Print the contents of symbolic links.\n\n"
+"Package information options:\n"
 "  -i, --info               Print package information.\n"
 "  -o, --configure-options  Print the arguments passed to configure when the\n"
 "                           package was installed.\n"
 "  -q, --query              Query for the packages that own one or more files.\n\n"
-"Remove options:\n"
+"Package remove options:\n"
 "  -r, --remove             Remove the (non shared) files of the package.\n"
 "  -b, --batch              Do not ask for confirmation when removing or unlogging\n"
 "  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n"
 "  -U, --unlog              Unlog the package, without removing any file.\n\n"
-"Log options:\n"
+"Package log options:\n"
 "  -l, --log                Enable log mode. See the man page.\n"
 "  -p, --package=PKG        Name of the package to be logged.\n" 
 "  -D, --dirname            Use the name of the current directory as the name\n"

@@ -31,9 +31,6 @@ class Info
 	void get_info_pc();
 	void get_info_desktop();
 	void get_info_config_log();
-	bool get_var(std::string const&, std::string const&,
-	             std::string&, bool icase = true) const;
-	std::string search_file(std::string const&) const;
 
 };	// class Info
 

@@ -165,7 +165,7 @@ void Log::get_tmpfile()
 
 //
 // Convert input files to absolute paths, skip excluded or not included
-// files, and skip missing files or directories
+// files, and skip non-regular or missing files.
 //
 void Log::filter_files()
 {
@@ -188,11 +188,8 @@ void Log::filter_files()
 		else if (lstat(path.c_str(), &s) && !Opt::log_missing())
 			continue;
 
-		// skip directories
-		else if (S_ISDIR(s.st_mode))
-			continue;
-
-		aux.push_back(path);
+		else if (s.st_mode & (S_IFREG | S_IFLNK))
+			aux.push_back(path);
 	}
 
 	m_files.clear();

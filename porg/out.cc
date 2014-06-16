@@ -14,12 +14,8 @@ using std::string;
 using std::cerr;
 using namespace Porg;
 
+int Out::s_verbosity = QUIET;
 
-namespace Porg
-{
-	int Out::s_verbosity = QUIET;
-}
-	
 
 void Out::vrb(string const& msg, int errno_ /* = 0 */)
 {

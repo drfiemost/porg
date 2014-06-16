@@ -19,6 +19,10 @@
 using std::string;
 using namespace Porg;
 
+static void get_var(string const&, string const&, string&);
+static void get_define(string const&, string const&, string&);
+static string search_file(string const&);
+
 
 Info::Info(Pkg* pkg)
 :
@@ -30,8 +34,8 @@ Info::Info(Pkg* pkg)
 
 	get_info_config_log();
 	get_info_pc();
-	get_info_spec();
 	get_info_desktop();
+	get_info_spec();
 
 	get_icon_path();
 }
@@ -98,10 +102,10 @@ void Info::get_info_config_log()
 {
 	string config("config.log");
 
-	get_var(config, "PACKAGE_URL", m_pkg->m_url, false);
-	get_var(config, "PACKAGE_BUGREPORT", m_pkg->m_author, false);
-	get_var(config, "PACKAGE_NAME", m_pkg->m_summary, false);
-	get_var(config, "PACKAGE_STRING", m_pkg->m_summary, false);
+	get_define(config, "PACKAGE_URL", m_pkg->m_url);
+	get_define(config, "PACKAGE_BUGREPORT", m_pkg->m_author);
+	get_define(config, "PACKAGE_NAME", m_pkg->m_summary);
+	get_define(config, "PACKAGE_STRING", m_pkg->m_summary);
 	
 	// get configure options
 
@@ -123,52 +127,6 @@ void Info::get_info_config_log()
 			break;
 		}
 	}
-}
-
-
-string Info::search_file(string const& name) const
-{
-	Out::dbg("searching for " + name);
-	
-	glob_t g;
-	memset(&g, 0, sizeof(g));
-	
-	string file;
-	string patt[3] = { name, "*/" + name, "*/*/" + name };
-
-	for (int i = 0; i < 3 && file.empty(); ++i) {
-		if (0 == glob(patt[i].c_str(), 0, 0, &g) && g.gl_pathc)
-			file = g.gl_pathv[0];
-	}
-
-	globfree(&g);
-
-	if (file.empty())
-		Out::dbg("\t(not found)\n", false);
-	else
-		Out::dbg("\t" + file + "\n", false);
-		
-	return file;
-}
-
-
-bool Info::get_var(string const& file, string const& tag,
-                   string& val, bool icase /* = false */) const
-{
-	std::ifstream f(file.c_str());
-	if (!f)
-		return false;
-
-	Rexp re("\\<" + tag + "\\>[^[:alnum:]]+([[:alnum:]].*[^\"'])", REG_ICASE & icase);
-
-	for (string buf; getline(f, buf); ) {
-		if (re.exec(buf)) {
-			val = re.match(1);
-			return true;
-		}
-	}
-
-	return false;
 }
 
 
@@ -210,5 +168,65 @@ void Info::get_icon_path()
 
 	if (!found)
 		path.clear();
+}
+
+
+void get_var(string const& file, string const& tag, string& val)
+{
+	std::ifstream f(file.c_str());
+	if (!f)
+		return;
+
+	Rexp re("^" + tag + "[[:space:]:=]+(.*)$", REG_ICASE);
+
+	for (string buf; getline(f, buf); ) {
+		if (re.exec(buf)) {
+			val = re.match(1);
+			break;
+		}
+	}
+}
+
+
+void get_define(string const& file, string const& tag, string& val)
+{
+	std::ifstream f(file.c_str());
+	if (!f)
+		return;
+
+	Rexp re("^[[:space:]]*#define[[:space:]]+" + tag + "[[:space:]\"]+(.*[^\"])");
+
+	for (string buf; getline(f, buf); ) {
+		if (re.exec(buf)) {
+			val = re.match(1);
+			break;
+		}
+	}
+}
+
+
+string search_file(string const& name)
+{
+	Out::dbg("searching for " + name);
+	
+	glob_t g;
+	memset(&g, 0, sizeof(g));
+	
+	string file;
+	string patt[3] = { name, "*/" + name, "*/*/" + name };
+
+	for (int i = 0; i < 3 && file.empty(); ++i) {
+		if (0 == glob(patt[i].c_str(), 0, 0, &g) && g.gl_pathc)
+			file = g.gl_pathv[0];
+	}
+
+	globfree(&g);
+
+	if (file.empty())
+		Out::dbg("\t(not found)\n", false);
+	else
+		Out::dbg("\t" + file + "\n", false);
+		
+	return file;
 }
 

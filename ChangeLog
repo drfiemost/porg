@@ -1,25 +1,29 @@
-SVN
----
+Version 0.6 (16 June 2014)
+--------------------------
 
 	Changes in porg:
 
 	+ Bugfix: porg erroniously complained about command line option
-	  incompatibility when some options were doubled (like in -rr).
-	+ Added section 'FILE NAMES WITH SPACES' to the man page of porg.
+	  incompatibility when some options were doubled (like in '-rr').
+	+ Improved the man page and usage output of porg, organizing options by
+	  groups. Added a new section 'FILE NAMES WITH SPACES' to the man page. 
 	  Reading it is recommended.
 	+ Removed path /etc/mtab from the default EXCLUDE.
-	+ Check file sizes at runtime.
 	+ Search package info in configure.log if config.log is not found.
 	+ Ask the user when unlogging a package (option -U), unless option -b
 	  is enabled.
 
 	Changes in grop:
 
+	+ New icon.
+
 	Changes in scripts:
 
 	+ New command line options --no-porg-suffix and --logdir for porgball.
 	+ Let porgball extract files from ordinary tarballs (without suffix
 	  '.porg' in their names).
+	+ Honour DESTDIR when installing porg_bash_completion (thanks Veeti
+	  Paananen).
 
 
 Version 0.5 (11 June 2014)

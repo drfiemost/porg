@@ -29,6 +29,8 @@ class BasePkg
 	// codes used to identify fields in the header of log files
 	
 	static char const CODE_DATE			= 't';
+	static char const CODE_SIZE			= 's';
+	static char const CODE_NFILES		= 'f';
 	static char const CODE_CONF_OPTS	= 'c';
 	static char const CODE_ICON_PATH	= 'i';
 	static char const CODE_SUMMARY		= 'S';
@@ -45,8 +47,6 @@ class BasePkg
 	int date() const						{ return m_date; }
 	ulong size() const						{ return m_size; }
 	ulong nfiles() const					{ return m_nfiles; }
-	ulong size_miss() const					{ return m_size_miss; }
-	ulong nfiles_miss() const				{ return m_nfiles_miss; }
 	std::string const& name() const			{ return m_name; }
 	std::string const& log() const			{ return m_log; }
 	std::string const& base_name() const	{ return m_base_name; }
@@ -90,8 +90,6 @@ class BasePkg
 	int m_date;
 	ulong m_size;
 	ulong m_nfiles;
-	ulong m_size_miss;
-	ulong m_nfiles_miss;
 	std::string m_icon_path;
 	std::string m_url;
 	std::string m_license;

@@ -31,8 +31,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_date(time(0)),
 	m_size(0),
 	m_nfiles(0),
-	m_size_miss(0),
-	m_nfiles_miss(0),
 	m_icon_path(),
 	m_url(),
 	m_license(),
@@ -74,6 +72,8 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 		switch (buf[1]) {
 
 			case CODE_DATE: 		m_date = str2num<int>(val);		break;
+			case CODE_SIZE:			m_size = str2num<ulong>(val);	break;
+			case CODE_NFILES:		m_nfiles = str2num<ulong>(val);	break;
 			case CODE_CONF_OPTS:	m_conf_opts = val; 				break;
 			case CODE_ICON_PATH:	m_icon_path = val;				break;
 			case CODE_SUMMARY: 		m_summary = val; 				break;
@@ -120,19 +120,8 @@ void BasePkg::get_files()
 		assert(buf[0] == '/' || buf[0] == '#');
 
 		if (re.exec(buf)) {
-
 			fsize = str2num<ulong>(re.match(2));
-			File* file = new File(re.match(1), fsize, re.match(3));
-			m_files.push_back(file);
-			
-			if (file->is_installed()) {
-				m_size += fsize;
-				m_nfiles++;
-			}
-			else {
-				m_size_miss += fsize;
-				m_nfiles_miss++;
-			}
+			m_files.push_back(new File(re.match(1), fsize, re.match(3)));
 		}
 	}
 

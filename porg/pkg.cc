@@ -135,6 +135,8 @@ void Pkg::write_log() const
 
 	of	<< "#!porg-" PACKAGE_VERSION "\n"
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
+		<< '#' << CODE_SIZE			<< ':' << m_size << '\n'
+		<< '#' << CODE_NFILES		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
 		<< '#' << CODE_SUMMARY		<< ':' << Porg::strip_trailing(m_summary, '.') << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'
@@ -212,7 +214,10 @@ void Pkg::list(int size_w, int nfiles_w) const
 	if (Opt::print_date())
 		cout << fmt_date(m_date, Opt::print_hour()) << "  ";
 
-	cout << m_name << '\n';
+	if (!Opt::print_no_pkg_name())
+		cout << m_name;
+	
+	cout << '\n';
 }
 
 

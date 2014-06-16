@@ -32,9 +32,7 @@ PkgSet::PkgSet()
 :
 	vector<Pkg*>(),
 	m_total_size(0),
-	m_total_files(0),
-	m_total_size_miss(0),
-	m_total_files_miss(0)
+	m_total_files(0)
 { }
 
 
@@ -97,6 +95,8 @@ bool PkgSet::add_pkg(string const& name)
 	{
 		Pkg* pkg = new Pkg(name);
 		push_back(pkg);
+		m_total_size += pkg->size();
+		m_total_files += pkg->nfiles();
 		return true;
 	}
 	catch (...) 
@@ -142,13 +142,7 @@ int PkgSet::get_file_size_width()
 
 void PkgSet::get_files()
 {
-	for (iterator p(begin()); p != end(); ++p) {
-		(*p)->get_files();
-		m_total_size += (*p)->size();
-		m_total_files += (*p)->nfiles();
-		m_total_size_miss += (*p)->size_miss();
-		m_total_files_miss += (*p)->nfiles_miss();
-	}
+	for (iterator p(begin()); p != end(); (*p++)->get_files()) ;
 }
 
 
@@ -204,13 +198,14 @@ void PkgSet::remove()
 	
 	get_files();
 
-	PkgSet all;
-	all.get_all_pkgs();
-	all.get_files();
+	// aux. PkgSet to check for shared files
+	PkgSet aux;
+	aux.get_all_pkgs();
+	aux.get_files();
 
 	for (iterator p(begin()); p != end(); ++p) {
-		if ((*p)->remove(all))
-			all.del_pkg((*p)->name());
+		if ((*p)->remove(aux))
+			aux.del_pkg((*p)->name());
 	}
 }
 
@@ -228,9 +223,6 @@ void PkgSet::del_pkg(string const& name)
 
 void PkgSet::list()
 {
-	if (Opt::print_sizes() || Opt::print_nfiles())
-		get_files();
-
 	// sort list of packages
 	
 	std::sort(begin(), end(), Sorter(Opt::sort_type()));

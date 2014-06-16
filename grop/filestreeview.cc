@@ -73,7 +73,13 @@ void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iter
 	File* file_p = (*it)[m_columns.m_file_p];
 	
 	// Print missing files in red
-	cell_text->property_foreground() = file_p->is_installed() ? "black" : "red";
+	
+	struct stat s;
+
+	if (!lstat(file_p->name().c_str(), &s))
+		cell_text->property_foreground() = "black";
+	else
+		cell_text->property_foreground() = "red";
 }
 
 
@@ -82,7 +88,13 @@ void FilesTreeView::size_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iter
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
 	File* file_p = (*it)[m_columns.m_file_p];
 	
-	cell_text->property_foreground() = file_p->is_installed() ? "black" : "red";
+	struct stat s;
+
+	if (!lstat(file_p->name().c_str(), &s))
+		cell_text->property_foreground() = "black";
+	else
+		cell_text->property_foreground() = "red";
+
 	cell_text->property_text() = Porg::fmt_size(file_p->size());
 }
 
