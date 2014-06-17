@@ -39,19 +39,30 @@ grop_apps_DATA = \
 	grop.desktop
 
 grop_appsdir = \
-	$(datadir)/applications
+	$(DESTDIR)$(datadir)/applications
 	
 grop_icons_DATA = \
 	grop.png
 
 grop_iconsdir = \
-	$(datadir)/pixmaps
+	$(DESTDIR)$(datadir)/pixmaps
 
 logme_files += \
 	$(DESTDIR)$(grop_appsdir)/grop.desktop \
 	$(DESTDIR)$(grop_iconsdir)/grop.png
 
+porg_icon_path = \
+	$(DESTDIR)$(grop_iconsdir)/grop.png
+
+else
+
+porg_icon_path = \
+	$(DESTDIR)$(pkgdatadir)/porg.png
+
 endif
+
+logdir = \
+    $(DESTDIR)@LOGDIR@
 
 install-data-local: porgrc
 	rc_dir="$(DESTDIR)$(sysconfdir)"; \
@@ -59,7 +70,8 @@ install-data-local: porgrc
 	( test -f $$rc_dir/porgrc || $(INSTALL_DATA) porgrc $$rc_dir/porgrc )
 
 logme:
-	ls $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION)
+	ls $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION) && \
+	sed -i "s|^#i:.*|#i:$(porg_icon_path)|" $(logdir)/porg-$(PACKAGE_VERSION)
 
 web: index.html
 	scp $< davidrr,porg@web.sourceforge.net:htdocs/

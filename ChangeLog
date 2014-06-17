@@ -1,3 +1,16 @@
+SVN
+---
+
+	+ Added some missing $(DESTDIR) in Makefiles.
+	+ New package info field "Bug report".
+
+	Changes in porg:
+
+	+ Make option -U require -r.
+	+ Check for option requirements.
+	+ Added short option -j for --log-missing.
+
+
 Version 0.6 (16 June 2014)
 --------------------------
 

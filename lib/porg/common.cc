@@ -69,8 +69,6 @@ string Porg::fmt_date(time_t date, bool print_hour)
 //
 bool Porg::in_paths(string const& inpath, string const& list)
 {
-	assert(inpath[0] == '/');
-
 	std::istringstream s(list + ":");
 	string path = strip_trailing(inpath, '/');
 

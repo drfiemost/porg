@@ -1,13 +1,13 @@
 //=======================================================================
-// pkgset.h
+// db.h
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
-#ifndef PORG_PKGSET_H
-#define PORG_PKGSET_H
+#ifndef PORG_DB_H
+#define PORG_DB_H
 
 #include "config.h"
 #include "porg/common.h"	// sort_t
@@ -18,20 +18,20 @@ namespace Porg {
 
 class Pkg;
 
-class PkgSet : public std::vector<Pkg*>
+class DB : public std::vector<Pkg*>
 {
 	public:
 
-	PkgSet();
-	~PkgSet();
+	DB();
+	~DB();
 
-	int get_pkgs(std::vector<std::string> const& args);
+	void get_pkgs(std::vector<std::string> const& args);
 	void get_all_pkgs();
 
 	void list();
 	void list_files();
 	void print_conf_opts() const;
-	int query();
+	void query();
 	void remove();
 	void print_info() const;
 
@@ -58,13 +58,13 @@ class PkgSet : public std::vector<Pkg*>
 		bool sort_by_nfiles(Pkg* left, Pkg* right) const;
 		bool sort_by_date(Pkg* left, Pkg* right) const;
 
-	};	// class PkgSet::Sorter
+	};	// class DB::Sorter
 
 	ulong m_total_size;
 	ulong m_total_files;
 
-};		// class PkgSet
+};		// class DB
 
 }		// namespace Porg
 
-#endif  // PORG_PKGSET_H
+#endif  // PORG_DB_H

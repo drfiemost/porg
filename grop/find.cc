@@ -103,7 +103,7 @@ void Find::find()
 	int cnt = 0;
 
 	for (DB::const_iter p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
-		if ((*p)->has_file(path)) {
+		if ((*p)->find_file(path)) {
 			if (cnt++ > 0)
 				it = m_treeview.m_model->append();
 			(*it)[m_treeview.m_columns.m_name] = (*p)->name();

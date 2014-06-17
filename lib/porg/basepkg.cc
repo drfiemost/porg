@@ -37,7 +37,8 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_summary(),
 	m_description(),
 	m_conf_opts(),
-	m_author()
+	m_author(),
+	m_bug_report()
 {
 	// logged is false for packages that are being installed and are
 	// not registered in the database yet.
@@ -80,6 +81,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 			case CODE_URL: 			m_url = val; 					break;
 			case CODE_LICENSE: 		m_license = val; 				break;
 			case CODE_AUTHOR: 		m_author = val;					break;
+			case CODE_BUG_REPORT:	m_bug_report = val;				break;
 			case CODE_DESCRIPTION:
 				if (!m_description.empty())
 					m_description += "\n";
@@ -129,17 +131,17 @@ void BasePkg::get_files()
 }
 
 
-bool BasePkg::has_file(File* file) const
+bool BasePkg::find_file(File* file) const
 {
 	assert(file != 0);
 	return std::binary_search(m_files.begin(), m_files.end(), file, Sorter());
 }
 
 
-bool BasePkg::has_file(string const& path) const
+bool BasePkg::find_file(string const& path) const
 {
 	File file(path, 0);
-	return has_file(&file);
+	return find_file(&file);
 }
 
 

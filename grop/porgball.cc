@@ -270,6 +270,7 @@ bool Grop::Porgball::create_porgball()
 
 	if (!spawn(argv)) {
 		unlink(tarfile.c_str());
+		unlink(zipfile.c_str());
 		return false;
 	}
 

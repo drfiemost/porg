@@ -10,8 +10,8 @@
 #include "pkg.h"
 #include "out.h"
 #include "opt.h"
-#include "pkgset.h"
-#include "info.h"
+#include "db.h"
+#include "main.h"			// g_exit_status
 #include "porg/common.h"	// in_paths(), strip_trailing()
 #include "porg/file.h"
 #include <string>
@@ -26,7 +26,6 @@ using std::set;
 using namespace Porg;
 
 static void remove_parent_dir(string const& path);
-static bool ask_user(string const& question);
 
 
 //
@@ -50,28 +49,22 @@ Pkg::Pkg(string const& name_, set<string> const& files_)
 	
 	if (m_files.empty())
 		throw Error(m_name + ": No files to log");;
-
-	Info info(this);
-	
-	if (Out::debug())
-		print_info_dbg();
-
-	write_log();
 }
 
 
 void Pkg::print_info_dbg() const
 {
 	Out::dbg_title();
-	Out::dbg("Name:       "	+ m_base_name + '\n');
-	Out::dbg("Version:    "	+ m_version + '\n');
-	Out::dbg("Summary:    "	+ m_summary + '\n');
-	Out::dbg("Author:     "	+ m_author + '\n');
-	Out::dbg("URL:        "	+ m_url + '\n');
-	Out::dbg("License:    "	+ m_license + '\n');
-	Out::dbg("Conf. opt.: "	+ m_conf_opts + '\n');
-	Out::dbg("Icon:       "	+ m_icon_path + '\n');
-	Out::dbg(str_description(true));
+	Out::dbg("Name:       "	+ m_base_name);
+	Out::dbg("Version:    "	+ m_version);
+	Out::dbg("Summary:    "	+ m_summary);
+	Out::dbg("Author:     "	+ m_author);
+	Out::dbg("Bug report: "	+ m_bug_report);
+	Out::dbg("URL:        "	+ m_url);
+	Out::dbg("License:    "	+ m_license);
+	Out::dbg("Conf. opt.: "	+ m_conf_opts);
+	Out::dbg("Icon:       "	+ m_icon_path);
+	Out::dbg(description_str(true));
 }
 
 
@@ -81,17 +74,18 @@ void Pkg::print_info() const
 		<< string(m_name.size() + 2, '-') << '\n'
 		<< " " << m_name << " \n"
 		<< string(m_name.size() + 2, '-') << '\n'
-		<< "Name:     " << m_base_name << '\n'
-		<< "Version:  " << m_version << '\n'
-		<< "Summary:  " << m_summary << '\n'
-		<< "Author:   " << m_author << '\n'
-		<< "License:  " << m_license << '\n'
-		<< "URL:      " << m_url << "\n\n"
-		<< str_description() << "\n";
+		<< "Name:       " << m_base_name << '\n'
+		<< "Version:    " << m_version << '\n'
+		<< "Summary:    " << m_summary << '\n'
+		<< "Author:     " << m_author << '\n'
+		<< "Bug report: " << m_bug_report << '\n'
+		<< "License:    " << m_license << '\n'
+		<< "URL:        " << m_url << "\n\n"
+		<< description_str() << "\n\n";
 }
 
 
-string Pkg::str_description(bool debug /* = false */) const
+string Pkg::description_str(bool debug /* = false */) const
 {
 	string const head(debug ? "porg :: " : "");
 	string desc("Description: ");
@@ -104,7 +98,7 @@ string Pkg::str_description(bool debug /* = false */) const
 			desc += '\n' + head + "   " + buf;
 	}
 
-	return desc + '\n';
+	return desc;
 }
 
 
@@ -138,6 +132,7 @@ void Pkg::write_log() const
 		<< '#' << CODE_SIZE			<< ':' << m_size << '\n'
 		<< '#' << CODE_NFILES		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
+		<< '#' << CODE_BUG_REPORT	<< ':' << m_bug_report << '\n'
 		<< '#' << CODE_SUMMARY		<< ':' << Porg::strip_trailing(m_summary, '.') << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'
 		<< '#' << CODE_LICENSE		<< ':' << m_license << '\n'
@@ -152,20 +147,12 @@ void Pkg::write_log() const
 }
 
 
-bool Pkg::add_file(string const& path)
+void Pkg::add_file(string const& path)
 {
-	try 
-	{
-		File* file = new File(path);
-		m_files.push_back(file);
-		m_size += file->size();
-		m_nfiles++;
-		return true;
-	}
-	catch (...) 
-	{ 
-		return false; 
-	}
+	File* file = new File(path);
+	m_files.push_back(file);
+	m_size += file->size();
+	m_nfiles++;
 }
 
 
@@ -176,8 +163,10 @@ void Pkg::append(set<string> const& files_)
 	bool appended(false);
 
 	for (set<string>::const_iterator f(files_.begin()); f != files_.end(); ++f) {
-		if (!has_file(*f) && add_file(*f))
+		if (!find_file(*f)) {
+			add_file(*f);
 			appended = true;
+		}
 	}
 
 	if (appended)
@@ -185,16 +174,12 @@ void Pkg::append(set<string> const& files_)
 }
 
 
-void Pkg::unlog(bool ask /* = true */) const
+void Pkg::unlog() const
 {
-	if (ask && !Opt::remove_batch()
-	&& !ask_user("Remove package '" + m_name + "' from database (y/N) ? "))
-		return;
-
 	try 
 	{
 		BasePkg::unlog(); 
-		Out::vrb("Package '" + m_name + "' removed from database\n");
+		Out::vrb("Package '" + m_name + "' removed from database");
 	}
 	catch (Error const& x) 
 	{
@@ -243,61 +228,47 @@ void Pkg::list_files(int size_w)
 }
 
 
-bool Pkg::remove(PkgSet const& pset)
+void Pkg::remove(DB const& db)
 {
-	if (!Opt::remove_batch() && !ask_user("Remove package '" + m_name + "' (y/N) ? "))
-		return false;
-
 	for (iter f(m_files.begin()); f != m_files.end(); ++f) {
 
 		// skip excluded
 		if (in_paths((*f)->name(), Opt::remove_skip()))
-			Out::vrb((*f)->name() + ": excluded (skipped)\n");
+			Out::vrb((*f)->name() + ": excluded");
 
 		// skip shared files
-		else if (is_shared(*f, pset))
-			Out::vrb((*f)->name() + ": shared (skipped)\n");
+		else if (is_shared(*f, db))
+			Out::vrb((*f)->name() + ": shared");
 
 		// remove file
-		else if (unlink((*f)->name().c_str()) == 0) {
-			Out::vrb("Removed '" + (*f)->name() + "'\n");
+		else if (!unlink((*f)->name().c_str())) {
+			Out::vrb("Removed '" + (*f)->name());
 			remove_parent_dir((*f)->name());
 		}
 
 		// an error occurred
-		else if (errno != ENOENT)
-			throw Error("unlink(" + (*f)->name() + ")", errno);
+		else if (errno != ENOENT) {
+			Out::vrb("Failed to remove '" + (*f)->name() + "'", errno);
+			g_exit_status = EXIT_FAILURE;
+		}
 	}
 
-	unlog(false);
-
-	return true;
+	if (g_exit_status == EXIT_SUCCESS)
+		unlog();
 }
 
 
 static void remove_parent_dir(string const& path)
 {
-	string dir(path);
+	string dir(strip_trailing(path, '/'));
 	string::size_type i;
 
-	// remove trailing slashes
-	for (i = dir.size() - 1; i > 0 && dir.at(i) == '/'; dir.erase(i--)) ;
-
-	// get parent dir and remove it
 	if ((i = dir.rfind('/')) != string::npos) {
 		dir.erase(i);
 		if (rmdir(dir.c_str()) == 0) {
-			Out::vrb("Removed directory '" + dir + "'\n");
+			Out::vrb("Removed directory '" + dir + "'");
 			remove_parent_dir(dir);
 		}
 	}
-}
-
-
-bool ask_user(string const& question)
-{
-	cout << question;
-	string buf;
-	return getline(std::cin, buf) && (buf == "y" || buf == "Y" || buf == "yes");
 }
 

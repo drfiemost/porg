@@ -24,7 +24,8 @@ void Out::vrb(string const& msg, int errno_ /* = 0 */)
 			cerr << "porg: ";
 		cerr << msg;
 		if (errno_)
-			cerr << ": " << strerror(errno_) << '\n';
+			cerr << ": " << strerror(errno_);
+		cerr << '\n';
 	}
 }
 
@@ -32,7 +33,7 @@ void Out::vrb(string const& msg, int errno_ /* = 0 */)
 void Out::dbg(string const& msg, bool print_prog_name /* = true */)
 {
 	if (debug())
-		cerr << (print_prog_name ? "porg :: " : "") << msg;
+		cerr << (print_prog_name ? "porg :: " : "") << msg << '\n';
 }
 
 

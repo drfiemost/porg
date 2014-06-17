@@ -18,7 +18,7 @@
 namespace Porg
 {
 
-class PkgSet;
+class DB;
 
 class Pkg : public BasePkg
 {
@@ -29,21 +29,21 @@ class Pkg : public BasePkg
 	Pkg(std::string const& name_);
 	Pkg(std::string const& name_, std::set<std::string> const& files);
 	
-	void unlog(bool ask = true) const;
-	bool remove(PkgSet const&);
+	void unlog() const;
+	void remove(DB const&);
 	void print_conf_opts(bool print_pkg_name) const;
 	void print_info() const;
 	void print_info_dbg() const;
 	void list(int size_w, int nfiles_w) const;
 	void list_files(int size_w);
 	void append(std::set<std::string> const& files);
+	void write_log() const;
 
 	protected:
 
 	std::string format_description() const;
-	bool add_file(std::string const& path);
-	void write_log() const;
-	std::string str_description(bool debug = false) const;
+	void add_file(std::string const& path);
+	std::string description_str(bool debug = false) const;
 
 };	// class Pkg
 

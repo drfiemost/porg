@@ -1,5 +1,5 @@
 //=======================================================================
-// pkgset.cc
+// db.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
@@ -8,8 +8,9 @@
 
 #include "config.h"
 #include "porg/file.h"
-#include "pkgset.h"
+#include "db.h"
 #include "util.h"
+#include "main.h"
 #include "opt.h"
 #include "out.h"
 #include "pkg.h"
@@ -28,7 +29,7 @@ static int get_width(ulong);
 static bool match_pkg(string const&, string const&);
 
 
-PkgSet::PkgSet()
+DB::DB()
 :
 	vector<Pkg*>(),
 	m_total_size(0),
@@ -36,7 +37,7 @@ PkgSet::PkgSet()
 { }
 
 
-PkgSet::~PkgSet()
+DB::~DB()
 {
 	for (iterator p(begin()); p != end(); delete *p++) ;
 }
@@ -45,7 +46,7 @@ PkgSet::~PkgSet()
 //
 // get all packages logged in database
 //
-void PkgSet::get_all_pkgs()
+void DB::get_all_pkgs()
 {
 	Dir dir(Opt::logdir());
 
@@ -54,7 +55,7 @@ void PkgSet::get_all_pkgs()
 	std::sort(begin(), end(), Sorter());
 
 	if (empty())
-		Out::vrb("porg: No packages logged in '" + Opt::logdir() + "'\n");
+		Out::vrb("porg: No packages logged in '" + Opt::logdir() + "'");
 }
 
 
@@ -62,10 +63,8 @@ void PkgSet::get_all_pkgs()
 // Search the database for packages matching any of the strings in args given
 // by the command line
 //
-int PkgSet::get_pkgs(vector<string> const& args)
+void DB::get_pkgs(vector<string> const& args)
 {
-	int ret = EXIT_SUCCESS;
-	
 	Dir dir(Opt::logdir());
 
 	for (uint i = 0; i < args.size(); ++i, dir.rewind()) {
@@ -78,18 +77,16 @@ int PkgSet::get_pkgs(vector<string> const& args)
 		}
 
 		if (!found) {
-			Out::vrb("porg: " + args[i] + ": Package not logged\n");
-			ret = EXIT_FAILURE;
+			Out::vrb("porg: " + args[i] + ": Package not logged");
+			g_exit_status = EXIT_FAILURE;
 		}
 	}
 
 	std::sort(begin(), end(), Sorter());
-
-	return ret;
 }
 
 
-bool PkgSet::add_pkg(string const& name)
+bool DB::add_pkg(string const& name)
 {
 	try 
 	{
@@ -109,7 +106,7 @@ bool PkgSet::add_pkg(string const& name)
 //
 // get widths for printing pkg sizes and number of files
 //
-void PkgSet::get_pkg_list_widths(int& size_w, int& nfiles_w)
+void DB::get_pkg_list_widths(int& size_w, int& nfiles_w)
 {
 	size_w = Opt::print_totals() ? get_width(m_total_size) : 0;
 	ulong max_nfiles(Opt::print_totals() ? m_total_files : 0);
@@ -127,7 +124,7 @@ void PkgSet::get_pkg_list_widths(int& size_w, int& nfiles_w)
 //
 // get width for printing file sizes
 //
-int PkgSet::get_file_size_width()
+int DB::get_file_size_width()
 {
 	int size_w = Opt::print_totals() ? get_width(m_total_size) : 0;
 
@@ -140,13 +137,13 @@ int PkgSet::get_file_size_width()
 }
 
 
-void PkgSet::get_files()
+void DB::get_files()
 {
 	for (iterator p(begin()); p != end(); (*p++)->get_files()) ;
 }
 
 
-void PkgSet::print_conf_opts() const
+void DB::print_conf_opts() const
 {
 	for (const_iterator p(begin()); p != end(); ++p) {
 		if (size() > 1)
@@ -158,9 +155,9 @@ void PkgSet::print_conf_opts() const
 }
 
 
-int PkgSet::query()
+void DB::query()
 {
-	int ret = EXIT_FAILURE;
+	g_exit_status = EXIT_FAILURE;
 
 	get_files();
 
@@ -170,27 +167,42 @@ int PkgSet::query()
 		cout << path << ':';
 		
 		for (const_iterator p(begin()); p != end(); ++p) {
-			if ((*p)->has_file(path)) {
-				ret = EXIT_SUCCESS;
+			if ((*p)->find_file(path)) {
+				g_exit_status = EXIT_SUCCESS;
 				cout << "  " << (*p)->name();
 			}
 		}
 		
 		cout << '\n';
 	}
-	
-	return ret;
 }
 
 
-void PkgSet::print_info() const
+void DB::print_info() const
 {
 	for (const_iterator p(begin()); p != end(); (*p++)->print_info()) ;
 }
 
 
-void PkgSet::remove()
+void DB::remove()
 {
+	// ask the user, if needed
+	if (!Opt::remove_batch()) {
+		
+		string buf, msg = string("The following packages will be ")
+			+ (Opt::remove_unlog() ? "unlogged" : "removed") + ":\n ";
+		
+		for (iterator p(begin()); p != end(); ++p)
+			msg += " " + (*p)->name();
+		
+		msg += "\nDo you want to proceed (y/N) ? ";
+
+		std::cout << msg;
+
+		if (!(getline(std::cin, buf) && (buf == "y" || buf == "Y" || buf == "yes")))
+			return;
+	}
+
 	if (Opt::remove_unlog()) {
 		for (iterator p(begin()); p != end(); (*p++)->unlog()) ;
 		return;
@@ -198,19 +210,19 @@ void PkgSet::remove()
 	
 	get_files();
 
-	// aux. PkgSet to check for shared files
-	PkgSet aux;
+	// aux. DB to check for shared files
+	DB aux;
 	aux.get_all_pkgs();
 	aux.get_files();
 
 	for (iterator p(begin()); p != end(); ++p) {
-		if ((*p)->remove(aux))
-			aux.del_pkg((*p)->name());
+		(*p)->remove(aux);
+		aux.del_pkg((*p)->name());
 	}
 }
 
 
-void PkgSet::del_pkg(string const& name)
+void DB::del_pkg(string const& name)
 {
 	for (iterator p(begin()); p != end(); ++p) {
 		if ((*p)->name() == name) {
@@ -221,7 +233,7 @@ void PkgSet::del_pkg(string const& name)
 }
 
 
-void PkgSet::list()
+void DB::list()
 {
 	// sort list of packages
 	
@@ -256,7 +268,7 @@ void PkgSet::list()
 }
 
 
-void PkgSet::list_files()
+void DB::list_files()
 {
 	get_files();
 
@@ -274,11 +286,11 @@ void PkgSet::list_files()
 
 
 //----------------//
-// PkgSet::Sorter //
+// DB::Sorter //
 //----------------//
 
 
-PkgSet::Sorter::Sorter(sort_t const& t /* = SORT_BY_NAME */)
+DB::Sorter::Sorter(sort_t const& t /* = SORT_BY_NAME */)
 :
 	m_sort_func()
 {
@@ -291,27 +303,27 @@ PkgSet::Sorter::Sorter(sort_t const& t /* = SORT_BY_NAME */)
 }
 
 
-bool PkgSet::Sorter::operator()(Pkg* left, Pkg* right) const
+bool DB::Sorter::operator()(Pkg* left, Pkg* right) const
 {
 	return (this->*m_sort_func)(right, left);
 }
 
-bool PkgSet::Sorter::sort_by_name(Pkg* left, Pkg* right) const
+bool DB::Sorter::sort_by_name(Pkg* left, Pkg* right) const
 {
 	return left->name() > right->name();
 }
 
-bool PkgSet::Sorter::sort_by_size(Pkg* left, Pkg* right) const
+bool DB::Sorter::sort_by_size(Pkg* left, Pkg* right) const
 {
 	return left->size() < right->size();
 }
 
-bool PkgSet::Sorter::sort_by_nfiles(Pkg* left, Pkg* right) const
+bool DB::Sorter::sort_by_nfiles(Pkg* left, Pkg* right) const
 {
 	return left->nfiles() < right->nfiles();
 }
 
-bool PkgSet::Sorter::sort_by_date(Pkg* left, Pkg* right) const
+bool DB::Sorter::sort_by_date(Pkg* left, Pkg* right) const
 {
 	return left->date() > right->date();
 }

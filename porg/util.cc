@@ -16,7 +16,7 @@ using namespace Porg;
 
 
 //
-// Like libc's realpath(), but it only resolve symlinks in the partial
+// Like libc's realpath(), but it only resolves symlinks in the partial
 // directories of the path, thereby retaining symlinks as symlinks.
 //
 string Porg::clear_path(string const& inpath)
@@ -44,12 +44,12 @@ string Porg::clear_path(string const& inpath)
 
 	// get realpath of dirname
 
-	char real[4096];
+	char real_dir[4096];
 
-	if (!::realpath(dir.c_str(), real))
+	if (!::realpath(dir.c_str(), real_dir))
 		return path;
 
-	return string(real) + "/" + base;
+	return string(real_dir) + "/" + base;
 }
 
 
@@ -78,7 +78,7 @@ bool Dir::read(string &name)
 	name = m_dirent->d_name;
 
 	// skip hidden files and special files '.' and '..'
-	if (name.at(0) == '.')
+	if (name.empty() || name[0] == '.')
 		return read(name);
 
 	return true;

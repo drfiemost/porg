@@ -8,9 +8,9 @@
 # This file provides bash completion support for porg.
 # 
 # It should be copied into directory /etc/bash_completion.d/ to be operative.
-# Also, the file /etc/bash_completion must exist, and ~/.bashrc has to contain
-# some additional commands to activate the bash completion support, more or less
-# thusly:
+# Also, the file /etc/bash_completion or /usr/share/bash-completion/bash_completion
+# must exist, and ~/.bashrc has to contain some additional commands to activate the
+# bash completion support, more or less thusly:
 #
 # 8<---------------------------------------
 #	# Enable bash completion
@@ -97,9 +97,9 @@ _porg()
 		-h \
 		-i \
 		-I \
+		-j \
 		-l \
 		-L \
-		-m \
 		-o \
 		-p \
 		-q \
@@ -219,7 +219,7 @@ _porg()
 			;;
 	
 		# Expand some options together with an equals
-		--exc* | --inc* | --logd* | --p* | --sk* | --so*)
+		--exc* | --inc* | --logd* | --p* | --sk* | --so* | --log-m* )
 			# Generate dummy long options with an equals and two choices
 			vars_complete=""
 			for var in $longopts_eq; do 

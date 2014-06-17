@@ -31,6 +31,7 @@ class BasePkg
 	static char const CODE_DATE			= 't';
 	static char const CODE_SIZE			= 's';
 	static char const CODE_NFILES		= 'f';
+	static char const CODE_BUG_REPORT	= 'b';
 	static char const CODE_CONF_OPTS	= 'c';
 	static char const CODE_ICON_PATH	= 'i';
 	static char const CODE_SUMMARY		= 'S';
@@ -58,9 +59,10 @@ class BasePkg
 	std::string const& description() const	{ return m_description; }
 	std::string const& conf_opts() const	{ return m_conf_opts; }
 	std::string const& author() const		{ return m_author; }
+	std::string const& bug_report() const	{ return m_bug_report; }
 
-	bool has_file(File*) const;
-	bool has_file(std::string const& path) const;
+	bool find_file(File*) const;
+	bool find_file(std::string const& path) const;
 	void get_files();
 	virtual void unlog() const;
 	
@@ -71,7 +73,7 @@ class BasePkg
 	bool is_shared(File* file, std::vector<T*> const& pkgs) const
 	{
 		for (typename std::vector<T*>::const_iterator p(pkgs.begin()); p != pkgs.end(); ++p) {
-			if ((*p)->name() != m_name && (*p)->has_file(file))
+			if ((*p)->name() != m_name && (*p)->find_file(file))
 				return true;
 		}
 		return false;
@@ -97,6 +99,7 @@ class BasePkg
 	std::string m_description;
 	std::string m_conf_opts;
 	std::string m_author;
+	std::string m_bug_report;
 
 
 	class Sorter

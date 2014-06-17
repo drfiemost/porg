@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 #
 
-AC_INIT([porg],[0.6],[http://porg.sourceforge.net])
+AC_INIT([porg],[0.7-svn],[http://porg.sourceforge.net])
 
-RELEASEDATE="16 June 2014"
-#RELEASEDATE="`date +'%d %B %Y'`"
+#RELEASEDATE="16 June 2014"
+RELEASEDATE="`date +'%d %B %Y'`"
 
 AC_CONFIG_SRCDIR([porg/main.cc])
 AC_CONFIG_HEADERS([config.h])
@@ -38,7 +38,7 @@ AC_USE_SYSTEM_EXTENSIONS
 # Set configure options
 #=======================
 
-if test "$PACKAGE_VERSION" = svn; then
+if echo "$PACKAGE_VERSION" | grep -q svn; then
 	AC_DEFINE([GTK_DISABLE_DEPRECATED], [1], [Disable gtkmm-2.4 API])
 else
 	AC_DEFINE([NDEBUG], [1], [Disable libc assertions])

@@ -149,13 +149,13 @@ is '/', unless variable INCLUDE is set in the configuration file
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
 more details.
 .TP
-\fB--log-missing\fR
+\fB-j, --log-missing\fR
 By default, when installing a package porg registers only those files 
-that exist in the filesystem right after the installation. Using this
-option, porg registers also the missing files.
+that exist in the filesystem right after the installation. With this
+option porg registers also the missing files.
 .TP
 \fB-+, --append\fR
-With \fB-p\fR or \fB-D\fR, if the package is already logged, append the list
+With \fB-p\fR or \fB-D\fR, if the package is already registered, append the list
 of created files to its log.
 
 .SH PACKAGE REMOVE OPTIONS

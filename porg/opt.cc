@@ -40,6 +40,7 @@ namespace Porg
 	bool Opt::s_reverse_sort = false;
 	bool Opt::s_print_date = false;
 	bool Opt::s_print_hour = false;
+	bool Opt::s_logdir_created = false;
 	sort_t Opt::s_sort_type = SORT_BY_NAME;
 	string Opt::s_log_pkg_name = string();
 	int Opt::s_mode = MODE_NONE;
@@ -54,6 +55,13 @@ void Opt::init(int argc, char* argv[])
 		die_help("No arguments provided");
 
 	static Opt opt(argc, argv);
+}
+
+
+Opt::~Opt()
+{
+	if (s_logdir_created)
+		rmdir(s_logdir.c_str());
 }
 
 
@@ -75,9 +83,9 @@ Opt::Opt(int argc, char* argv[])
 		OPT_INFO			= 'i',
 		OPT_LOGDIR			= 'L',
 		OPT_LOG				= 'l',
-		OPT_LOG_MISSING		= 1,	// no short opt.
 		OPT_CONF_OPTS		= 'o',
 		OPT_PACKAGE			= 'p',
+		OPT_LOG_MISSING		= 'j',
 		OPT_QUERY			= 'q',
 		OPT_REVERSE			= 'R',
 		OPT_REMOVE			= 'r',
@@ -167,8 +175,8 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_CONF_OPTS:	set_mode(MODE_CONF_OPTS, c); break;
 			case OPT_QUERY: 	set_mode(MODE_QUERY, c); break;
 			case OPT_FILES: 	set_mode(MODE_LIST_FILES, c); break;
-			case OPT_REMOVE: 	set_mode(MODE_REMOVE, c); break;
 			case OPT_LOG: 		set_mode(MODE_LOG, c); break;
+			case OPT_REMOVE:	set_mode(MODE_REMOVE, c); break;
 			// unrecognized option
 			case '?':	die_help();
 		}
@@ -231,56 +239,60 @@ Opt::Opt(int argc, char* argv[])
 				break;
 
 			case OPT_SYMLINKS:
-				check_mode(MODE_LIST_FILES, c);
+				check_mode(MODE_LIST_FILES, c, OPT_FILES);
 				s_print_symlinks = true;
 				break;
 
 			case OPT_SKIP:
-				check_mode(MODE_REMOVE, c);
+				check_mode(MODE_REMOVE, c, OPT_REMOVE);
 				s_remove_skip = optarg; 
 				break;
 
 			case OPT_BATCH:
-				check_mode(MODE_REMOVE, c);
+				check_mode(MODE_REMOVE, c, OPT_REMOVE);
 				s_remove_batch = true;
 				break;
 
 			case OPT_UNLOG:
-				check_mode(MODE_REMOVE, c);
+				check_mode(MODE_REMOVE, c, OPT_REMOVE);
 				s_remove_unlog = true;
 				break;
 
 			case OPT_PACKAGE:
-				check_mode(MODE_LOG, c);
+				check_mode(MODE_LOG, c, OPT_LOG);
 				s_log_pkg_name = to_lower(optarg); 
 				break;
 
 			case OPT_DIRNAME:
-				check_mode(MODE_LOG, c);
+				check_mode(MODE_LOG, c, OPT_LOG);
 				s_log_pkg_name = to_lower(get_dir_name());
 				break;
 
 			case OPT_INCLUDE:
-				check_mode(MODE_LOG, c);
+				check_mode(MODE_LOG, c, OPT_LOG);
 				s_include = optarg;
 				break;
 
 			case OPT_EXCLUDE:
-				check_mode(MODE_LOG, c);
+				check_mode(MODE_LOG, c, OPT_LOG);
 				s_exclude = optarg;
 				break;
 
 			case OPT_APPEND:
-				check_mode(MODE_LOG, c);
+				check_mode(MODE_LOG, c, OPT_LOG);
 				s_log_append = true;
 				break;
 
 			case OPT_LOG_MISSING:
-				//check_mode(MODE_LOG, c);
+				check_mode(MODE_LOG, c, OPT_LOG);
 				s_log_missing = true;
 				break;
 		}
 	}
+
+	// set default mode to package listing
+	if (s_mode == MODE_NONE)
+		s_mode = MODE_LIST_PKGS;
 
 	// save non-option command line arguments into s_args
 	s_args.assign(argv + optind, argv + argc);
@@ -297,17 +309,23 @@ Opt::Opt(int argc, char* argv[])
 			break;
 
 		case MODE_LOG:
+			if (!s_log_pkg_name.empty()) {
+				s_logdir_created = !mkdir(s_logdir.c_str(), 0755);
+				if (!logdir_writable())
+					throw Error(s_logdir, errno);
+			}
 			break;
 
-		case MODE_NONE:
-			s_mode = MODE_LIST_PKGS;
+		case MODE_REMOVE:
+			if (!logdir_writable())
+				throw Error(s_logdir, errno);
 			// no break here
 
 		default:
 			if (!(s_print_sizes || s_print_nfiles)) {
 				s_print_totals = false;
 				if (s_mode == MODE_LIST_PKGS && s_print_no_pkg_name && !s_print_date)
-					die_help("Option '-z|--no-package-name' requires at least any of '-sdfF'");
+					die_help("Option '-z|--no-package-name' requires at least one of '-sdfF'");
 			}
 
 			if (s_args.empty() && !s_all_pkgs)
@@ -320,10 +338,13 @@ Opt::Opt(int argc, char* argv[])
 }
 
 
-void Opt::check_mode(int modes, char optchar)
+void Opt::check_mode(int modes, char optchar, char required_optchar /* = 0 */)
 {
 	if (s_mode != MODE_NONE && !(s_mode & modes))
 		die_help(string("-") + s_mode_char + optchar + ": Incompatible options");
+	
+	if (required_optchar && (s_mode_char != required_optchar))
+		die_help(string("Option -") + optchar + " requires -" + required_optchar);
 }
 
 
@@ -394,7 +415,7 @@ cout <<
 "                           of the package.\n"
 "  -+, --append             With -p or -D: If the package is already logged,\n"
 "                           append the list of files to its log.\n"
-"      --log-missing        Do not skip missing files.\n"
+"  -j, --log-missing        Do not skip missing files.\n"
 "  -I, --include=PATH:...   List of paths to scan.\n"
 "  -E, --exclude=PATH:...   List of paths to skip.\n\n"
 "Note: The package list mode is enabled by default.\n\n"
@@ -426,13 +447,8 @@ static string get_dir_name()
 
 static void die_help(string const& msg /* = "" */)
 {
-	string out(msg);
-	if (!out.empty()) {
-		out.insert(0, "porg: ");
-		out += '\n';
-	}
-	cerr << out << "Try 'porg --help' for more information\n";
-	exit(EXIT_FAILURE);
+	string str = msg.empty() ? "" : msg + "\n";
+	throw Error(str + "Try 'porg --help' for more information");
 }
 
 

@@ -13,49 +13,48 @@
 #include "info.h"
 #include "pkg.h"
 #include <fstream>
-#include <string>
 #include <glob.h>
 
 using std::string;
-using namespace Porg;
 
 static void get_var(string const&, string const&, string&);
 static void get_define(string const&, string const&, string&);
 static string search_file(string const&);
 
 
-Info::Info(Pkg* pkg)
+Porg::Info::Info(Pkg& pkg)
 :
 	m_pkg(pkg)
 {
-	assert(pkg != 0);
-
 	Out::dbg_title("package information");
 
-	get_info_config_log();
-	get_info_pc();
-	get_info_desktop();
-	get_info_spec();
+	read_config();
+	read_pc();
+	read_desktop();
+	read_spec();
 
+	get_configure_options();
 	get_icon_path();
 }
 
 
-void Info::get_info_spec()
+void Porg::Info::read_spec()
 {
-	string spec(search_file(m_pkg->m_base_name + ".spec"));
+	string spec(search_file(m_pkg.m_base_name + ".spec"));
 	if (spec.empty())
 		return;
 
-	get_var(spec, "Icon", m_pkg->m_icon_path);
-	get_var(spec, "Summary", m_pkg->m_summary);
-	get_var(spec, "URL", m_pkg->m_url);
-	get_var(spec, "Vendor", m_pkg->m_author);
-	get_var(spec, "Packager", m_pkg->m_author);
-	get_var(spec, "Copyright", m_pkg->m_license);
-	get_var(spec, "License", m_pkg->m_license);
+	Out::dbg("Reading " + spec);
 
-	// get description field
+	get_var(spec, "Icon", m_pkg.m_icon_path);
+	get_var(spec, "Summary", m_pkg.m_summary);
+	get_var(spec, "URL", m_pkg.m_url);
+	get_var(spec, "Packager", m_pkg.m_author);
+	get_var(spec, "Vendor", m_pkg.m_author);
+	get_var(spec, "Copyright", m_pkg.m_license);
+	get_var(spec, "License", m_pkg.m_license);
+
+	// get description
 
 	std::ifstream f(spec.c_str());
 	if (!f)
@@ -70,72 +69,87 @@ void Info::get_info_spec()
 	while (getline(f, buf) && buf[0] != '%' && buf[0] != '#')
 		desc += buf + '\n';
 
-	if (desc.size() > m_pkg->m_description.size())
-		m_pkg->m_description = desc;
+	if (desc.size() > m_pkg.m_description.size())
+		m_pkg.m_description = desc;
 }
 
 
-void Info::get_info_pc()
+void Porg::Info::read_pc()
 {
-	string pc(search_file(m_pkg->m_base_name + ".pc"));
+	string pc(search_file(m_pkg.m_base_name + ".pc"));
 	if (pc.empty())
 		return;
 
-	get_var(pc, "Description", m_pkg->m_summary);
-	get_var(pc, "URL", m_pkg->m_url);
+	Out::dbg("Reading " + pc);
+
+	get_var(pc, "Description", m_pkg.m_summary);
+	get_var(pc, "URL", m_pkg.m_url);
 }
 
 
-void Info::get_info_desktop()
+void Porg::Info::read_desktop()
 {
-	string desktop(search_file(m_pkg->m_base_name + ".desktop"));
+	string desktop(search_file(m_pkg.m_base_name + ".desktop"));
 	if (desktop.empty())
 		return;
 
-	get_var(desktop, "Icon", m_pkg->m_icon_path);
-	get_var(desktop, "GenericName", m_pkg->m_summary);
-	get_var(desktop, "Comment", m_pkg->m_summary);
+	Out::dbg("Reading " + desktop);
+
+	get_var(desktop, "Icon", m_pkg.m_icon_path);
+	get_var(desktop, "GenericName", m_pkg.m_summary);
+	get_var(desktop, "Comment", m_pkg.m_summary);
 }
 
 
-void Info::get_info_config_log()
+void Porg::Info::read_config()
 {
 	string config("config.log");
 
-	get_define(config, "PACKAGE_URL", m_pkg->m_url);
-	get_define(config, "PACKAGE_BUGREPORT", m_pkg->m_author);
-	get_define(config, "PACKAGE_NAME", m_pkg->m_summary);
-	get_define(config, "PACKAGE_STRING", m_pkg->m_summary);
-	
-	// get configure options
+	if (access(config.c_str(), R_OK) < 0) {
+		config = "config.h";
+		if (access(config.c_str(), R_OK) < 0)
+			return;
+	}
 
-	Rexp re;
+	Out::dbg("Reading " + config);
+
+	get_define(config, "PACKAGE_URL", m_pkg.m_url);
+	get_define(config, "PACKAGE_BUGREPORT", m_pkg.m_bug_report);
+	get_define(config, "PACKAGE_NAME", m_pkg.m_summary);
+	get_define(config, "PACKAGE_STRING", m_pkg.m_summary);
+}
+
+
+void Porg::Info::get_configure_options()
+{
+	Rexp re("^ *\\$ .*/configure[[:space:]]+(.*)$");
+	string config("config.log");
 	std::ifstream f(config.c_str());
 
-	if (f)
-		re.compile("^ *\\$ .*/configure[[:space:]]+(.*)$");
-	else {
+	if (!f) {
 		f.open("configure.log");
 		if (!f)
 			return;
 		re.compile("./configure[[:space:]]+(.*)$");
 	}
 
+	Out::dbg("Retrieving configure options from " + config);
+	
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
-			m_pkg->m_conf_opts = re.match(1);
+			m_pkg.m_conf_opts = re.match(1);
 			break;
 		}
 	}
 }
 
 
-void Info::get_icon_path()
+void Porg::Info::get_icon_path()
 {
-	string& path(m_pkg->m_icon_path);
+	string& path(m_pkg.m_icon_path);
 
 	if (path.empty())
-		path = m_pkg->m_base_name;
+		path = m_pkg.m_base_name;
 	
 	// If it's an absolute path, we're done	
 	else if (path[0] == '/')
@@ -148,21 +162,20 @@ void Info::get_icon_path()
 	
 	string exp("/" + path);
 	string suf("\\.(png|xpm|jpg|ico|gif|svg)$");
-	Rexp re1(suf, REG_ICASE);
+	Rexp re(suf, REG_ICASE);
 	
-	if (!re1.exec(path))
+	if (!re.exec(path))
 		exp += suf;
 
 	// Search the logged files for the path of the icon
 	
-	Rexp re2(exp, REG_ICASE);
+	re.compile(exp, REG_ICASE);
 	bool found = false;
 
-	for (uint i(0); !found && i < m_pkg->m_files.size(); ++i) {
-		if (re2.exec(m_pkg->m_files[i]->name())) {
-			path = m_pkg->m_files[i]->name();
-			struct stat s;
-			found = !lstat(path.c_str(), &s);
+	for (uint i(0); !found && i < m_pkg.m_files.size(); ++i) {
+		if (re.exec(m_pkg.m_files[i]->name())) {
+			path = m_pkg.m_files[i]->name();
+			found = !access(path.c_str(), F_OK);
 		}
 	}
 
@@ -177,7 +190,7 @@ void get_var(string const& file, string const& tag, string& val)
 	if (!f)
 		return;
 
-	Rexp re("^" + tag + "[[:space:]:=]+(.*)$", REG_ICASE);
+	Porg::Rexp re("^" + tag + "[[:space:]:=]+(.*)$", REG_ICASE);
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
@@ -188,13 +201,17 @@ void get_var(string const& file, string const& tag, string& val)
 }
 
 
+//
+// Get a define from a C header file, unquoting the result.
+//
 void get_define(string const& file, string const& tag, string& val)
 {
 	std::ifstream f(file.c_str());
 	if (!f)
 		return;
 
-	Rexp re("^[[:space:]]*#define[[:space:]]+" + tag + "[[:space:]\"]+(.*[^\"])");
+	Porg::Rexp re("^[[:space:]]*#define[[:space:]]+" + tag 
+		+ "[[:space:]\"]+(.*[^\"])");
 
 	for (string buf; getline(f, buf); ) {
 		if (re.exec(buf)) {
@@ -207,26 +224,17 @@ void get_define(string const& file, string const& tag, string& val)
 
 string search_file(string const& name)
 {
-	Out::dbg("searching for " + name);
-	
 	glob_t g;
 	memset(&g, 0, sizeof(g));
 	
-	string file;
-	string patt[3] = { name, "*/" + name, "*/*/" + name };
+	string file, patt[3] = { name, "*/" + name, "*/*/" + name };
 
 	for (int i = 0; i < 3 && file.empty(); ++i) {
-		if (0 == glob(patt[i].c_str(), 0, 0, &g) && g.gl_pathc)
+		if (!glob(patt[i].c_str(), 0, 0, &g) && g.gl_pathc)
 			file = g.gl_pathv[0];
 	}
 
 	globfree(&g);
-
-	if (file.empty())
-		Out::dbg("\t(not found)\n", false);
-	else
-		Out::dbg("\t" + file + "\n", false);
-		
 	return file;
 }
 

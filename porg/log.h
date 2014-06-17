@@ -19,7 +19,7 @@ class Log
 {
 	public:
 
-	Log();
+	static void run();
 
 	protected:
 
@@ -29,6 +29,8 @@ class Log
 	
 	static int const EXIT_FAILURE_EXTERNAL = 2;
 	
+	Log();
+
 	void read_files_from_command();
 	void do_read_files_from_command();
 	void read_files_from_stream(std::istream&);

@@ -9,16 +9,21 @@
 #include "config.h"
 #include "opt.h"
 #include "log.h"
-#include "pkgset.h"
+#include "db.h"
+#include "main.h"
 
 using namespace Porg;
 using namespace std;
 
+// Initialization of global vars
+namespace Porg
+{
+	int g_exit_status = EXIT_SUCCESS;
+}
+
 
 int main(int argc, char* argv[])
 {
-	int exit_status = EXIT_SUCCESS;
-
 	ios::sync_with_stdio(false);
 
 	try 
@@ -26,27 +31,27 @@ int main(int argc, char* argv[])
 		Opt::init(argc, argv);
 
 		if (Opt::mode() == MODE_LOG) {
-			Log log;
-			exit(exit_status);
+			Log::run();
+			exit(g_exit_status);
 		}
 
-		PkgSet pset;
+		DB db;
 
 		if (Opt::mode() == MODE_QUERY || Opt::all_pkgs())
-			pset.get_all_pkgs();
+			db.get_all_pkgs();
 		else
-			exit_status = pset.get_pkgs(Opt::args());
+			db.get_pkgs(Opt::args());
 
-		if (pset.empty())
-			exit(exit_status);
+		if (db.empty())
+			exit(g_exit_status);
 
 		switch (Opt::mode()) {
-			case MODE_CONF_OPTS:	pset.print_conf_opts();		break;
-			case MODE_INFO:			pset.print_info();			break;
-			case MODE_LIST_PKGS:	pset.list();				break;
-			case MODE_LIST_FILES:	pset.list_files();			break;
-			case MODE_REMOVE:		pset.remove();				break;
-			case MODE_QUERY:		exit_status = pset.query();	break;
+			case MODE_CONF_OPTS:	db.print_conf_opts();	break;
+			case MODE_INFO:			db.print_info();		break;
+			case MODE_LIST_PKGS:	db.list();				break;
+			case MODE_LIST_FILES:	db.list_files();		break;
+			case MODE_REMOVE:		db.remove();			break;
+			case MODE_QUERY:		db.query();				break;
 			default: 				assert(0);
 		}
 	}
@@ -54,9 +59,9 @@ int main(int argc, char* argv[])
 	catch (exception const& x) 
 	{
 		cerr << "porg: " << x.what() << '\n';
-		exit_status = EXIT_FAILURE;
+		g_exit_status = EXIT_FAILURE;
 	}
 
-	exit(exit_status);
+	exit(g_exit_status);
 }
 

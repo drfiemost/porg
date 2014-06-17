@@ -35,6 +35,8 @@ class Opt : public BaseOpt
 {
 	public:
 
+	~Opt();
+
 	static void init(int argc, char* argv[]);
 
 	static bool all_pkgs()			{ return s_all_pkgs; }
@@ -60,7 +62,7 @@ class Opt : public BaseOpt
 
 	Opt(int argc, char* argv[]);
 
-	static void check_mode(int modes, char optchar);
+	static void check_mode(int modes, char optchar, char required_optchar = 0);
 	static void set_mode(int m, char optchar);
 	static void set_sort_type(std::string const&);
 
@@ -78,6 +80,7 @@ class Opt : public BaseOpt
 	static bool s_reverse_sort;
 	static bool s_print_date;
 	static bool s_print_hour;
+	static bool s_logdir_created;
 	static sort_t	s_sort_type;
 	static std::string s_log_pkg_name;
 	static int s_mode;

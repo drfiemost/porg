@@ -36,12 +36,13 @@ InfoTextView::InfoTextView(Pkg const& pkg)
 		m_text_buffer->insert(m_text_buffer->end(), "\n");
 	}
 
-	insert("\nName:    ", pkg.base_name());
-	insert("\nVersion: ", pkg.version());
-	insert("\nSummary: ", pkg.summary());
-	insert("\nAuthor:  ", pkg.author());
-	insert("\nLicense: ", pkg.license());
-	insert("\nURL:     ", pkg.url());
+	insert("\nName:       ", pkg.base_name());
+	insert("\nVersion:    ", pkg.version());
+	insert("\nSummary:    ", pkg.summary());
+	insert("\nAuthor:     ", pkg.author());
+	insert("\nBug report: ", pkg.bug_report());
+	insert("\nLicense:    ", pkg.license());
+	insert("\nURL:        ", pkg.url());
 	insert("\n\nDescription:\n", pkg.description());
 	insert("\n\nConfigure options:\n", pkg.conf_opts(), true);
 }
