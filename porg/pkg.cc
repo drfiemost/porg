@@ -129,7 +129,7 @@ void Pkg::write_log() const
 
 	of	<< "#!porg-" PACKAGE_VERSION "\n"
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
-		<< '#' << CODE_SIZE			<< ':' << m_size << '\n'
+		<< '#' << CODE_SIZE			<< ':' << std::setprecision(0) << std::fixed << m_size << '\n'
 		<< '#' << CODE_NFILES		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
 		<< '#' << CODE_BUG_REPORT	<< ':' << m_bug_report << '\n'

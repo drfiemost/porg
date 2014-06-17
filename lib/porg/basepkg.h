@@ -46,7 +46,7 @@ class BasePkg
 
 	std::vector<File*> const& files() const	{ return m_files; }
 	int date() const						{ return m_date; }
-	ulong size() const						{ return m_size; }
+	float size() const						{ return m_size; }
 	ulong nfiles() const					{ return m_nfiles; }
 	std::string const& name() const			{ return m_name; }
 	std::string const& log() const			{ return m_log; }
@@ -90,7 +90,7 @@ class BasePkg
 	std::string const m_base_name;
 	std::string const m_version;
 	int m_date;
-	ulong m_size;
+	float m_size;
 	ulong m_nfiles;
 	std::string m_icon_path;
 	std::string m_url;

@@ -1,14 +1,24 @@
 SVN
 ---
 
-	+ Added some missing $(DESTDIR) in Makefiles.
+	+ Added missing $(DESTDIR) to Makefiles.
 	+ New package info field "Bug report".
 
 	Changes in porg:
 
-	+ Make option -U require -r.
+	+ Option -U requires -r.
 	+ Check for option requirements.
 	+ Added short option -j for --log-missing.
+	+ Bugfix: Deal with big package sizes (> 4G).
+
+	Changes in grop:
+
+	+ Display a startup info dialog when reading big databases.
+	+ Added button "Porg suffix" to the porgball creation dialog.
+
+	Changes in scripts:
+
+	+ Bugfix: Porgball failed to process symbolic links to directories.
 
 
 Version 0.6 (16 June 2014)

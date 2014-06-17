@@ -41,6 +41,27 @@ string Porg::fmt_size(ulong size)
 }
 
 
+string Porg::fmt_size(float size)
+{
+	std::ostringstream s;
+	
+	if (size < KILOBYTE)
+		s << (ulong)size;
+	else if (size < (10 * KILOBYTE))
+		s << std::setprecision(2) << size / KILOBYTE << "k";
+	else if (size < MEGABYTE)
+		s << (ulong)size / KILOBYTE << "k";
+	else if (size < (10 * MEGABYTE))
+		s << std::setprecision(2) << size / MEGABYTE << "M";
+	else if (size < GIGABYTE)
+		s << (ulong)size / MEGABYTE << "M";
+	else
+		s << std::setprecision(2) << size / GIGABYTE << "G";
+		
+	return s.str();
+}
+
+
 //
 // Convert date to string
 //

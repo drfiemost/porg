@@ -26,7 +26,7 @@ class DB
 	
 	static void init();
 
-	static ulong total_size()			{ return s_total_size; }
+	static float total_size()			{ return s_total_size; }
 	static std::vector<Pkg*>& pkgs()	{ return s_pkgs; }
 	static bool initialized()			{ return s_initialized; }
 	static int pkg_cnt()				{ return s_pkgs.size(); }
@@ -39,7 +39,7 @@ class DB
 	~DB();
 
 	static std::vector<Pkg*> s_pkgs;
-	static ulong s_total_size;
+	static float s_total_size;
 	static bool s_initialized;
 
 };

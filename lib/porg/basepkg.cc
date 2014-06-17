@@ -73,7 +73,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 		switch (buf[1]) {
 
 			case CODE_DATE: 		m_date = str2num<int>(val);		break;
-			case CODE_SIZE:			m_size = str2num<ulong>(val);	break;
+			case CODE_SIZE:			m_size = str2num<float>(val);	break;
 			case CODE_NFILES:		m_nfiles = str2num<ulong>(val);	break;
 			case CODE_CONF_OPTS:	m_conf_opts = val; 				break;
 			case CODE_ICON_PATH:	m_icon_path = val;				break;

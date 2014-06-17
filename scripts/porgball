@@ -106,7 +106,7 @@ do_create()
 	# Write list of files logged by the package into tmpfile.
 	# By using ls, only existing files are written,
 	
-	ls $(porg $opt_logdir --no-package-name --files $1) 2>/dev/null > $tmpfile
+	ls -d $(porg $opt_logdir --no-package-name --files $1) 2>/dev/null > $tmpfile
 	[ -s $tmpfile ] || { say "No files to process"; exit_status=1; return; }
 
 	# Get names of tar file and tarball

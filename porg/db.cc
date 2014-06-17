@@ -285,9 +285,9 @@ void DB::list_files()
 }
 
 
-//----------------//
+//------------//
 // DB::Sorter //
-//----------------//
+//------------//
 
 
 DB::Sorter::Sorter(sort_t const& t /* = SORT_BY_NAME */)

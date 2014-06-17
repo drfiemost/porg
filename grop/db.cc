@@ -10,12 +10,15 @@
 #include "opt.h"
 #include "pkg.h"
 #include "db.h"
+#include "util.h"
+#include <gtkmm/messagedialog.h>
+#include <gtkmm/progressbar.h>
+#include <gtkmm/image.h>
 #include <glibmm/fileutils.h>	// Dir
 
 using namespace Grop;
 
-
-ulong 				DB::s_total_size = 0;
+float 				DB::s_total_size = 0;
 std::vector<Pkg*> 	DB::s_pkgs;
 bool				DB::s_initialized = false;
 
@@ -26,9 +29,30 @@ DB::DB()
 	g_assert(Opt::initialized());
 
 	Opt::check_logdir();
+
+	Gtk::MessageDialog dialog("Reading database in" + Opt::logdir(), false, 
+		Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE, true);
+	dialog.set_title("grop :: info");
+	
+	Gtk::ProgressBar* progressbar(Gtk::manage(new Gtk::ProgressBar()));;
+	dialog.get_message_area()->pack_start(*progressbar);
+	dialog.set_image(*(Gtk::manage(new Gtk::Image(DATADIR "/pixmaps/grop.png"))));
+	dialog.show_all();
+
 	Glib::Dir dir(Opt::logdir());
+	
+	int npkgs = 0;
+	for (Glib::Dir::iterator d = dir.begin(); d != dir.end(); ++d)
+		npkgs++;
+
+	dir.rewind();
+	float cnt = 0;
 
 	for (Glib::Dir::iterator d = dir.begin(); d != dir.end(); ++d) {
+
+		dialog.set_secondary_text(*d);
+		main_iter();
+		
 		try 
 		{	
 			Pkg* pkg = new Pkg(*d);
@@ -39,6 +63,9 @@ DB::DB()
 		{
 			g_warning("%s", x.what()); 
 		}
+		
+		progressbar->set_fraction(cnt++ / npkgs);
+		main_iter();
 	}
 
 	s_initialized = true;

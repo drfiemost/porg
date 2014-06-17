@@ -60,7 +60,7 @@ class DB : public std::vector<Pkg*>
 
 	};	// class DB::Sorter
 
-	ulong m_total_size;
+	float m_total_size;
 	ulong m_total_files;
 
 };		// class DB
