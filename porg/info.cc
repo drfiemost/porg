@@ -114,7 +114,7 @@ void Porg::Info::read_config()
 	Out::dbg("Reading " + config);
 
 	get_define(config, "PACKAGE_URL", m_pkg.m_url);
-	get_define(config, "PACKAGE_BUGREPORT", m_pkg.m_bug_report);
+	get_define(config, "PACKAGE_BUGREPORT", m_pkg.m_author);
 	get_define(config, "PACKAGE_NAME", m_pkg.m_summary);
 	get_define(config, "PACKAGE_STRING", m_pkg.m_summary);
 }

@@ -25,6 +25,7 @@
 #include <fstream>
 #include <sys/wait.h>
 
+using std::string;
 
 Grop::Porgball::Last Grop::Porgball::s_last = 
 	{ Glib::get_home_dir(), PROG_GZIP, 6, false, true };
@@ -195,16 +196,14 @@ void Grop::Porgball::set_children_sensitive(bool setting /* = true */)
 bool Grop::Porgball::create_porgball()
 {
 	// check whether we have write permissions on the dest. directory
-	
-	std::string dir = m_filechooser_button.get_filename();
+	string dir = m_filechooser_button.get_filename();
 	if (access(dir.c_str(), W_OK) < 0) {
 		run_error_dialog(dir + ": " + Glib::strerror(errno), this);
 		return false;
 	}
 
-	// build porgball name
-
-    std::string zipfile = dir + "/" + m_label_tarball.get_text();
+    string zipfile = dir + "/" + m_label_tarball.get_text();
+	string tarfile = zipfile.substr(0, zipfile.rfind("."));
 	
 	if (!access(zipfile.c_str(), F_OK)) {
 		if (!run_question_dialog("File '" + zipfile + "' already exists.\n"
@@ -219,7 +218,6 @@ bool Grop::Porgball::create_porgball()
 	// get list of logged files
 
 	std::ofstream ftmp(m_tmpfile.c_str());
-	
 	if (!ftmp) {
 		run_error_dialog("Error opening temporary file '" 
 			+ m_tmpfile + "':" + Glib::strerror(errno), this);
@@ -246,9 +244,7 @@ bool Grop::Porgball::create_porgball()
 	
 	// build tar command and run it
 
-	std::string tarfile = dir + "/" + m_pkg.name() + ".porg.tar";
-	
-	std::vector<std::string> argv;
+	std::vector<string> argv;
 	argv.push_back("tar");
 	argv.push_back("--create");
 	argv.push_back("--file=" + tarfile);
@@ -265,14 +261,14 @@ bool Grop::Porgball::create_porgball()
 
 	// build compression command and run it
 
-	std::string prog = m_combo_prog.get_active_text();
+	string prog = m_combo_prog.get_active_text();
 
 	std::ostringstream level;
 	level << (m_combo_level.get_active_row_number() + 1);
 	
 	argv.clear();
 	argv.push_back(prog);
-	argv.push_back(std::string("-") + level.str());
+	argv.push_back(string("-") + level.str());
 	argv.push_back("--force");
 	argv.push_back(tarfile);
 	
@@ -317,7 +313,7 @@ void Grop::Porgball::end_create(bool done /* = true */)
 
 void Grop::Porgball::set_tarball_suffix()
 {
-	std::string name = m_pkg.name();
+	string name = m_pkg.name();
 	if (m_button_porg_suffix.get_active())
 		name += ".porg";
 	name += ".tar";
@@ -333,7 +329,7 @@ void Grop::Porgball::set_tarball_suffix()
 }
 
 
-bool Grop::Porgball::spawn(std::vector<std::string>& argv)
+bool Grop::Porgball::spawn(std::vector<string>& argv)
 {
 	int std_err, status;
 

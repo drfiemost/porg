@@ -31,7 +31,6 @@ class BasePkg
 	static char const CODE_DATE			= 't';
 	static char const CODE_SIZE			= 's';
 	static char const CODE_NFILES		= 'f';
-	static char const CODE_BUG_REPORT	= 'b';
 	static char const CODE_CONF_OPTS	= 'c';
 	static char const CODE_ICON_PATH	= 'i';
 	static char const CODE_SUMMARY		= 'S';
@@ -59,7 +58,6 @@ class BasePkg
 	std::string const& description() const	{ return m_description; }
 	std::string const& conf_opts() const	{ return m_conf_opts; }
 	std::string const& author() const		{ return m_author; }
-	std::string const& bug_report() const	{ return m_bug_report; }
 
 	bool find_file(File*) const;
 	bool find_file(std::string const& path) const;
@@ -99,7 +97,6 @@ class BasePkg
 	std::string m_description;
 	std::string m_conf_opts;
 	std::string m_author;
-	std::string m_bug_report;
 
 
 	class Sorter

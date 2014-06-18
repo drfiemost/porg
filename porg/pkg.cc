@@ -59,7 +59,6 @@ void Pkg::print_info_dbg() const
 	Out::dbg("Version:    "	+ m_version);
 	Out::dbg("Summary:    "	+ m_summary);
 	Out::dbg("Author:     "	+ m_author);
-	Out::dbg("Bug report: "	+ m_bug_report);
 	Out::dbg("URL:        "	+ m_url);
 	Out::dbg("License:    "	+ m_license);
 	Out::dbg("Conf. opt.: "	+ m_conf_opts);
@@ -74,13 +73,12 @@ void Pkg::print_info() const
 		<< string(m_name.size() + 2, '-') << '\n'
 		<< " " << m_name << " \n"
 		<< string(m_name.size() + 2, '-') << '\n'
-		<< "Name:       " << m_base_name << '\n'
-		<< "Version:    " << m_version << '\n'
-		<< "Summary:    " << m_summary << '\n'
-		<< "Author:     " << m_author << '\n'
-		<< "Bug report: " << m_bug_report << '\n'
-		<< "License:    " << m_license << '\n'
-		<< "URL:        " << m_url << "\n\n"
+		<< "Name:    " << m_base_name << '\n'
+		<< "Version: " << m_version << '\n'
+		<< "Summary: " << m_summary << '\n'
+		<< "Author:  " << m_author << '\n'
+		<< "License: " << m_license << '\n'
+		<< "URL:     " << m_url << "\n\n"
 		<< description_str() << "\n\n";
 }
 
@@ -132,7 +130,6 @@ void Pkg::write_log() const
 		<< '#' << CODE_SIZE			<< ':' << std::setprecision(0) << std::fixed << m_size << '\n'
 		<< '#' << CODE_NFILES		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
-		<< '#' << CODE_BUG_REPORT	<< ':' << m_bug_report << '\n'
 		<< '#' << CODE_SUMMARY		<< ':' << Porg::strip_trailing(m_summary, '.') << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'
 		<< '#' << CODE_LICENSE		<< ':' << m_license << '\n'

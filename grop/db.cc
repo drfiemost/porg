@@ -30,7 +30,7 @@ DB::DB()
 
 	Opt::check_logdir();
 
-	Gtk::MessageDialog dialog("Reading database in" + Opt::logdir(), false, 
+	Gtk::MessageDialog dialog("Reading database (" + Opt::logdir() + ")", false, 
 		Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE, true);
 	dialog.set_title("grop :: info");
 	

@@ -15,7 +15,6 @@
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/filechooserdialog.h>
-#include <glibmm/miscutils.h>	// Glib::get_home_dir()
 
 using namespace Grop;
 
@@ -29,23 +28,23 @@ Find::Find(Gtk::Window& parent)
 	m_treeview()
 {
 	set_border_width(8);
-	set_default_size(200, 200);
+	set_default_size(300, 200);
 	
-	Gtk::Button* p_button_browse = Gtk::manage(new Gtk::Button("_Browse", true));
-	p_button_browse->signal_clicked().connect(sigc::mem_fun(*this, &Find::browse));
+	Gtk::Button* button_browse = Gtk::manage(new Gtk::Button("_Browse", true));
+	button_browse->signal_clicked().connect(sigc::mem_fun(*this, &Find::browse));
 
-	Gtk::Grid* p_grid = Gtk::manage(new Gtk::Grid());
-	p_grid->set_column_spacing(get_border_width());
-	p_grid->attach(m_entry, 0, 0, 1, 1);
-	p_grid->attach(*p_button_browse, 1, 0, 1, 1);
+	Gtk::Grid* grid = Gtk::manage(new Gtk::Grid());
+	grid->set_column_spacing(get_border_width());
+	grid->attach(m_entry, 0, 0, 1, 1);
+	grid->attach(*button_browse, 1, 0, 1, 1);
 
-	Gtk::ScrolledWindow* p_scrolled_window = Gtk::manage(new Gtk::ScrolledWindow());
-	p_scrolled_window->add(m_treeview);
+	Gtk::ScrolledWindow* scrolled_window = Gtk::manage(new Gtk::ScrolledWindow());
+	scrolled_window->add(m_treeview);
 
-	Gtk::Box* p_box = get_content_area();
-	p_box->set_spacing(8);
-	p_box->pack_start(*p_grid, Gtk::PACK_SHRINK);
-	p_box->pack_start(*p_scrolled_window, Gtk::PACK_EXPAND_WIDGET);
+	Gtk::Box* box = get_content_area();
+	box->set_spacing(get_border_width());
+	box->pack_start(*grid, Gtk::PACK_SHRINK);
+	box->pack_start(*scrolled_window, Gtk::PACK_EXPAND_WIDGET);
 
 	add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
 	add_button(Gtk::Stock::FIND, Gtk::RESPONSE_APPLY);
@@ -104,7 +103,7 @@ void Find::find()
 
 	for (DB::const_iter p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
 		if ((*p)->find_file(path)) {
-			if (cnt++ > 0)
+			if (cnt++)
 				it = m_treeview.m_model->append();
 			(*it)[m_treeview.m_columns.m_name] = (*p)->name();
 		}
@@ -118,13 +117,8 @@ void Find::browse()
 
 	dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 	dialog.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
-	
 	dialog.set_show_hidden();
-	dialog.set_default_size(450, 350);
-
-	std::string path(m_entry.get_text());
-
-	dialog.set_filename(path[0] == '/' ? path : Glib::get_home_dir());
+	dialog.set_filename(m_entry.get_text());
 	
 	if (dialog.run() == Gtk::RESPONSE_OK) {
 		m_entry.set_text(dialog.get_filename());

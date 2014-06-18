@@ -37,8 +37,7 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_summary(),
 	m_description(),
 	m_conf_opts(),
-	m_author(),
-	m_bug_report()
+	m_author()
 {
 	// logged is false for packages that are being installed and are
 	// not registered in the database yet.
@@ -81,7 +80,6 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 			case CODE_URL: 			m_url = val; 					break;
 			case CODE_LICENSE: 		m_license = val; 				break;
 			case CODE_AUTHOR: 		m_author = val;					break;
-			case CODE_BUG_REPORT:	m_bug_report = val;				break;
 			case CODE_DESCRIPTION:
 				if (!m_description.empty())
 					m_description += "\n";

@@ -2,7 +2,6 @@ SVN
 ---
 
 	+ Added missing $(DESTDIR) to Makefiles.
-	+ New package info field "Bug report".
 
 	Changes in porg:
 
