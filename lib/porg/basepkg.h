@@ -57,8 +57,8 @@ class BasePkg
 	std::string const& conf_opts() const	{ return m_conf_opts; }
 	std::string const& author() const		{ return m_author; }
 
-	bool find_file(File*) const;
-	bool find_file(std::string const& path) const;
+	bool find_file(File*);
+	bool find_file(std::string const& path);
 	void get_files();
 	virtual void unlog() const;
 	void write_log() const;
@@ -99,6 +99,7 @@ class BasePkg
 	std::string m_description;
 	std::string m_conf_opts;
 	std::string m_author;
+	bool m_sorted_for_search;
 
 
 	class Sorter

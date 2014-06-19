@@ -38,18 +38,16 @@ BasePkg::BasePkg(string const& name_)
 	m_summary(),
 	m_description(),
 	m_conf_opts(),
-	m_author()
+	m_author(),
+	m_sorted_for_search(false)
 { }
 
 
 void BasePkg::read_log_header()
 {
-	// open log file
-	
-	FileStream<std::ifstream> f(m_log);
-
 	// read '#!porg' header or die
 	
+	FileStream<std::ifstream> f(m_log);
 	string buf;
 	if (!(getline(f, buf) && buf.find("#!porg") == 0))
 		throw Error(m_log + ": '#!porg' header missing");
@@ -119,8 +117,6 @@ void BasePkg::get_files()
 				str2num<ulong>(re.match(2)), re.match(3)));
 		}
 	}
-
-	sort_files();
 }
 
 
@@ -194,14 +190,18 @@ void BasePkg::add_file(string const& path)
 }
 
 
-bool BasePkg::find_file(File* file) const
+bool BasePkg::find_file(File* file)
 {
 	assert(file != 0);
+
+	if (!m_sorted_for_search)
+		sort_files();
+	
 	return std::binary_search(m_files.begin(), m_files.end(), file, Sorter());
 }
 
 
-bool BasePkg::find_file(string const& path) const
+bool BasePkg::find_file(string const& path)
 {
 	File file(path, 0);
 	return find_file(&file);
@@ -214,6 +214,8 @@ void BasePkg::sort_files(	sort_t type,	// = SORT_BY_NAME
 	std::sort(m_files.begin(), m_files.end(), Sorter(type));
 	if (reverse)
 		std::reverse(m_files.begin(), m_files.end());
+	
+	m_sorted_for_search = (type == SORT_BY_NAME && !reverse);
 }
 
 

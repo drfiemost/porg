@@ -43,7 +43,6 @@ RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 	set_border_width(4);
 	set_default_size(450, 0);
 
-//XXX better way to make this ?
 	Glib::signal_timeout().connect_once(mem_fun(this, &RemovePkg::remove), 100);
 
 	m_expander.property_expanded().signal_changed().connect(
@@ -54,8 +53,8 @@ RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 
 	m_text_view.set_editable(false);
 	m_text_view.set_cursor_visible(false);
-	m_text_view.set_right_margin(4);
-	m_text_view.set_left_margin(4);
+	m_text_view.set_right_margin(get_border_width());
+	m_text_view.set_left_margin(get_border_width());
 	m_text_view.override_background_color(Gdk::RGBA("black"), Gtk::STATE_FLAG_NORMAL);
 
 	m_tag_ok->property_foreground() = "white";
@@ -71,7 +70,7 @@ RemovePkg::RemovePkg(Pkg& pkg, Gtk::Window& parent)
 	label_box->pack_start(m_label, Gtk::PACK_SHRINK);
 
 	Gtk::Box* box = get_content_area();
-	box->set_spacing(4);
+	box->set_spacing(get_border_width());
 	box->pack_start(*label_box, Gtk::PACK_SHRINK);
 	box->pack_start(m_progressbar, Gtk::PACK_SHRINK);
 	box->pack_start(m_expander, Gtk::PACK_EXPAND_WIDGET);
@@ -110,42 +109,57 @@ void RemovePkg::report(string const& msg, Glib::RefPtr<Gtk::TextTag> const& tag)
 
 void RemovePkg::remove()
 {
-	int cnt = 1;
+	float cnt = 1;
+	int cnt_shared = 0, cnt_excluded = 0, cnt_removed = 0, cnt_error = 0;
 
 	for (Pkg::const_iter f(m_pkg.files().begin()); f != m_pkg.files().end(); ++f) {
 		
 		string file = (*f)->name();
 
-		m_progressbar.set_fraction(cnt++ / m_pkg.files().size());
+		m_progressbar.set_fraction(cnt++ / m_pkg.nfiles());
 		main_iter();
 
 		// skip excluded
-		if (Porg::in_paths(file, Opt::remove_skip()))
-			report("'" + file + "': excluded (skipped)", m_tag_skipped);
+		if (Porg::in_paths(file, Opt::remove_skip())) {
+			report("'" + file + "': excluded", m_tag_skipped);
+			cnt_excluded++;
+		}
 
 		// skip shared files
-		else if (m_pkg.is_shared(*f, DB::pkgs()))
-			report("'" + file + "': shared (skipped)", m_tag_skipped);
+		else if (m_pkg.is_shared(*f, DB::pkgs())) {
+			report("'" + file + "': shared", m_tag_skipped);
+			cnt_shared++;
+		}
 
 		// remove file
-		else if (unlink(file.c_str()) == 0 || errno == ENOENT) {
+		else if (true) { //XXX !unlink(file.c_str())) {
 			report("Removed '" + file + "'", m_tag_ok);
 			remove_parent_dir(file);
+			cnt_removed++;
 		}
 
 		// an error occurred
-		else {
+		else if (errno != ENOENT) {
+			report("Failed to remove '" + file + "': " + Glib::strerror(errno), m_tag_error);
+			cnt_error++;
 			m_error = true;
-			report("unlink(\"" + file + "\"): " + Glib::strerror(errno), m_tag_error);
 		}
 	}
+
+	std::ostringstream summary;
+	summary << "\nSummary:\n"
+		<< cnt_removed << " files removed\n"
+		<< cnt_excluded << " files excluded\n"
+		<< cnt_shared << " files shared\n"
+		<< cnt_error << " errors";
+	report(summary.str(), m_tag_ok);
 
 	if (m_error) {
 		m_label.set_markup("<span fgcolor=\"darkred\"><b>Completed with "
 			"errors (see Details)</b></span>");
 	}
 	else {
-		report("Package '" + m_pkg.name() + "' removed from database", m_tag_ok);
+		report("\nPackage '" + m_pkg.name() + "' removed from database", m_tag_ok);
 		m_label.set_markup("<span fgcolor=\"darkgreen\"><b>Done</b></span>");
 	}
 
