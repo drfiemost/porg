@@ -10,7 +10,6 @@
 #include "opt.h"
 #include "db.h"
 #include "util.h"
-#include "pkg.h"
 #include "porg/file.h"
 #include "porg/common.h"
 #include "removepkg.h"

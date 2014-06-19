@@ -23,21 +23,17 @@ class Log
 
 	protected:
 
-	std::string				m_package;
-	std::string				m_tmpfile;
+	std::string const		m_pkgname;
 	std::set<std::string> 	m_files;
-	
-	static int const EXIT_FAILURE_EXTERNAL = 2;
 	
 	Log();
 
 	void read_files_from_command();
-	void do_read_files_from_command();
+	void exec_command(std::string const&) const;
 	void read_files_from_stream(std::istream&);
 	void write_files_to_pkg() const;
 	void write_files_to_stream(std::ostream&) const;
 	void filter_files();
-	void get_tmpfile();
 
 }; 	// class Log
 

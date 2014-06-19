@@ -27,7 +27,6 @@ class BasePkg
 	typedef std::vector<File*>::const_iterator 	const_iter;
 
 	// codes used to identify fields in the header of log files
-	
 	static char const CODE_DATE			= 't';
 	static char const CODE_SIZE			= 's';
 	static char const CODE_NFILES		= 'f';
@@ -39,8 +38,7 @@ class BasePkg
 	static char const CODE_AUTHOR		= 'a';
 	static char const CODE_DESCRIPTION	= 'd';
 
-	BasePkg(std::string const& name_, bool logged = true);
-	
+	BasePkg(std::string const& name_);
 	virtual ~BasePkg();
 
 	std::vector<File*> const& files() const	{ return m_files; }
@@ -63,11 +61,13 @@ class BasePkg
 	bool find_file(std::string const& path) const;
 	void get_files();
 	virtual void unlog() const;
+	void write_log() const;
+	void read_log_header();
 	
 	static std::string get_base(std::string const& name);
 	static std::string get_version(std::string const& name);
 
-	template <typename T>	// T = {Porg,Grop}::Pkg
+	template <typename T>	// T = {Pkg,BasePkg}
 	bool is_shared(File* file, std::vector<T*> const& pkgs) const
 	{
 		for (typename std::vector<T*>::const_iterator p(pkgs.begin()); p != pkgs.end(); ++p) {
@@ -77,10 +77,12 @@ class BasePkg
 		return false;
 	}
 
-
 	protected:
 
 	void sort_files(sort_t type = SORT_BY_NAME, bool reverse = false);
+	std::string format_description() const;
+	void add_file(std::string const& path);
+	std::string description_str(bool debug = false) const;
 
 	std::vector<File*> m_files;
 	std::string const m_name;

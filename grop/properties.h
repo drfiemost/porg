@@ -9,14 +9,14 @@
 #ifndef GROP_PROPERTIES_H
 #define GROP_PROPERTIES_H
 
+#include "config.h"
+#include "db.h"
 #include <gtkmm/dialog.h>
 #include <gtkmm/notebook.h>
 
 
 namespace Grop
 {
-
-class Pkg;
 
 class Properties : public Gtk::Dialog 
 {

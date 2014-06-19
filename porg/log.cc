@@ -11,8 +11,8 @@
 #include "opt.h"
 #include "porg/common.h"	// in_paths()
 #include "util.h"
-#include "info.h"
 #include "pkg.h"
+#include "newpkg.h"
 #include "log.h"
 #include <fstream>
 #include <sstream>
@@ -30,8 +30,7 @@ static void set_env(char const* var, string const& val);
 
 Log::Log()
 :
-	m_package(Opt::log_pkg_name()),
-	m_tmpfile(),
+	m_pkgname(Opt::log_pkg_name()),
 	m_files()
 {
 	if (Opt::args().empty())
@@ -41,7 +40,7 @@ Log::Log()
 
 	filter_files();
 
-	if (m_package.empty())
+	if (m_pkgname.empty())
 		write_files_to_stream(cout);
 	else
 		write_files_to_pkg();
@@ -56,25 +55,20 @@ void Log::run()
 
 void Log::write_files_to_pkg() const
 {
-	bool done(false);
+	bool done = false;
 
 	if (Opt::log_append()) {
 		try 
 		{
-			Pkg already_logged_pkg(m_package);
+			Pkg already_logged_pkg(m_pkgname);
 			already_logged_pkg.append(m_files);
 			done = true;
 		}
 		catch (...) { }
 	}
 
-	if (!done) {
-		Pkg pkg(m_package, m_files);
-		Info info(pkg);
-		if (Out::debug())
-			pkg.print_info_dbg();
-		pkg.write_log();
-	}
+	if (!done)
+		NewPkg newpkg(m_pkgname, m_files);
 
 	if (Out::debug()) {
 		Out::dbg_title("logged files");
@@ -98,22 +92,36 @@ void Log::read_files_from_stream(istream& f)
 
 void Log::read_files_from_command()
 {
+	// get name for tmp file
+
+	char* tmpdir = getenv("TMPDIR");
+	char tmpfile[4096];
+
+	snprintf(tmpfile, sizeof(tmpfile), "%s/porgXXXXXX", tmpdir ? tmpdir : "/tmp");
+	
+	if (close(mkstemp(tmpfile)) < 0)
+		snprintf(tmpfile, sizeof(tmpfile), "/tmp/porg%d", getpid());
+
+	// exec command
+
 	try
 	{
-		do_read_files_from_command();
+		exec_command(tmpfile);
+
+		FileStream<ifstream> f(tmpfile);
+		read_files_from_stream(f);
+		unlink(tmpfile);
 	}
 	catch (...)
 	{
-		unlink(m_tmpfile.c_str());
+		unlink(tmpfile);
 		throw;
 	}
 }
 
 
-void Log::do_read_files_from_command()
+void Log::exec_command(string const& tmpfile) const
 {
-	get_tmpfile();
-	
 	pid_t pid = fork();
 
 	if (pid == 0) { // child
@@ -124,15 +132,15 @@ void Log::do_read_files_from_command()
 			command += Opt::args()[i] + " ";
 		
 		set_env("LD_PRELOAD", libporg);
-		set_env("PORG_TMPFILE", m_tmpfile);
+		set_env("PORG_TMPFILE", tmpfile);
 		if (Out::debug())
 			set_env("PORG_DEBUG", "yes");
 
 		Out::dbg_title("settings");
 		Out::dbg("LD_PRELOAD: " + libporg); 
-		Out::dbg("include: " + Opt::include()); 
-		Out::dbg("exclude: " + Opt::exclude()); 
-		Out::dbg("command: " + command);
+		Out::dbg("INCLUDE:    " + Opt::include()); 
+		Out::dbg("EXCLUDE:    " + Opt::exclude()); 
+		Out::dbg("command:    " + command);
 		Out::dbg_title("libporg-log");
 
 		char* cmd[] = { (char*)"sh", (char*)"-c", (char*)(command.c_str()), 0 };
@@ -145,25 +153,6 @@ void Log::do_read_files_from_command()
 		throw Error("fork()", errno);
 
 	wait(0);
-
-	FileStream<ifstream> f(m_tmpfile);
-	read_files_from_stream(f);
-	
-	unlink(m_tmpfile.c_str());
-}
-
-
-void Log::get_tmpfile()
-{
-	char* tmpdir = getenv("TMPDIR");
-	char name[4096];
-
-	snprintf(name, sizeof(name), "%s/porgXXXXXX", tmpdir ? tmpdir : "/tmp");
-	
-	if (close(mkstemp(name)) < 0)
-		snprintf(name, sizeof(name), "/tmp/porg%d", getpid());
-
-	m_tmpfile = name;
 }
 
 
@@ -181,7 +170,6 @@ void Log::filter_files()
 		if ((*p).empty())
 			continue;
 
-		// get absolute path
 		string path(clear_path((*p)));
 
 		// skip excluded or not included files
@@ -216,7 +204,7 @@ static string search_libporg()
 	glob_t g;
 	memset(&g, 0, sizeof(g));
 	
-	if (!glob(LIBDIR "/libporg-log.so.[0-9]*", GLOB_NOSORT, 0, &g) && g.gl_pathc)
+	if (!glob(LIBDIR "/libporg-log.so.[0-9]*", 0, 0, &g) && g.gl_pathc)
 		libpath = g.gl_pathv[0];
 	
 	globfree(&g);

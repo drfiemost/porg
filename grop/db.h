@@ -10,12 +10,15 @@
 #define GROP_DB_H
 
 #include "config.h"
+#include "porg/basepkg.h"
 #include <vector>
 #include <iosfwd>
 
 namespace Grop {
 
-class Pkg;
+
+typedef Porg::BasePkg Pkg;
+typedef Porg::File File;
 
 class DB
 {

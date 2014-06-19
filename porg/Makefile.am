@@ -12,7 +12,7 @@ porg_CXXFLAGS = \
 porg_SOURCES = \
 	main.cc \
 	pkg.cc \
-	info.cc \
+	newpkg.cc \
 	out.cc \
 	db.cc \
 	log.cc \
@@ -22,9 +22,9 @@ porg_SOURCES = \
 noinst_HEADERS = \
 	util.h \
 	out.h \
-	info.h \
 	db.h \
 	pkg.h \
+	newpkg.h \
 	log.h \
 	main.h \
 	opt.h

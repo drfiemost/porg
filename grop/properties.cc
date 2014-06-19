@@ -7,7 +7,6 @@
 //=======================================================================
 
 #include "config.h"
-#include "pkg.h"
 #include "properties.h"
 #include "filestreeview.h"
 #include "infotextview.h"

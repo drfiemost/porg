@@ -14,6 +14,7 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
+#include <iomanip>
 
 using std::string;
 using namespace Porg;
@@ -21,7 +22,7 @@ using namespace Porg;
 template<typename T> static T str2num(string const&);
 
 
-BasePkg::BasePkg(string const& name_, bool logged /* = true */)
+BasePkg::BasePkg(string const& name_)
 :
 	m_files(),
 	m_name(name_),
@@ -38,19 +39,18 @@ BasePkg::BasePkg(string const& name_, bool logged /* = true */)
 	m_description(),
 	m_conf_opts(),
 	m_author()
+{ }
+
+
+void BasePkg::read_log_header()
 {
-	// logged is false for packages that are being installed and are
-	// not registered in the database yet.
-	if (!logged)
-		return;
-	
 	// open log file
 	
 	FileStream<std::ifstream> f(m_log);
-	string buf;
 
 	// read '#!porg' header or die
 	
+	string buf;
 	if (!(getline(f, buf) && buf.find("#!porg") == 0))
 		throw Error(m_log + ": '#!porg' header missing");
 
@@ -109,23 +109,88 @@ void BasePkg::get_files()
 	if (!m_files.empty())
 		return;
 
-	ulong fsize;
-
 	FileStream<std::ifstream> f(m_log);
-	
 	Rexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
 
 	for (string buf; getline(f, buf); ) {
-
 		assert(buf[0] == '/' || buf[0] == '#');
-
 		if (re.exec(buf)) {
-			fsize = str2num<ulong>(re.match(2));
-			m_files.push_back(new File(re.match(1), fsize, re.match(3)));
+			m_files.push_back(new File(re.match(1), 
+				str2num<ulong>(re.match(2)), re.match(3)));
 		}
 	}
 
 	sort_files();
+}
+
+
+string BasePkg::description_str(bool debug /* = false */) const
+{
+	string const head(debug ? "porg :: " : "");
+	string desc("Description: ");
+	
+	if (m_description.find('\n') == string::npos)
+		desc += m_description;
+	else {
+		std::istringstream is(m_description);
+		for (string buf; getline(is, buf); )
+			desc += '\n' + head + "   " + buf;
+	}
+
+	return desc;
+}
+
+
+string BasePkg::format_description() const
+{
+	string code(string("#") + CODE_DESCRIPTION + ':');
+
+	if (m_description.empty())
+		return code + '\n';
+
+	string ret;
+	std::istringstream is(m_description);
+
+	for (string buf; getline(is, buf); )
+		ret += code + buf + '\n';
+
+	return ret;
+}
+
+
+void BasePkg::write_log() const
+{
+	// Create log file
+
+	FileStream<std::ofstream> of(m_log);
+
+	// write info header
+
+	of	<< "#!porg-" PACKAGE_VERSION "\n"
+		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
+		<< '#' << CODE_SIZE			<< ':' << std::setprecision(0) << std::fixed << m_size << '\n'
+		<< '#' << CODE_NFILES		<< ':' << m_nfiles << '\n'
+		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
+		<< '#' << CODE_SUMMARY		<< ':' << Porg::strip_trailing(m_summary, '.') << '\n'
+		<< '#' << CODE_URL			<< ':' << m_url << '\n'
+		<< '#' << CODE_LICENSE		<< ':' << m_license << '\n'
+		<< '#' << CODE_CONF_OPTS	<< ':' << m_conf_opts << '\n'
+		<< '#' << CODE_ICON_PATH	<< ':' << m_icon_path << '\n'
+		<< format_description();
+
+	// write installed files
+	
+	for (const_iter f(m_files.begin()); f != m_files.end(); ++f)
+		of << (*f)->name() << '|' << (*f)->size() << '|' << (*f)->ln_name() << '\n';
+}
+
+
+void BasePkg::add_file(string const& path)
+{
+	File* file = new File(path);
+	m_files.push_back(file);
+	m_size += file->size();
+	m_nfiles++;
 }
 
 

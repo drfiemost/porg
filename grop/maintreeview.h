@@ -10,6 +10,7 @@
 #define GROP_MAIN_TREE_VIEW_H
 
 #include "config.h"
+#include "db.h"
 #include <iosfwd>
 #include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
@@ -17,8 +18,6 @@
 
 namespace Grop
 {
-
-class Pkg;
 
 class MainTreeView : public Gtk::TreeView
 {

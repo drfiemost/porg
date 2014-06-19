@@ -10,6 +10,7 @@
 #define GROP_REMOVE_PKG_H
 
 #include "config.h"
+#include "db.h"
 #include <gtkmm/dialog.h>
 #include <gtkmm/label.h>
 #include <gtkmm/progressbar.h>
@@ -19,8 +20,6 @@
 
 
 namespace Grop {
-
-class Pkg;
 
 class RemovePkg : public Gtk::Dialog
 {

@@ -8,7 +8,6 @@
 
 #include "config.h"
 #include "find.h"
-#include "pkg.h"
 #include "db.h"
 #include <gtkmm/grid.h>
 #include <gtkmm/button.h>

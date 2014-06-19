@@ -7,7 +7,6 @@
 //=======================================================================
 
 #include "config.h"
-#include "pkg.h"
 #include "infotextview.h"
 
 using Glib::ustring;
@@ -30,11 +29,17 @@ InfoTextView::InfoTextView(Pkg const& pkg)
 	m_tag_title->property_weight() = Pango::WEIGHT_BOLD;
 	m_tag_title->property_family() = "monospace";
 
-	if (pkg.icon()) {
-		m_text_buffer->insert(m_text_buffer->end(), "\n");
-		m_text_buffer->insert_pixbuf(m_text_buffer->end(), pkg.icon());
-		m_text_buffer->insert(m_text_buffer->end(), "\n");
+	try 
+	{ 
+		Glib::RefPtr<Gdk::Pixbuf> icon
+			= Gdk::Pixbuf::create_from_file(pkg.icon_path(), 72, 72);
+		if (icon) {
+			m_text_buffer->insert(m_text_buffer->end(), "\n");
+			m_text_buffer->insert_pixbuf(m_text_buffer->end(), icon);
+			m_text_buffer->insert(m_text_buffer->end(), "\n");
+		}
 	}
+	catch (...) { }
 
 	insert("\nName:    ", pkg.base_name());
 	insert("\nVersion: ", pkg.version());

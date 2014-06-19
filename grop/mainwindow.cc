@@ -9,7 +9,6 @@
 #include "config.h"
 #include "opt.h"
 #include "db.h"
-#include "pkg.h"
 #include "porg/file.h"
 #include "mainwindow.h"
 #include "properties.h"

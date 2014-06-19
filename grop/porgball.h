@@ -9,6 +9,8 @@
 #ifndef GROP_PORGBALL_H
 #define GROP_PORGBALL_H
 
+#include "config.h"
+#include "db.h"
 #include <gtkmm/dialog.h>
 #include <gtkmm/label.h>
 #include <gtkmm/comboboxtext.h>
@@ -19,8 +21,6 @@
 
 namespace Grop
 {
-
-class Pkg;
 
 class Porgball : public Gtk::Dialog
 {

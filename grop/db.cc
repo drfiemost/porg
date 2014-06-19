@@ -8,7 +8,6 @@
 
 #include "config.h"
 #include "opt.h"
-#include "pkg.h"
 #include "db.h"
 #include "util.h"
 #include <gtkmm/messagedialog.h>
@@ -16,6 +15,7 @@
 #include <gtkmm/image.h>
 #include <glibmm/fileutils.h>	// Dir
 
+using std::string;
 using namespace Grop;
 
 float 				DB::s_total_size = 0;
@@ -30,7 +30,7 @@ DB::DB()
 
 	Opt::check_logdir();
 
-	Gtk::MessageDialog dialog("Reading database (" + Opt::logdir() + ")", false, 
+	Gtk::MessageDialog dialog("Reading database  (" + Opt::logdir() + ")", false, 
 		Gtk::MESSAGE_INFO, Gtk::BUTTONS_NONE, true);
 	dialog.set_title("grop :: info");
 	
@@ -40,15 +40,14 @@ DB::DB()
 	dialog.show_all();
 
 	Glib::Dir dir(Opt::logdir());
-	
-	int npkgs = 0;
-	for (Glib::Dir::iterator d = dir.begin(); d != dir.end(); ++d)
-		npkgs++;
-
-	dir.rewind();
+	int npkgs = std::vector<string>(dir.begin(), dir.end()).size();	
+	s_pkgs.reserve(npkgs);
 	float cnt = 0;
 
-	for (Glib::Dir::iterator d = dir.begin(); d != dir.end(); ++d) {
+	for (Glib::DirIterator d = dir.begin(); d != dir.end(); ++d) {
+
+		if (!Glib::file_test(Opt::logdir() + "/" + *d, Glib::FILE_TEST_IS_REGULAR))
+			continue;
 
 		dialog.set_secondary_text(*d);
 		main_iter();
@@ -56,6 +55,8 @@ DB::DB()
 		try 
 		{	
 			Pkg* pkg = new Pkg(*d);
+			pkg->read_log_header();
+			pkg->get_files();
 			s_pkgs.push_back(pkg);
 			s_total_size += pkg->size();
 		}

@@ -9,13 +9,13 @@
 #ifndef GROP_INFOTEXTVIEW_H
 #define GROP_INFOTEXTVIEW_H
 
+#include "config.h"
+#include "db.h"
 #include <gtkmm/textview.h>
 
 
 namespace Grop
 {
-
-class Pkg;
 
 class InfoTextView : public Gtk::TextView
 {

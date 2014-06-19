@@ -10,6 +10,7 @@
 #define GROP_FIND_H
 
 #include "config.h"
+#include "db.h"
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/treeview.h>
@@ -18,8 +19,6 @@
 
 namespace Grop
 {
-
-class Pkg;
 
 class Find : public Gtk::Dialog
 {

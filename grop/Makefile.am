@@ -13,8 +13,7 @@ noinst_HEADERS = \
 	preferences.h \
 	filestreeview.h \
 	infotextview.h \
-	maintreeview.h \
-	pkg.h
+	maintreeview.h
 
 if ENABLE_GROP
 
@@ -23,7 +22,6 @@ bin_PROGRAMS = \
 
 grop_SOURCES = \
 	main.cc \
-	pkg.cc \
 	find.cc \
 	util.cc \
 	porgball.cc \

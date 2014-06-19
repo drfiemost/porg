@@ -9,7 +9,6 @@
 #include "config.h"
 #include "db.h"
 #include "opt.h"
-#include "pkg.h"
 #include "maintreeview.h"
 
 using std::string;

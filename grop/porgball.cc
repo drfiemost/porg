@@ -10,7 +10,7 @@
 #include "porgball.h"
 #include "util.h"
 #include "mainwindow.h"
-#include "pkg.h"
+#include "db.h"
 #include "porg/file.h"
 #include <gtkmm/label.h>
 #include <gtkmm/table.h>

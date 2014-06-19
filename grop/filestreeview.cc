@@ -7,7 +7,7 @@
 //=======================================================================
 
 #include "config.h"
-#include "pkg.h"
+#include "db.h"
 #include "porg/file.h"
 #include "filestreeview.h"
 
