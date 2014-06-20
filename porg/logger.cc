@@ -1,5 +1,5 @@
 //=======================================================================
-// log.cc
+// logger.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
@@ -13,7 +13,7 @@
 #include "util.h"
 #include "pkg.h"
 #include "newpkg.h"
-#include "log.h"
+#include "logger.h"
 #include <fstream>
 #include <sstream>
 #include <iterator>
@@ -28,7 +28,7 @@ static string search_libporg();
 static void set_env(char const* var, string const& val);
 
 
-Log::Log()
+Logger::Logger()
 :
 	m_pkgname(Opt::log_pkg_name()),
 	m_files()
@@ -47,13 +47,13 @@ Log::Log()
 }
 
 
-void Log::run()
+void Logger::run()
 {
-	static Log log;
+	static Logger log;
 }
 
 
-void Log::write_files_to_pkg() const
+void Logger::write_files_to_pkg() const
 {
 	bool done = false;
 
@@ -78,19 +78,19 @@ void Log::write_files_to_pkg() const
 }
 
 
-void Log::write_files_to_stream(ostream& s) const
+void Logger::write_files_to_stream(ostream& s) const
 {
 	copy(m_files.begin(), m_files.end(), ostream_iterator<string>(s, "\n"));
 }
 
 
-void Log::read_files_from_stream(istream& f)
+void Logger::read_files_from_stream(istream& f)
 {
 	for (string buf; getline(f, buf); m_files.insert(buf)) ;
 }
 
 
-void Log::read_files_from_command()
+void Logger::read_files_from_command()
 {
 	// get name for tmp file
 
@@ -120,7 +120,7 @@ void Log::read_files_from_command()
 }
 
 
-void Log::exec_command(string const& tmpfile) const
+void Logger::exec_command(string const& tmpfile) const
 {
 	pid_t pid = fork();
 
@@ -160,7 +160,7 @@ void Log::exec_command(string const& tmpfile) const
 // Convert input files to absolute paths, skip excluded or not included
 // files, and skip non-regular or missing files.
 //
-void Log::filter_files()
+void Logger::filter_files()
 {
 	vector<string> filtered;
 	struct stat s;

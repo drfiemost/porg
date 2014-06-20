@@ -37,7 +37,7 @@ void FilesTreeView::fill_model()
 	for (uint i = 0; i < m_pkg.files().size(); ++i) {
 		Gtk::TreeModel::iterator it = m_model->append();
 		File* file = m_pkg.files()[i];
-		(*it)[m_columns.m_file_p] = file;
+		(*it)[m_columns.m_file] = file;
 		(*it)[m_columns.m_name] = file->name();
 		(*it)[m_columns.m_size] = file->size();
 	}
@@ -70,13 +70,13 @@ void FilesTreeView::add_columns()
 void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iterator const& it)
 {
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
-	File* file_p = (*it)[m_columns.m_file_p];
+	File* file = (*it)[m_columns.m_file];
 	
 	// Print missing files in red
 	
 	struct stat s;
 
-	if (!lstat(file_p->name().c_str(), &s))
+	if (!lstat(file->name().c_str(), &s))
 		cell_text->property_foreground() = "black";
 	else
 		cell_text->property_foreground() = "red";
@@ -86,15 +86,15 @@ void FilesTreeView::name_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iter
 void FilesTreeView::size_cell_func(Gtk::CellRenderer* cell, Gtk::TreeModel::iterator const& it)
 {
 	Gtk::CellRendererText* cell_text = static_cast<Gtk::CellRendererText*>(cell);
-	File* file_p = (*it)[m_columns.m_file_p];
+	File* file = (*it)[m_columns.m_file];
 	
 	struct stat s;
 
-	if (!lstat(file_p->name().c_str(), &s))
+	if (!lstat(file->name().c_str(), &s))
 		cell_text->property_foreground() = "black";
 	else
 		cell_text->property_foreground() = "red";
 
-	cell_text->property_text() = Porg::fmt_size(file_p->size());
+	cell_text->property_text() = Porg::fmt_size(file->size());
 }
 

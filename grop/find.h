@@ -29,14 +29,7 @@ class Find : public Gtk::Dialog
 		class ModelColumns : public Gtk::TreeModel::ColumnRecord
 		{
 			friend class Find;
-	
-			ModelColumns()
-			{
-				add(m_pkg);
-				add(m_name);
-			}
-
-			Gtk::TreeModelColumn<Pkg*>			m_pkg;
+			ModelColumns() { add(m_name); }
 			Gtk::TreeModelColumn<Glib::ustring>	m_name;
 
 		};	// class Find::ModelColumns

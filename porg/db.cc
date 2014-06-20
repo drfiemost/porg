@@ -189,17 +189,17 @@ void DB::remove()
 	// ask the user, if needed
 	if (!Opt::remove_batch()) {
 		
-		string buf, msg = string("The following packages will be ")
-			+ (Opt::remove_unlog() ? "unlogged" : "removed") + ":\n ";
+		cout << "The following packages will be "
+			 << (Opt::remove_unlog() ? "unlogged" : "removed") << ":\n";
 		
 		for (iterator p(begin()); p != end(); ++p)
-			msg += " " + (*p)->name();
+			cout << "  " << (*p)->name();
 		
-		msg += "\nDo you want to proceed (y/N) ? ";
-
-		std::cout << msg;
-
-		if (!(getline(std::cin, buf) && (buf == "y" || buf == "Y" || buf == "yes")))
+		cout << "\nDo you want to proceed (y/N) ? ";
+		
+		string buf;
+		std::cin >> buf;
+		if (buf != "y")
 			return;
 	}
 
@@ -210,7 +210,7 @@ void DB::remove()
 	
 	get_files();
 
-	// aux. DB to check for shared files
+	// auxiliary DB to check for shared files
 	DB aux;
 	aux.get_all_pkgs();
 	aux.get_files();

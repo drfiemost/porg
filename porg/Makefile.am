@@ -15,7 +15,7 @@ porg_SOURCES = \
 	newpkg.cc \
 	out.cc \
 	db.cc \
-	log.cc \
+	logger.cc \
 	opt.cc \
 	util.cc
 
@@ -25,7 +25,7 @@ noinst_HEADERS = \
 	db.h \
 	pkg.h \
 	newpkg.h \
-	log.h \
+	logger.h \
 	main.h \
 	opt.h
 

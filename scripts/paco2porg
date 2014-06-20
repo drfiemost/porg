@@ -110,6 +110,7 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 		[ "$REPLY" = y -o "$REPLY" = Y ] || continue
 		sayf "${pkg}... "
 	fi
+
 	# Actual import:
 
 	# 1) Info header
@@ -136,7 +137,7 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 	for buf in $(sed -n '/^-\?\// s//\//p' $paco_log); do
 		
 		path=${buf%%|*}
-		size=-1
+		size=0
 		symlink=
 
 		size_raw=$(echo $buf | cut -f2 -d '|')

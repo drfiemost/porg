@@ -149,13 +149,17 @@ bool MainTreeView::on_button_press_event(GdkEventButton* event)
 	// call base class, to allow normal handler
 	bool handled = Gtk::TreeView::on_button_press_event(event);
 
-	// right click
-	if (event->button == 3)
-		signal_popup_menu.emit(event);
+	// catch only events within the treeview
+	if (event->window == get_bin_window()->gobj()) {
 	
-	// double left click
-	else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
-		signal_2button_press.emit(event);
+		// right click
+		if (event->button == 3)
+			signal_popup_menu.emit(event);
+	
+		// double left click
+		else if (event->button == 1 && event->type == GDK_2BUTTON_PRESS)
+			signal_2button_press.emit(event);
+	}
 
 	return handled;
 }

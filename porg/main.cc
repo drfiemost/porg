@@ -8,12 +8,11 @@
 
 #include "config.h"
 #include "opt.h"
-#include "log.h"
+#include "logger.h"
 #include "db.h"
 #include "main.h"
 
 using namespace Porg;
-using namespace std;
 
 // Initialization of global vars
 namespace Porg
@@ -24,14 +23,14 @@ namespace Porg
 
 int main(int argc, char* argv[])
 {
-	ios::sync_with_stdio(false);
+	std::ios::sync_with_stdio(false);
 
 	try 
 	{
 		Opt::init(argc, argv);
 
 		if (Opt::mode() == MODE_LOG) {
-			Log::run();
+			Logger::run();
 			exit(g_exit_status);
 		}
 
@@ -56,9 +55,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	catch (exception const& x) 
+	catch (std::exception const& x) 
 	{
-		cerr << "porg: " << x.what() << '\n';
+		std::cerr << "porg: " << x.what() << '\n';
 		g_exit_status = EXIT_FAILURE;
 	}
 

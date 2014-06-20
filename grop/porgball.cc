@@ -31,7 +31,7 @@ Grop::Porgball::Last Grop::Porgball::s_last =
 	{ Glib::get_home_dir(), PROG_GZIP, 6, false, true };
 
 
-Grop::Porgball::Porgball(Grop::Pkg const& pkg, Gtk::Window& parent)
+Grop::Porgball::Porgball(Pkg const& pkg, Gtk::Window& parent)
 :
 	Gtk::Dialog("grop :: porgball", parent, true),
 	m_pkg(pkg),
@@ -230,9 +230,9 @@ bool Grop::Porgball::create_porgball()
 
 	struct stat s;
 
-	for (guint i = 0; i < m_pkg.files().size(); ++i) {
-		if (!lstat(m_pkg.files()[i]->name().c_str(), &s))
-			ftmp << m_pkg.files()[i]->name() << "\n";
+	for (Pkg::const_iter f(m_pkg.files().begin()); f != m_pkg.files().end(); ++f) {
+		if (!lstat((*f)->name().c_str(), &s))
+			ftmp << (*f)->name() << "\n";
 	}
 
 	if (!ftmp.tellp()) {

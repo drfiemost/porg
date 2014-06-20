@@ -128,7 +128,7 @@ Opt::Opt(int argc, char* argv[])
 		{ "batch", 				0, 0, OPT_BATCH },
 		{ "skip", 				1, 0, OPT_SKIP },
 		{ "unlog", 				0, 0, OPT_UNLOG },
-		// Log options
+		// Logger options
 		{ "log", 				0, 0, OPT_LOG },
 		{ "package", 			1, 0, OPT_PACKAGE },
 		{ "include", 			1, 0, OPT_INCLUDE },

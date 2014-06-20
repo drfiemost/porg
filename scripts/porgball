@@ -9,7 +9,7 @@
 
 me=$(basename $0)
 
-warn()			{ echo "$me: $*" >&2; }
+warn()			{ echo "$me: $*" >&2; exit_status=1; }
 die()			{ warn "$*"; exit 1; }
 say()			{ [ "$opt_verb" ] && echo "$*"; }
 do_version() 	{ porg -V | sed "s/^porg/$me/"; exit 0; }
@@ -73,11 +73,10 @@ do_check_dir()
 
 do_extract()
 {
-	[ -e $1 ] || { warn "$1: No such file"; exit_status=1; return; }
+	[ -e $1 ] || { warn "$1: No such file"; return; }
 
 	if ! echo $1 | egrep --quiet '\.tar\.(gz|bz2|xz)$'; then
 		warn "$1: Does not look like a porgball; skipped"
-		exit_status=1
 		return
 	fi
 
@@ -93,7 +92,7 @@ do_extract()
 		eval $cmd
 	fi
 
-	exit_status=$?
+	[ $? -eq 0 ] || exit_status=$?
 }
 
 
@@ -107,9 +106,9 @@ do_create()
 	# By using ls, only existing files are written,
 	
 	ls -d $(porg $opt_logdir --no-package-name --files $1) 2>/dev/null > $tmpfile
-	[ -s $tmpfile ] || { say "No files to process"; exit_status=1; return; }
+	[ -s $tmpfile ] || { warn "No files to process"; return; }
 
-	# Get names of tar file and tarball
+	# Get names of tar file and porgball
 
 	tarfile=$(echo $destdir/${1}${porg_suffix}.tar | tr -s /)
 	case $opt_prog in
@@ -127,28 +126,23 @@ do_create()
 	# Create intermediate tar archive
 	
 	say "Creating $tarfile"
-	if ! tar $opt_verb --create --file=$tarfile --ignore-failed-read --files-from=$tmpfile
-	then
-		exit_status=1
-		return
-	fi
+	tar $opt_verb --create --file=$tarfile --ignore-failed-read --files-from=$tmpfile \
+		|| { exit_status=1; return; }
 
 	# Create porgball
 	
 	say "Creating $ball"
-	if ! eval $opt_prog --force $opt_level $opt_verb $tarfile; then
-		exit_status=1
-		return
-	fi
+	eval $opt_prog --force $opt_level $opt_verb $tarfile \
+		|| { exit_status=1; return; }
 
 	# Test integrity of the created porgball, if needed
 	
 	if [ "$opt_test" ]; then
 		say "Testing integrity of $ball"
-		eval $opt_prog $opt_verb --test $ball
-		exit_status=$?
+		eval $opt_prog $opt_verb --test $ball || exit_status=$?
 	fi
 }
+
 
 #-------
 

@@ -17,7 +17,8 @@ SVN
 
 	Changes in scripts:
 
-	+ Bugfix: Porgball failed to process symbolic links to directories.
+	+ Bugfix: porgball failed to process symbolic links to directories.
+	+ Bugfix: paco2porg failed to process missing files.
 
 
 Version 0.6 (16 June 2014)

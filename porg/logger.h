@@ -1,5 +1,5 @@
 //=======================================================================
-// log.h
+// logger.h
 //-----------------------------------------------------------------------
 // This file is part of the package porg
 // Copyright (C) 2014 David Ricart
@@ -15,7 +15,7 @@
 
 namespace Porg {
 
-class Log
+class Logger
 {
 	public:
 
@@ -26,7 +26,7 @@ class Log
 	std::string const		m_pkgname;
 	std::set<std::string> 	m_files;
 	
-	Log();
+	Logger();
 
 	void read_files_from_command();
 	void exec_command(std::string const&) const;
@@ -35,7 +35,7 @@ class Log
 	void write_files_to_stream(std::ostream&) const;
 	void filter_files();
 
-}; 	// class Log
+}; 	// class Logger
 
 }	// namespace Porg
 

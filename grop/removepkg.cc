@@ -132,7 +132,7 @@ void RemovePkg::remove()
 		}
 
 		// remove file
-		else if (true) { //XXX !unlink(file.c_str())) {
+		else if (!unlink(file.c_str())) {
 			report("Removed '" + file + "'", m_tag_ok);
 			remove_parent_dir(file);
 			cnt_removed++;

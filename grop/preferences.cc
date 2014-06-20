@@ -24,7 +24,7 @@ Preferences* Preferences::s_prefs = 0;
 
 Preferences::Preferences(Gtk::Window& parent)
 :
-	Gtk::Dialog("grop :: preferences", parent, true),
+	Gtk::Dialog("preferences", parent, true),
 	m_buttons(),
 	m_button_hour("Show _hour in date", true)
 {
@@ -36,20 +36,23 @@ Preferences::Preferences(Gtk::Window& parent)
 
 	Gtk::Grid* grid = Gtk::manage(new Gtk::Grid());
 	
-	string col_names[] = { /*"_Icon",*/ "_Name", "_Size", "_Files", "_Date", "Su_mmary" };
+	string col_names[] = { "_Name", "_Size", "_Files", "_Date", "Su_mmary" };
 
 	for (int i = 0; i < MainTreeView::NCOLS; ++i) {
 		m_buttons[i].set_label(col_names[i]);
 		m_buttons[i].set_use_underline();
 		grid->attach(m_buttons[i], 0, i, 1, 1);
 	}
+	// column name cannot be hidden
+	m_buttons[0].set_active();
+	m_buttons[0].set_sensitive(false);
 
 	Gtk::Frame* frame = Gtk::manage(new Gtk::Frame(" Visible columns "));
-	frame->set_border_width(4);
+	frame->set_border_width(get_border_width());
 	frame->add(*grid);
 
 	Gtk::Box* box = get_content_area();
-	box->set_spacing(4);
+	box->set_spacing(get_border_width());
 	box->pack_start(*frame);
 	box->pack_start(m_button_hour);
 	box->pack_start(*(Gtk::manage(new Gtk::Separator())));
