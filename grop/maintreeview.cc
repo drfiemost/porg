@@ -175,3 +175,17 @@ bool MainTreeView::on_key_press_event(GdkEventKey* event)
 	return handled;
 }
 
+
+void MainTreeView::scroll_to_pkg(Pkg* pkg)
+{
+	Gtk::TreeModel::Children children = m_model->children();
+
+	for (iterator i = children.begin(); i != children.end(); ++i) {
+		if ((*i)[m_columns.m_pkg] == pkg) {
+			get_selection()->select(i);
+			scroll_to_row(m_model->get_path(i), 0);;
+			break;
+		}
+	}
+}
+

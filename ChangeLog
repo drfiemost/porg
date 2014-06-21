@@ -8,12 +8,16 @@ SVN
 	+ Check for option requirements.
 	+ Option -U requires -r.
 	+ Added short option -j for --log-missing.
-	+ Bugfix: Deal with big package sizes (> 4G).
+	+ Bugfix: Properly deal with big package sizes (> 4G).
 
 	Changes in grop:
 
 	+ Display a startup info dialog when reading big databases.
 	+ Added button "porg suffix" to the porgball creation dialog.
+	+ When showing results in the "Find file" dialog, double clicking on a
+	  row, or pressing of <Return>, makes the treeview in the main window 
+	  scroll to the selected package.
+	+ Improved the quality of the grop icon.
 
 	Changes in scripts:
 

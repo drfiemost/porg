@@ -261,6 +261,13 @@ void MainWindow::on_porgball()
 }
 
 
+void MainWindow::scroll_to_pkg(Pkg* pkg)
+{
+	g_assert(pkg != 0);
+	m_treeview.scroll_to_pkg(pkg);
+}
+
+
 void MainWindow::on_unlog()
 {
 	if (!(Opt::logdir_writable() && m_selected_pkg))

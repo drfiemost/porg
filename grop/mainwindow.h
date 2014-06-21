@@ -26,6 +26,8 @@ class MainWindow : public Gtk::Window
 	MainWindow();
 	~MainWindow();
 
+	void scroll_to_pkg(Pkg*);
+
 	private:
 
 	void update_statusbar();

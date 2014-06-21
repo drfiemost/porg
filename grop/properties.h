@@ -10,7 +10,7 @@
 #define GROP_PROPERTIES_H
 
 #include "config.h"
-#include "db.h"
+#include "pkg.h"
 #include <gtkmm/dialog.h>
 #include <gtkmm/notebook.h>
 

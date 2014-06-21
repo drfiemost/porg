@@ -10,7 +10,7 @@
 #define GROP_FILES_TREE_VIEW_H
 
 #include "config.h"
-#include "db.h"
+#include "pkg.h"
 #include <iosfwd>
 #include <gtkmm/treeview.h>
 #include <gtkmm/liststore.h>

@@ -10,13 +10,10 @@
 #include "porgball.h"
 #include "util.h"
 #include "mainwindow.h"
-#include "db.h"
 #include "porg/file.h"
-#include <gtkmm/label.h>
 #include <gtkmm/table.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/grid.h>
-#include <gtkmm/progressbar.h>
 #include <gtkmm/separator.h>
 #include <glibmm/iochannel.h>
 #include <glibmm/miscutils.h>	// Glib::get_home_dir()

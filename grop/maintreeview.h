@@ -10,7 +10,7 @@
 #define GROP_MAIN_TREE_VIEW_H
 
 #include "config.h"
-#include "db.h"
+#include "pkg.h"
 #include <iosfwd>
 #include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
@@ -65,6 +65,7 @@ class MainTreeView : public Gtk::TreeView
 
 	void reset_opts();
 	void remove_pkg(Pkg const* const);
+	void scroll_to_pkg(Pkg*);
 
 	private:
 

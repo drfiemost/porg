@@ -9,6 +9,7 @@
 #include "config.h"
 #include "find.h"
 #include "db.h"
+#include "mainwindow.h"
 #include <gtkmm/grid.h>
 #include <gtkmm/button.h>
 #include <gtkmm/scrolledwindow.h>
@@ -20,11 +21,11 @@ using namespace Grop;
 Find* Find::s_find = 0;
 
 
-Find::Find(Gtk::Window& parent)
+Find::Find(MainWindow& parent)
 :
 	Gtk::Dialog("grop :: find file", parent, true),
 	m_entry(),
-	m_treeview()
+	m_treeview(parent)
 {
 	set_border_width(8);
 	set_default_size(300, 200);
@@ -58,7 +59,7 @@ Find::Find(Gtk::Window& parent)
 }
 
 
-void Find::instance(Gtk::Window& parent)
+void Find::instance(MainWindow& parent)
 {
 	if (!s_find)
 		s_find = new Find(parent);
@@ -87,13 +88,14 @@ Gtk::TreeModel::iterator Find::reset_treeview()
 
 void Find::find()
 {
-	Gtk::TreeModel::iterator it = reset_treeview();
+	Gtk::TreeModel::iterator i = reset_treeview();
 	Glib::ustring path(m_entry.get_text());
 
 	if (path.empty())
 		return;
 	
-	(*it)[m_treeview.m_columns.m_name] = "(file not found)";
+	(*i)[m_treeview.m_columns.m_name] = "(file not found)";
+	(*i)[m_treeview.m_columns.m_pkg] = 0;
 
 	if (path[0] != '/')
 		return;
@@ -103,8 +105,9 @@ void Find::find()
 	for (DB::const_iter p = DB::pkgs().begin(); p != DB::pkgs().end(); ++p) {
 		if ((*p)->find_file(path)) {
 			if (cnt++)
-				it = m_treeview.m_model->append();
-			(*it)[m_treeview.m_columns.m_name] = (*p)->name();
+				i = m_treeview.m_model->append();
+			(*i)[m_treeview.m_columns.m_name] = (*p)->name();
+			(*i)[m_treeview.m_columns.m_pkg] = *p;
 		}
 	}
 }
@@ -131,13 +134,56 @@ void Find::browse()
 //--------------------//
 
 
-Find::PkgsTreeView::PkgsTreeView()
+Find::PkgsTreeView::PkgsTreeView(MainWindow& parent)
 :
 	m_columns(),
-	m_model(Gtk::ListStore::create(m_columns))
+	m_model(Gtk::ListStore::create(m_columns)),
+	m_selected_pkg(0),
+	m_mainwindow(parent)
 {
 	set_model(m_model);
 	set_headers_visible(false);
 	append_column("", m_columns.m_name);
+
+	get_selection()->signal_changed().connect(
+		sigc::mem_fun(this, &Find::PkgsTreeView::on_selection_changed));
+}
+
+
+void Find::PkgsTreeView::on_selection_changed()
+{
+	Gtk::TreeModel::iterator i = get_selection()->get_selected();
+	m_selected_pkg = i ? (*i)[m_columns.m_pkg] : static_cast<Pkg*>(0);
+}
+
+
+//
+// Double clicking on a row makes the main treeview in the main window
+// scroll to the selected package.
+//
+bool Find::PkgsTreeView::on_button_press_event(GdkEventButton* event)
+{
+	bool handled = Gtk::TreeView::on_button_press_event(event);
+
+	if (m_selected_pkg && event->window == get_bin_window()->gobj()
+	&& event->button == 1 && event->type == GDK_2BUTTON_PRESS)
+		m_mainwindow.scroll_to_pkg(m_selected_pkg);
+	
+	return handled;
+}
+
+
+//
+// Pressing <Return> makes the main treeview in the main window
+// scroll to the selected package.
+//
+bool Find::PkgsTreeView::on_key_press_event(GdkEventKey* event)
+{
+	bool handled = Gtk::TreeView::on_key_press_event(event);
+	
+	if (m_selected_pkg && event->keyval == GDK_KEY_Return)
+		m_mainwindow.scroll_to_pkg(m_selected_pkg);
+	
+	return handled;
 }
 

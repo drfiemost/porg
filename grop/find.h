@@ -10,7 +10,7 @@
 #define GROP_FIND_H
 
 #include "config.h"
-#include "db.h"
+#include "pkg.h"
 #include <gtkmm/dialog.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/treeview.h>
@@ -19,6 +19,8 @@
 
 namespace Grop
 {
+
+class MainWindow;
 
 class Find : public Gtk::Dialog
 {
@@ -29,24 +31,37 @@ class Find : public Gtk::Dialog
 		class ModelColumns : public Gtk::TreeModel::ColumnRecord
 		{
 			friend class Find;
-			ModelColumns() { add(m_name); }
+
+			ModelColumns() 
+			{ 
+				add(m_name);
+				add(m_pkg);
+			}
+			
 			Gtk::TreeModelColumn<Glib::ustring>	m_name;
+			Gtk::TreeModelColumn<Pkg*>			m_pkg;
 
 		};	// class Find::ModelColumns
 
-		PkgsTreeView();
+		PkgsTreeView(MainWindow&);
+
+		void on_selection_changed();
+		virtual bool on_button_press_event(GdkEventButton*);
+		virtual bool on_key_press_event(GdkEventKey*);
 
 		ModelColumns                    m_columns;
 		Glib::RefPtr<Gtk::ListStore>	m_model;
+		Pkg*							m_selected_pkg;
+		MainWindow&						m_mainwindow;
 	};
 
 	public:
 
-	static void instance(Gtk::Window&);
+	static void instance(MainWindow&);
 
 	private:
 
-	Find(Gtk::Window&);
+	Find(MainWindow&);
 
 	Gtk::Entry		m_entry;
 	PkgsTreeView	m_treeview;

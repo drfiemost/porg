@@ -5,6 +5,7 @@ noinst_HEADERS = \
 	opt.h \
 	db.h \
 	find.h \
+	pkg.h \
 	util.h \
 	mainwindow.h \
 	removepkg.h \
