@@ -25,11 +25,13 @@ class File
 	std::string const& name() const		{ return m_name; }
 	std::string const& ln_name() const	{ return m_ln_name; }
 	bool is_symlink() const				{ return !m_ln_name.empty(); }
+	bool is_installed() const			{ return m_installed; }
 
 	private:
 
 	std::string const m_name;
 	ulong m_size;
+	bool m_installed;
 	
 	// if the file is a symlink, name of the file it refers to,
 	// or an empty string otherwise
