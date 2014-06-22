@@ -42,7 +42,11 @@ class Opt : public BaseOpt
 	static bool all_pkgs()			{ return s_all_pkgs; }
 	static bool exact_version()		{ return s_exact_version; }
 	static bool print_sizes()		{ return s_print_sizes; }
+	static bool print_sizes_miss()	{ return s_print_sizes_miss; }
 	static bool print_nfiles()		{ return s_print_nfiles; }
+	static bool print_nfiles_miss()	{ return s_print_nfiles_miss; }
+	static bool list_files()		{ return s_list_files; }
+	static bool list_files_miss()	{ return s_list_files_miss; }
 	static bool print_totals()		{ return s_print_totals; }
 	static bool print_symlinks()	{ return s_print_symlinks; }
 	static bool print_no_pkg_name()	{ return s_print_no_pkg_name; }
@@ -69,7 +73,11 @@ class Opt : public BaseOpt
 	static bool s_all_pkgs;
 	static bool s_exact_version;
 	static bool s_print_sizes;
+	static bool s_print_sizes_miss;
 	static bool s_print_nfiles;
+	static bool s_print_nfiles_miss;
+	static bool s_list_files;
+	static bool s_list_files_miss;
 	static bool s_print_totals;
 	static bool s_print_symlinks;
 	static bool s_print_no_pkg_name;

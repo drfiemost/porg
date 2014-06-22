@@ -29,7 +29,11 @@ namespace Porg
 	bool Opt::s_all_pkgs = false;
 	bool Opt::s_exact_version = false;
 	bool Opt::s_print_sizes = false;
+	bool Opt::s_print_sizes_miss = false;
 	bool Opt::s_print_nfiles = false;
+	bool Opt::s_print_nfiles_miss = false;
+	bool Opt::s_list_files = false;
+	bool Opt::s_list_files_miss = false;
 	bool Opt::s_print_totals = false;
 	bool Opt::s_print_symlinks = false;
 	bool Opt::s_print_no_pkg_name = false;
@@ -83,6 +87,9 @@ Opt::Opt(int argc, char* argv[])
 		OPT_INFO			= 'i',
 		OPT_LOGDIR			= 'L',
 		OPT_LOG				= 'l',
+		OPT_FILES_MISS		= 'm',
+		OPT_NFILES_MISS		= 'M',
+		OPT_SIZE_MISS		= 'n',
 		OPT_CONF_OPTS		= 'o',
 		OPT_PACKAGE			= 'p',
 		OPT_LOG_MISSING		= 'j',
@@ -114,8 +121,11 @@ Opt::Opt(int argc, char* argv[])
 		{ "date", 				0, 0, OPT_DATE },
 		{ "sort", 				1, 0, OPT_SORT },
 		{ "size", 				0, 0, OPT_SIZE },
+		{ "size-miss", 			0, 0, OPT_SIZE_MISS },
 		{ "nfiles", 			0, 0, OPT_NFILES },
+		{ "nfiles-miss",		0, 0, OPT_NFILES_MISS },
 		{ "files", 				0, 0, OPT_FILES },
+		{ "files-miss", 		0, 0, OPT_FILES_MISS },
 		{ "reverse", 			0, 0, OPT_REVERSE },
 		{ "total", 				0, 0, OPT_TOTAL },
 		{ "symlinks", 			0, 0, OPT_SYMLINKS },
@@ -174,6 +184,7 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_INFO: 		set_mode(MODE_INFO, c); break;
 			case OPT_CONF_OPTS:	set_mode(MODE_CONF_OPTS, c); break;
 			case OPT_QUERY: 	set_mode(MODE_QUERY, c); break;
+			case OPT_FILES_MISS:
 			case OPT_FILES: 	set_mode(MODE_LIST_FILES, c); break;
 			case OPT_LOG: 		set_mode(MODE_LOG, c); break;
 			case OPT_REMOVE:	set_mode(MODE_REMOVE, c); break;
@@ -217,16 +228,24 @@ Opt::Opt(int argc, char* argv[])
 				s_print_totals = true; 
 				break;
 
-			case OPT_SIZE:
-				check_mode(MODE_LIST_FILES | MODE_LIST_PKGS, c);
-				s_print_sizes = true;
-				break;
-
 			case OPT_NO_PACKAGE_NAME:
 				check_mode(MODE_LIST_FILES | MODE_LIST_PKGS, c);
 				s_print_no_pkg_name = true;
 				break;
 			
+			case OPT_SIZE:
+				check_mode(MODE_LIST_FILES | MODE_LIST_PKGS, c);
+				s_print_sizes = true;
+				break;
+
+			case OPT_FILES:
+				s_list_files = true;
+				break;
+
+			case OPT_FILES_MISS:
+				s_list_files_miss = true;
+				break;
+
 			case OPT_DATE:
 				check_mode(MODE_LIST_PKGS, c);
 				s_print_hour = s_print_date; 
@@ -236,6 +255,16 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_NFILES:
 				check_mode(MODE_LIST_PKGS, c);
 				s_print_nfiles = true; 
+				break;
+
+			case OPT_NFILES_MISS:
+				check_mode(MODE_LIST_PKGS, c);
+				s_print_nfiles_miss = true; 
+				break;
+
+			case OPT_SIZE_MISS:
+				check_mode(MODE_LIST_PKGS, c);
+				s_print_sizes_miss = true;
 				break;
 
 			case OPT_SYMLINKS:
@@ -322,7 +351,8 @@ Opt::Opt(int argc, char* argv[])
 			// no break here
 
 		default:
-			if (!(s_print_sizes || s_print_nfiles)) {
+			if (!(s_print_sizes || s_print_sizes_miss 
+			|| s_print_nfiles || s_print_nfiles_miss)) {
 				s_print_totals = false;
 				if (s_mode == MODE_LIST_PKGS && s_print_no_pkg_name && !s_print_date)
 					die_help("Option '-z|--no-package-name' requires at least one of '-sdfF'");
@@ -350,11 +380,13 @@ void Opt::check_mode(int modes, char optchar, char required_optchar /* = 0 */)
 
 void Opt::set_mode(int mode, char optchar)
 {
-	if (s_mode_char && s_mode_char != optchar)
+	if (s_mode_char && s_mode_char != optchar && s_mode != mode)
 		die_help(string("-") + s_mode_char + optchar + ": Incompatible options");
 	
-	s_mode_char = optchar;
-	s_mode = mode;
+	if (!s_mode_char) {
+		s_mode_char = optchar;
+		s_mode = mode;
+	}
 }
 
 
@@ -362,10 +394,14 @@ void Opt::set_sort_type(string const& s)
 {
 	if (!s.compare(0, s.size(), "size", s.size()))
 		s_sort_type = SORT_BY_SIZE;
+	else if (!s.compare(0, s.size(), "size-miss", s.size()))
+		s_sort_type = SORT_BY_SIZE_MISS;
 	else if (!s.compare(0, s.size(), "date", s.size()))
 		s_sort_type = SORT_BY_DATE;
 	else if (!s.compare(0, s.size(), "files", s.size()))
 		s_sort_type = SORT_BY_NFILES;
+	else if (!s.compare(0, s.size(), "files-miss", s.size()))
+		s_sort_type = SORT_BY_NFILES_MISS;
 	else if (!s.compare(0, s.size(), "name", s.size()))
 		s_sort_type = SORT_BY_NAME;
 	else
@@ -380,24 +416,30 @@ cout <<
 "Usage:\n"
 "  porg [OPTIONS] <packages|files|command>\n\n"
 "General options:\n"
+"  -a, --all                Apply to all logged packages (not with -r).\n"
 "  -L, --logdir=DIR         Use DIR as the log directory.\n"
 "  -v, --verbose            Verbose output (-vv produces debugging messages).\n"
 "  -x, --exact-version      Do not expand version of packages given as arguments.\n"
 "  -h, --help               Display this help message.\n"
 "  -V, --version            Display version information.\n\n"
 "General list options:\n"
-"  -a, --all                Apply to all logged packages (not with -r or -U).\n"
-"  -s, --size               Print the installed size of each package or file.\n"
-"  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n"
 "  -R, --reverse            Reverse order while sorting.\n"
 "  -t, --total              Print totals.\n"
 "  -z, --no-package-name    Don't print the name of the package.\n\n"
 "Package list options:\n"
 "  -d, --date               Print the installation day (-dd prints the hour too).\n"
-"  -F, --nfiles             Print the number of installed files.\n\n"
+"  -s, --size               Print the installed size of the package.\n"
+"  -n, --size-miss          Print the missing size of the package.\n"
+"  -F, --nfiles             Print the number of installed files.\n"
+"  -M, --nfiles-miss        Print the number of missing files.\n"
+"  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size', 'size-miss',\n"
+"                           'files' or 'files-miss'.\n\n"
 "File list options:\n"
 "  -f, --files              List the files installed by the package.\n"
-"  -y, --symlinks           Print the contents of symbolic links.\n\n"
+"  -m, --files-miss         List the missing files of the package.\n"
+"  -s, --size               Print the size of each file.\n"
+"  -y, --symlinks           Print the contents of symbolic links.\n"
+"  -S, --sort=WORD          Sort by WORD: 'name' or 'size'.\n\n"
 "Package information options:\n"
 "  -i, --info               Print package information.\n"
 "  -o, --configure-options  Print the arguments passed to configure when the\n"

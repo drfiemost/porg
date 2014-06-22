@@ -31,6 +31,9 @@ specially useful when entering the install command in log mode.
 Mandatory arguments to long options are mandatory to short options too.
 .SH GENERAL OPTIONS
 .TP
+\fB-a, --all\fR
+Apply to all installed packages (not with \fB-r\fR).
+.TP
 \fB-L, --logdir\fR=\fIDIR\fR
 Base log directory. The logs for the installed packages are saved in this
 directory. Default is '@LOGDIR@', unless variable LOGDIR is set
@@ -60,17 +63,6 @@ Display version information and exit.
 .SH GENERAL LIST OPTIONS
 These options can be used to list packages or files.
 .TP
-\fB-a, --all\fR
-Apply to all installed packages.
-.TP
-\fB-s, --size\fR
-Print the size of each package or file.
-.TP
-\fB-S, --sort\fR=\fIWORD\fR
-Sort the list by WORD: When listing files, meaningful values for WORD
-are: 'name' and 'size'. When listing packages, WORD may be
-also: 'date' (or 'time') and 'files'.
-.TP
 \fB-R, --reverse\fR
 Reverse order while sorting.
 .TP
@@ -82,20 +74,44 @@ Do not print the name of the package when listing. Useful for scripts.
 
 .SH PACKAGE LIST OPTIONS
 .TP
+\fB-s, --size\fR
+Print the currently installed size of the package.
+.TP
+\fB-n, --size-miss\fR
+Print the missing size of the package (original size - currently installed size),
+in parenthesis.
+.TP
 \fB-F, --nfiles\fR
-Print the number of installed files.
+Print the number of currently installed files.
+.TP
+\fB-M, --nfiles-miss\fR
+Print the number of missing files, in parenthesis.
 .TP
 \fB-d, --date\fR
 Print the installation date of the package. Double it ('\fB-dd\fR') to print
 also the hour.
+.TP
+\fB-S, --sort\fR=\fIWORD\fR
+Sort the list by WORD: 'name', 'size', 'size-miss', 'files', 'files-miss' or 'date'.
 
 .SH FILE LIST OPTIONS
 .TP
 \fB-f, --files\fR
-List the files installed by the package.
+List the files currently installed by the package.
+.TP
+\fB-m, --files-miss\fR
+List the missing files of the package (original - current).
+.TP
+\fB-s, --size\fR
+Print the size of each file. For installed files, print current size. 
+For missing files, print the size of the file when it was installed, if known,
+or zero otherwise.
 .TP
 \fB-y, --symlinks\fR
 Print the contents of symbolic links.
+.TP
+\fB-S, --sort\fR=\fIWORD\fR
+Sort the list by WORD: 'name' or 'size'.
 
 .SH PACKAGE INFORMATION OPTIONS
 Only one of these options may be used at once.

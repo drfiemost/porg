@@ -14,7 +14,6 @@
 #include <fstream>
 #include <algorithm>
 #include <sstream>
-#include <iomanip>
 
 using std::string;
 using namespace Porg;
@@ -31,7 +30,9 @@ BasePkg::BasePkg(string const& name_)
 	m_version(get_version(name_)),
 	m_date(time(0)),
 	m_size(0),
+	m_size_miss(0),
 	m_nfiles(0),
+	m_nfiles_miss(0),
 	m_icon_path(),
 	m_url(),
 	m_license(),
@@ -39,7 +40,7 @@ BasePkg::BasePkg(string const& name_)
 	m_description(),
 	m_conf_opts(),
 	m_author(),
-	m_sorted_for_search(false)
+	m_sorted_by_name(false)
 { }
 
 
@@ -70,8 +71,6 @@ void BasePkg::read_log_header()
 		switch (buf[1]) {
 
 			case CODE_DATE: 		m_date = str2num<int>(val);		break;
-			case CODE_SIZE:			m_size = str2num<float>(val);	break;
-			case CODE_NFILES:		m_nfiles = str2num<ulong>(val);	break;
 			case CODE_CONF_OPTS:	m_conf_opts = val; 				break;
 			case CODE_ICON_PATH:	m_icon_path = val;				break;
 			case CODE_SUMMARY: 		m_summary = val; 				break;
@@ -109,12 +108,26 @@ void BasePkg::get_files()
 
 	FileStream<std::ifstream> f(m_log);
 	Rexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
+	ulong fsize;
 
 	for (string buf; getline(f, buf); ) {
+		
 		assert(buf[0] == '/' || buf[0] == '#');
+		
 		if (re.exec(buf)) {
-			m_files.push_back(new File(re.match(1), 
-				str2num<ulong>(re.match(2)), re.match(3)));
+			
+			fsize = str2num<ulong>(re.match(2));
+			File* file = new File(re.match(1), fsize, re.match(3));
+			m_files.push_back(file);
+			
+			if (file->is_installed()) {
+				m_size += file->size();
+				m_nfiles++;
+			}
+			else {
+				m_size_miss += file->size();
+				m_nfiles_miss++;
+			}
 		}
 	}
 }
@@ -164,8 +177,6 @@ void BasePkg::write_log() const
 
 	of	<< "#!porg-" PACKAGE_VERSION "\n"
 		<< '#' << CODE_DATE 		<< ':' << m_date << '\n'
-		<< '#' << CODE_SIZE			<< ':' << std::setprecision(0) << std::fixed << m_size << '\n'
-		<< '#' << CODE_NFILES		<< ':' << m_nfiles << '\n'
 		<< '#' << CODE_AUTHOR		<< ':' << m_author << '\n'
 		<< '#' << CODE_SUMMARY		<< ':' << Porg::strip_trailing(m_summary, '.') << '\n'
 		<< '#' << CODE_URL			<< ':' << m_url << '\n'
@@ -194,7 +205,7 @@ bool BasePkg::find_file(File* file)
 {
 	assert(file != 0);
 
-	if (!m_sorted_for_search)
+	if (!m_sorted_by_name)
 		sort_files();
 	
 	return std::binary_search(m_files.begin(), m_files.end(), file, Sorter());
@@ -215,7 +226,7 @@ void BasePkg::sort_files(	sort_t type,	// = SORT_BY_NAME
 	if (reverse)
 		std::reverse(m_files.begin(), m_files.end());
 	
-	m_sorted_for_search = (type == SORT_BY_NAME && !reverse);
+	m_sorted_by_name = (type == SORT_BY_NAME && !reverse);
 }
 
 

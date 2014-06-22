@@ -21,7 +21,7 @@ Porg::File::File(string const& name_, ulong size_, string const& ln_name_ /* = "
 :
 	m_name(name_),
 	m_size(size_),
-	m_installed(true),
+	m_installed(),
 	m_ln_name(ln_name_)
 {
 	struct stat s;
@@ -37,15 +37,13 @@ Porg::File::File(string const& name_)
 :
 	m_name(name_),
 	m_size(0),
-	m_installed(true),
+	m_installed(false),
 	m_ln_name()
 {
 	struct stat s;
 
-	if (lstat(m_name.c_str(), &s) < 0) {
-		m_installed = false;
+	if (lstat(m_name.c_str(), &s) < 0)
 		return;
-	}
 
 	else if (S_ISLNK(s.st_mode)) {
 		char ln[4096];
@@ -56,6 +54,7 @@ Porg::File::File(string const& name_)
 		}
 	}
 
+	m_installed = true;
 	m_size = s.st_size;
 }
 

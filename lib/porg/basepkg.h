@@ -28,8 +28,6 @@ class BasePkg
 
 	// codes used to identify fields in the header of log files
 	static char const CODE_DATE			= 't';
-	static char const CODE_SIZE			= 's';
-	static char const CODE_NFILES		= 'f';
 	static char const CODE_CONF_OPTS	= 'c';
 	static char const CODE_ICON_PATH	= 'i';
 	static char const CODE_SUMMARY		= 'S';
@@ -44,7 +42,9 @@ class BasePkg
 	std::vector<File*> const& files() const	{ return m_files; }
 	int date() const						{ return m_date; }
 	float size() const						{ return m_size; }
+	float size_miss() const					{ return m_size_miss; }
 	ulong nfiles() const					{ return m_nfiles; }
+	ulong nfiles_miss() const				{ return m_nfiles_miss; }
 	std::string const& name() const			{ return m_name; }
 	std::string const& log() const			{ return m_log; }
 	std::string const& base_name() const	{ return m_base_name; }
@@ -91,7 +91,9 @@ class BasePkg
 	std::string const m_version;
 	int m_date;
 	float m_size;
+	float m_size_miss;
 	ulong m_nfiles;
+	ulong m_nfiles_miss;
 	std::string m_icon_path;
 	std::string m_url;
 	std::string m_license;
@@ -99,8 +101,7 @@ class BasePkg
 	std::string m_description;
 	std::string m_conf_opts;
 	std::string m_author;
-	bool m_sorted_for_search;
-
+	bool m_sorted_by_name;
 
 	class Sorter
 	{
