@@ -32,5 +32,5 @@ logme:
 	for dir in $(SUBDIRS); do \
 	  ( cd $$dir && $(MAKE) $@ ) 2>/dev/null; \
 	done && \
-	echo && porg -vvfsty porg-$(PACKAGE_VERSION)
+	echo && porg -vvxfmsty porg-$(PACKAGE_VERSION)
 

@@ -19,15 +19,13 @@ namespace Porg {
 
 
 enum {
-	MODE_NONE		= 0,
    	MODE_LIST_PKGS	= 1 << 0,
    	MODE_LIST_FILES = 1 << 1,
    	MODE_QUERY 		= 1 << 2,
    	MODE_INFO 		= 1 << 3,
    	MODE_CONF_OPTS 	= 1 << 4,
    	MODE_LOG 		= 1 << 5,
-   	MODE_REMOVE 	= 1 << 6,
-   	NMODES = 7
+   	MODE_REMOVE 	= 1 << 6
 };
 
 
@@ -66,7 +64,8 @@ class Opt : public BaseOpt
 
 	Opt(int argc, char* argv[]);
 
-	static void check_mode(int modes, char optchar, char required_optchar = 0);
+	static void check_mode(int, char);
+	static void check_required(char, std::string const&);
 	static void set_mode(int m, char optchar);
 	static void set_sort_type(std::string const&);
 
@@ -94,6 +93,7 @@ class Opt : public BaseOpt
 	static int s_mode;
 	static std::vector<std::string> s_args;
 	static char s_mode_char;
+	static std::string s_optchars;
 
 };	// class Opt
 

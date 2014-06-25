@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 #
 
-AC_INIT([porg],[0.7-svn],[http://porg.sourceforge.net])
+AC_INIT([porg],[1.0-svn],[http://porg.sourceforge.net])
 
 #RELEASEDATE="16 June 2014"
 RELEASEDATE="`date +'%d %B %Y'`"
@@ -12,7 +12,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([build])
 AC_CONFIG_MACRO_DIR([build])
 
-AM_INIT_AUTOMAKE([-Wall foreign no-installinfo no-texinfo.tex])
+AM_INIT_AUTOMAKE([-Wall foreign no-installinfo no-texinfo.tex dist-xz no-dist-gzip])
 AM_MAINTAINER_MODE
 
 AC_CONFIG_FILES([ \

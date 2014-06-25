@@ -1,15 +1,20 @@
-Version 0.7 (23 June 2014)
+SVN
+---
+
+	+ Support for missing files.
+	+ Better option requirement checking.
+
+
+Version 0.7 (25 June 2014)
 --------------------------
 
 	+ Added missing $(DESTDIR)s to Makefiles.
 
 	Changes in porg:
 
-	+ Check for option requirements.
+	+ Check for command line option requirements.
 	+ Option -U requires -r.
 	+ Added short option -j for --log-missing.
-	+ Bugfix: Do not print empty lines when listing files and option -z 
-	  is enabled.
 	+ Bugfix: Properly deal with big package sizes (> 4G).
 
 	Changes in grop:

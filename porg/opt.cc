@@ -46,10 +46,11 @@ namespace Porg
 	bool Opt::s_print_hour = false;
 	bool Opt::s_logdir_created = false;
 	sort_t Opt::s_sort_type = SORT_BY_NAME;
-	string Opt::s_log_pkg_name = string();
-	int Opt::s_mode = MODE_NONE;
+	string Opt::s_log_pkg_name = "";
+	int Opt::s_mode = MODE_LIST_PKGS;
 	vector<string> Opt::s_args = vector<string>();
 	char Opt::s_mode_char = 0;
+	string Opt::s_optchars = "";
 }
 
 
@@ -73,7 +74,7 @@ Opt::Opt(int argc, char* argv[])
 :
 	BaseOpt()
 {
-	enum {
+	char const
 		OPT_ALL				= 'a',
 		OPT_BATCH			= 'b',
 		OPT_DIRNAME			= 'D',
@@ -106,8 +107,7 @@ Opt::Opt(int argc, char* argv[])
 		OPT_EXACT_VERSION_2	= 'X',
 		OPT_SYMLINKS		= 'y',
 		OPT_NO_PACKAGE_NAME	= 'z',
-		OPT_APPEND			= '+'
-	};
+		OPT_APPEND			= '+';
 
 	struct option opt[] = {
 		// General options
@@ -149,7 +149,7 @@ Opt::Opt(int argc, char* argv[])
 		{ 0 ,0, 0, 0 },
 	};
 	
-	// Deal with the weird non-getopt-friendly '-p+' option
+	// Deal with the non-getopt-friendly '-p+' option
 	// (convert it to '-+p')
 	
     for (int i = 1; i < argc; ++i) {
@@ -171,9 +171,12 @@ Opt::Opt(int argc, char* argv[])
 	
 	int c;
 
-	// First pass of getopt, to get general options and mode of operation
+	// First pass of getopt: Set general options and mode of operation
 
 	while ((c = getopt_long(argc, argv, optstring.c_str(), opt, 0)) >= 0) {
+
+		s_optchars += c;  // keep track of options used
+
 		switch (c) {
 			// general opts
 			case OPT_VERSION: 	version(); break;
@@ -193,7 +196,7 @@ Opt::Opt(int argc, char* argv[])
 		}
 	}
 
-	// Second pass of getopt
+	// Second pass of getopt: Check options compatibility
 
 	optind = 1;
 
@@ -207,7 +210,8 @@ Opt::Opt(int argc, char* argv[])
 				s_all_pkgs = true; 
 				break;
 
-			case OPT_EXACT_VERSION: case OPT_EXACT_VERSION_2:
+			case OPT_EXACT_VERSION: 
+			case OPT_EXACT_VERSION_2:
 				check_mode(MODE_LIST_FILES | MODE_LIST_PKGS | MODE_INFO
 					| MODE_CONF_OPTS | MODE_REMOVE, c);
 				s_exact_version = true; 
@@ -225,7 +229,7 @@ Opt::Opt(int argc, char* argv[])
 
 			case OPT_TOTAL:
 				check_mode(MODE_LIST_FILES | MODE_LIST_PKGS, c);
-				s_print_totals = true; 
+				s_print_totals = true;
 				break;
 
 			case OPT_NO_PACKAGE_NAME:
@@ -268,60 +272,103 @@ Opt::Opt(int argc, char* argv[])
 				break;
 
 			case OPT_SYMLINKS:
-				check_mode(MODE_LIST_FILES, c, OPT_FILES);
+				check_mode(MODE_LIST_FILES, c);
 				s_print_symlinks = true;
 				break;
 
 			case OPT_SKIP:
-				check_mode(MODE_REMOVE, c, OPT_REMOVE);
+				check_mode(MODE_REMOVE, c);
 				s_remove_skip = optarg; 
 				break;
 
 			case OPT_BATCH:
-				check_mode(MODE_REMOVE, c, OPT_REMOVE);
+				check_mode(MODE_REMOVE, c);
 				s_remove_batch = true;
 				break;
 
 			case OPT_UNLOG:
-				check_mode(MODE_REMOVE, c, OPT_REMOVE);
+				check_mode(MODE_REMOVE, c);
 				s_remove_unlog = true;
 				break;
 
 			case OPT_PACKAGE:
-				check_mode(MODE_LOG, c, OPT_LOG);
+				check_mode(MODE_LOG, c);
 				s_log_pkg_name = to_lower(optarg); 
 				break;
 
 			case OPT_DIRNAME:
-				check_mode(MODE_LOG, c, OPT_LOG);
+				check_mode(MODE_LOG, c);
 				s_log_pkg_name = to_lower(get_dir_name());
 				break;
 
 			case OPT_INCLUDE:
-				check_mode(MODE_LOG, c, OPT_LOG);
+				check_mode(MODE_LOG, c);
 				s_include = optarg;
 				break;
 
 			case OPT_EXCLUDE:
-				check_mode(MODE_LOG, c, OPT_LOG);
+				check_mode(MODE_LOG, c);
 				s_exclude = optarg;
 				break;
 
 			case OPT_APPEND:
-				check_mode(MODE_LOG, c, OPT_LOG);
+				check_mode(MODE_LOG, c);
 				s_log_append = true;
 				break;
 
 			case OPT_LOG_MISSING:
-				check_mode(MODE_LOG, c, OPT_LOG);
+				check_mode(MODE_LOG, c);
 				s_log_missing = true;
 				break;
 		}
 	}
 
-	// set default mode to package listing
-	if (s_mode == MODE_NONE)
-		s_mode = MODE_LIST_PKGS;
+	// Third pass of getopt: Check option requirements
+
+	optind = 1;
+
+    while ((c = getopt_long(argc, argv, optstring.c_str(), opt, 0)) >= 0) {
+		
+		switch (c) {
+
+			case OPT_SYMLINKS:
+				check_required(c, string(1, OPT_FILES) + OPT_FILES_MISS);
+				break;
+
+			case OPT_SKIP:
+			case OPT_BATCH:
+			case OPT_UNLOG:
+				check_required(c, string(1, OPT_REMOVE));
+				break;
+			
+			case OPT_APPEND:
+				check_required(c, string(1, OPT_LOG));
+				check_required(c, string(1, OPT_PACKAGE) + OPT_DIRNAME);
+				break;
+
+			case OPT_PACKAGE:
+			case OPT_DIRNAME:
+			case OPT_LOG_MISSING:
+			case OPT_EXCLUDE:
+			case OPT_INCLUDE:
+				check_required(c, string(1, OPT_LOG));
+				break;
+
+			case OPT_NO_PACKAGE_NAME:
+				if (s_mode == MODE_LIST_PKGS) {
+					check_required(c, string(1, OPT_SIZE) + OPT_SIZE_MISS 
+					+ OPT_NFILES + OPT_NFILES_MISS + OPT_DATE + OPT_FILES
+					+ OPT_FILES_MISS);
+				}
+				break;
+
+			case OPT_TOTAL:
+				check_required(c, string(1, OPT_SIZE) + OPT_SIZE_MISS 
+				+ OPT_NFILES + OPT_NFILES_MISS);
+				break;
+
+		}
+	}
 
 	// save non-option command line arguments into s_args
 	s_args.assign(argv + optind, argv + argc);
@@ -351,12 +398,6 @@ Opt::Opt(int argc, char* argv[])
 			// no break here
 
 		default:
-			if (!(s_print_sizes || s_print_sizes_miss 
-			|| s_print_nfiles || s_print_nfiles_miss)) {
-				s_print_totals = false;
-				if (s_mode == MODE_LIST_PKGS && s_print_no_pkg_name && !s_print_date)
-					die_help("Option '-z|--no-package-name' requires at least one of '-sdfF'");
-			}
 
 			if (s_args.empty() && !s_all_pkgs)
 				die_help("No input packages");
@@ -368,13 +409,36 @@ Opt::Opt(int argc, char* argv[])
 }
 
 
-void Opt::check_mode(int modes, char optchar, char required_optchar /* = 0 */)
+//
+// Check option compatibility
+//
+void Opt::check_mode(int modes, char optchar)
 {
-	if (s_mode != MODE_NONE && !(s_mode & modes))
+	if (s_mode_char && !(s_mode & modes))
 		die_help(string("-") + s_mode_char + optchar + ": Incompatible options");
-	
-	if (required_optchar && (s_mode_char != required_optchar))
-		die_help(string("Option -") + optchar + " requires -" + required_optchar);
+}
+
+
+//
+// Check option requirements.
+//
+void Opt::check_required(char optchar, string const& required)
+{
+	assert(!required.empty());
+
+	if (s_optchars.find_first_of(required) == string::npos) {
+		
+		string err = string("Option -") + optchar + " requires ";
+		
+		if (required.size() > 1) {
+			err += string("at least one of -");
+			for (uint i = 0; i < required.size(); err += required[i++]) ;
+		}
+		else
+			err += string("-") + required;
+
+		die_help(err);
+	}
 }
 
 
@@ -406,6 +470,16 @@ void Opt::set_sort_type(string const& s)
 		s_sort_type = SORT_BY_NAME;
 	else
 		die_help("'" + s + "': Invalid argument for option '-S|--sort'");
+
+	switch (s_sort_type) {
+		case SORT_BY_SIZE_MISS:
+		case SORT_BY_DATE:
+		case SORT_BY_NFILES:
+		case SORT_BY_NFILES_MISS:
+			if (s_mode != MODE_LIST_PKGS)
+				die_help("'" + s + "': Invalid argument for option '-S|--sort'");
+		default: break;
+	}
 }
 
 
@@ -449,7 +523,7 @@ cout <<
 "  -r, --remove             Remove the (non shared) files of the package.\n"
 "  -b, --batch              Do not ask for confirmation when removing or unlogging\n"
 "  -e, --skip=PATH:...      Do not remove files in PATHs (see the man page).\n"
-"  -U, --unlog              Unlog the package, without removing any file.\n\n"
+"  -U, --unlog              With -r: unlog the package, without removing any file.\n\n"
 "Package log options:\n"
 "  -l, --log                Enable log mode. See the man page.\n"
 "  -p, --package=PKG        Name of the package to be logged.\n" 

@@ -22,10 +22,10 @@ When installing a package, porg may be used in log mode (with option \fB-l\fR)
 to wrap the installation command (e.g. "make install"), and log the created
 files into a text database.
 .PP
-Porg also provides options for listing package information, removing packages 
-or querying for the owner of files.
+Porg also provides options for printing package information, package files,
+removing packages or querying for the owner of files.
 .PP
-The special option \fB--\fR forces and end of option-scanning. This is
+The special option '\fB--\fR' forces and end of option-scanning. This is
 specially useful when entering the install command in log mode.
 .PP
 Mandatory arguments to long options are mandatory to short options too.
@@ -100,7 +100,8 @@ Sort the list by WORD: 'name', 'size', 'size-miss', 'files', 'files-miss' or 'da
 List the files currently installed by the package.
 .TP
 \fB-m, --files-miss\fR
-List the missing files of the package (original - current).
+List the missing files of the package (original - current). Use along with \fB-f\fR
+to list all files (installed and missing).
 .TP
 \fB-s, --size\fR
 Print the size of each file. For installed files, print current size. 
@@ -180,21 +181,21 @@ of created files to its log.
 Remove a package, keeping the shared files and asking for confirmation by
 default.
 .TP
+\fB-U, --unlog\fR
+Unregister the package from the database, without removing any file.
+.TP
 \fB-b, --batch\fR
 Don't prompt for confirmation when removing or unlogging (and assume yes 
 to all questions).
 .TP
 \fB-e, --skip\fR=\fIPATH1:PATH2:...\fR
-Colon-separated list of paths to skip when removing a package. 
-Default is '' (all logged files are removed),
-unless variable REMOVE_SKIP is set in the
+Colon-separated list of paths to skip when removing a package. Default is '' 
+(all logged files are removed), unless variable REMOVE_SKIP is set in the 
 configuration file (type 'man porgrc' for more information).
 .br
 Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR for
 more details.
-.TP
-\fB-U, --unlog\fR
-Unregister the package from the porg database, without removing any file.
+
 .SH PATH MATCHING
 Options \fB-I\fR, \fB-E\fR and \fB-e\fR accept a colon-separated list of
 paths, each of which may contain shell-like wildcards (*, ? and [..]).

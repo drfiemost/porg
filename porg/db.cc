@@ -223,8 +223,7 @@ void DB::remove()
 		cout << "\nDo you want to proceed (y/N) ? ";
 		
 		string buf;
-		std::cin >> buf;
-		if (buf != "y")
+		if (getline(std::cin, buf) && buf != "y")
 			return;
 	}
 
