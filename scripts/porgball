@@ -87,6 +87,7 @@ do_extract()
 	if [ "$opt_log" ]; then
 		pkg=${1%.tar.*}
 		pkg=${pkg%.porg}
+		pkg=${pkg##*/}
 		porg $opt_logdir $opt_verb --log --package="$pkg" -- $cmd
 	else
 		eval $cmd
@@ -162,6 +163,7 @@ for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
 done
 def_logdir=${def_logdir:-/var/log/porg}
 logdir=$def_logdir
+pkg=${pkg##*/}
 
 
 # Parse the command line

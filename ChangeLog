@@ -1,8 +1,16 @@
 SVN
 ---
 
+	Changes in porg:
+
 	+ Support for missing files.
 	+ Better option requirement checking.
+
+	Changes in scripts:
+
+	+ porgball: Support logging of tarballs from outside of current working
+	  directory (thanks Piotr Karbowski).
+	+ porgball: Don't crash when there's no logdir (thanks Piotr Karbowski).
 
 
 Version 0.7 (25 June 2014)
