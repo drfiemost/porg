@@ -33,7 +33,6 @@ DB::DB()
 :
 	vector<Pkg*>(),
 	m_total_size(0),
-	m_total_size_miss(0),
 	m_total_files(0),
 	m_total_files_miss(0)
 { }
@@ -92,7 +91,11 @@ bool DB::add_pkg(string const& name)
 {
 	try 
 	{
-		push_back(new Pkg(name));
+		Pkg* pkg = new Pkg(name);
+		push_back(pkg);
+		m_total_size += pkg->size();
+		m_total_files += pkg->nfiles();
+		m_total_files_miss += pkg->nfiles_miss();
 		return true;
 	}
 	catch (...) 
@@ -105,11 +108,9 @@ bool DB::add_pkg(string const& name)
 //
 // get widths for printing pkg sizes and number of files
 //
-void DB::get_pkg_list_widths(int& size_w, int& size_miss_w,
-                             int& nfiles_w, int& nfiles_miss_w)
+void DB::get_pkg_list_widths(int& size_w, int& nfiles_w, int& nfiles_miss_w)
 {
 	size_w = Opt::print_totals() ? get_width(m_total_size) : 0;
-	size_miss_w = Opt::print_totals() ? get_width(m_total_size_miss) : 0;
 	
 	ulong max_nfiles(Opt::print_totals() ? m_total_files : 0);
 	ulong max_nfiles_miss(Opt::print_totals() ? m_total_files_miss : 0);
@@ -117,7 +118,6 @@ void DB::get_pkg_list_widths(int& size_w, int& size_miss_w,
 	for (iterator p(begin()); p != end(); ++p) {
 		
 		size_w = max(size_w, get_width((*p)->size()));
-		size_miss_w = max(size_miss_w, get_width((*p)->size_miss()));
 		
 		if (!Opt::print_totals()) {
 			max_nfiles = max(max_nfiles, (*p)->nfiles());
@@ -137,34 +137,15 @@ int DB::get_file_size_width()
 {
 	int size_w = 0;
 	
-	if (Opt::print_totals()) {
-		if (Opt::list_files())
-			size_w = get_width(m_total_size);
-		if (Opt::list_files_miss())
-			size_w = max(size_w, get_width(m_total_size_miss));
-	}
+	if (Opt::print_totals() && Opt::list_files())
+		size_w = get_width(m_total_size);
 	
 	for (iterator p(begin()); p != end(); ++p) {
-		for (Pkg::const_iter f((*p)->files().begin()); f != (*p)->files().end(); ++f) {
-			if (((*f)->is_installed() && Opt::list_files())
-			|| (!(*f)->is_installed() && Opt::list_files_miss()))
-				size_w = max(size_w, get_width((*f)->size()));
-		}
+		for (Pkg::const_iter f((*p)->files().begin()); f != (*p)->files().end(); ++f)
+			size_w = max(size_w, get_width((*f)->size()));
 	}
 
 	return size_w;
-}
-
-
-void DB::get_files()
-{
-	for (iterator p(begin()); p != end(); ++p) {
-		(*p)->get_files();
-		m_total_size += (*p)->size();
-		m_total_size_miss += (*p)->size_miss();
-		m_total_files += (*p)->nfiles();
-		m_total_files_miss += (*p)->nfiles_miss();
-	}
 }
 
 
@@ -183,8 +164,6 @@ void DB::print_conf_opts() const
 void DB::query()
 {
 	g_exit_status = EXIT_FAILURE;
-
-	get_files();
 
 	for (uint i(0); i < Opt::args().size(); ++i) {
 		
@@ -232,12 +211,9 @@ void DB::remove()
 		return;
 	}
 	
-	get_files();
-
 	// auxiliary DB to check for shared files
 	DB aux;
 	aux.get_all_pkgs();
-	aux.get_files();
 
 	for (iterator p(begin()); p != end(); ++p) {
 		(*p)->remove(aux);
@@ -260,13 +236,11 @@ void DB::del_pkg(string const& name)
 void DB::list()
 {
 	//XXX class members 
-	int size_w = 0, size_miss_w = 0, nfiles_w = 0, nfiles_miss_w = 0;
+	int size_w = 0, nfiles_w = 0, nfiles_miss_w = 0;
 
-	if (Opt::print_sizes() || Opt::print_sizes_miss() 
-	|| Opt::print_nfiles() || Opt::print_nfiles_miss()) {
-		get_files();
+	if (Opt::print_sizes() || Opt::print_nfiles() || Opt::print_nfiles_miss()) {
 		// get widths for printing pkg sizes and number of files
-		get_pkg_list_widths(size_w, size_miss_w, nfiles_w, nfiles_miss_w);
+		get_pkg_list_widths(size_w, nfiles_w, nfiles_miss_w);
 	}
 
 	// sort list of packages
@@ -278,7 +252,7 @@ void DB::list()
 	// list packages
 	
 	for (iterator p(begin()); p != end(); ++p)
-		(*p)->list(size_w, size_miss_w, nfiles_w, nfiles_miss_w);
+		(*p)->list(size_w, nfiles_w, nfiles_miss_w);
 
 	// print totals, if needed
 	
@@ -287,9 +261,6 @@ void DB::list()
 		if (Opt::print_sizes())
 			cout << setw(size_w) << fmt_size(m_total_size) << "  ";
 		
-		if (Opt::print_sizes_miss())
-			cout << "(" << setw(size_miss_w) << fmt_size(m_total_size_miss) << ")  ";
-
 		if (Opt::print_nfiles())
 			cout << setw(nfiles_w) << m_total_files << "  ";
 
@@ -306,8 +277,6 @@ void DB::list()
 
 void DB::list_files()
 {
-	get_files();
-
 	int size_w(get_file_size_width());
 
 	for (iterator p(begin()); p != end(); ++p) {
@@ -316,17 +285,8 @@ void DB::list_files()
 			cout << '\n';
 	}
 
-	if (Opt::print_totals()) {
-		
-		float total = 0;
-		
-		if (Opt::list_files())
-			total += m_total_size;
-		if (Opt::list_files_miss())
-			total += m_total_size_miss;
-		
-		cout << setw(size_w) << fmt_size(total) << "  TOTAL\n";
-	}
+	if (Opt::print_totals())
+		cout << setw(size_w) << fmt_size(m_total_size) << "  TOTAL\n";
 }
 
 
@@ -341,7 +301,6 @@ DB::Sorter::Sorter(sort_t const& t /* = SORT_BY_NAME */)
 {
 	switch (t) {
 		case SORT_BY_SIZE: 			m_sort_func = &Sorter::sort_by_size; break;
-		case SORT_BY_SIZE_MISS: 	m_sort_func = &Sorter::sort_by_size_miss; break;
 		case SORT_BY_NFILES:		m_sort_func = &Sorter::sort_by_nfiles; break;
 		case SORT_BY_NFILES_MISS:	m_sort_func = &Sorter::sort_by_nfiles_miss; break;
 		case SORT_BY_DATE: 			m_sort_func = &Sorter::sort_by_date; break;
@@ -363,11 +322,6 @@ bool DB::Sorter::sort_by_name(Pkg* left, Pkg* right) const
 bool DB::Sorter::sort_by_size(Pkg* left, Pkg* right) const
 {
 	return left->size() < right->size();
-}
-
-bool DB::Sorter::sort_by_size_miss(Pkg* left, Pkg* right) const
-{
-	return left->size_miss() < right->size_miss();
 }
 
 bool DB::Sorter::sort_by_nfiles(Pkg* left, Pkg* right) const

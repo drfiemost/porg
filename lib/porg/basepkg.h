@@ -42,7 +42,6 @@ class BasePkg
 	std::vector<File*> const& files() const	{ return m_files; }
 	int date() const						{ return m_date; }
 	float size() const						{ return m_size; }
-	float size_miss() const					{ return m_size_miss; }
 	ulong nfiles() const					{ return m_nfiles; }
 	ulong nfiles_miss() const				{ return m_nfiles_miss; }
 	std::string const& name() const			{ return m_name; }
@@ -59,10 +58,9 @@ class BasePkg
 
 	bool find_file(File*);
 	bool find_file(std::string const& path);
-	void get_files();
 	virtual void unlog() const;
 	void write_log() const;
-	void read_log_header();
+	void read_log();
 	
 	static std::string get_base(std::string const& name);
 	static std::string get_version(std::string const& name);
@@ -91,7 +89,6 @@ class BasePkg
 	std::string const m_version;
 	int m_date;
 	float m_size;
-	float m_size_miss;
 	ulong m_nfiles;
 	ulong m_nfiles_miss;
 	std::string m_icon_path;

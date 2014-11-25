@@ -37,8 +37,7 @@ class DB : public std::vector<Pkg*>
 
 	protected:
 
-	void get_files();
-	void get_pkg_list_widths(int&, int&, int&, int&);
+	void get_pkg_list_widths(int&, int&, int&);
 	int get_file_size_width();
 	bool add_pkg(std::string const& name);
 	void del_pkg(std::string const& name);
@@ -55,7 +54,6 @@ class DB : public std::vector<Pkg*>
 		bool (Sorter::*m_sort_func)(Pkg*, Pkg*) const;
 		bool sort_by_name(Pkg* left, Pkg* right) const;
 		bool sort_by_size(Pkg* left, Pkg* right) const;
-		bool sort_by_size_miss(Pkg* left, Pkg* right) const;
 		bool sort_by_nfiles(Pkg* left, Pkg* right) const;
 		bool sort_by_nfiles_miss(Pkg* left, Pkg* right) const;
 		bool sort_by_date(Pkg* left, Pkg* right) const;
@@ -63,7 +61,6 @@ class DB : public std::vector<Pkg*>
 	};	// class DB::Sorter
 
 	float m_total_size;
-	float m_total_size_miss;
 	ulong m_total_files;
 	ulong m_total_files_miss;
 

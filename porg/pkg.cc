@@ -30,7 +30,7 @@ Pkg::Pkg(string const& name_)
 :
 	BasePkg(name_)
 {
-	read_log_header();
+	read_log();
 }
 
 
@@ -52,8 +52,6 @@ void Pkg::print_info() const
 
 void Pkg::append(set<string> const& files_)
 {
-	get_files();
-
 	bool appended(false);
 
 	for (set<string>::const_iterator f(files_.begin()); f != files_.end(); ++f) {
@@ -82,13 +80,10 @@ void Pkg::unlog() const
 }
 
 
-void Pkg::list(int size_w, int size_miss_w, int nfiles_w, int nfiles_miss_w) const
+void Pkg::list(int size_w, int nfiles_w, int nfiles_miss_w) const
 {
 	if (Opt::print_sizes())
 		cout << setw(size_w) << fmt_size(m_size) << "  ";
-
-	if (Opt::print_sizes_miss())
-		cout << "(" << setw(size_miss_w) << fmt_size(m_size_miss) << ")  ";
 
 	if (Opt::print_nfiles())
 		cout << setw(nfiles_w) << m_nfiles << "  ";

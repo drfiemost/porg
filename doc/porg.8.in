@@ -77,10 +77,6 @@ Do not print the name of the package when listing. Useful for scripts.
 \fB-s, --size\fR
 Print the currently installed size of the package.
 .TP
-\fB-n, --size-miss\fR
-Print the missing size of the package (original size - currently installed size),
-in parenthesis.
-.TP
 \fB-F, --nfiles\fR
 Print the number of currently installed files.
 .TP
@@ -92,7 +88,7 @@ Print the installation date of the package. Double it ('\fB-dd\fR') to print
 also the hour.
 .TP
 \fB-S, --sort\fR=\fIWORD\fR
-Sort the list by WORD: 'name', 'size', 'size-miss', 'files', 'files-miss' or 'date'.
+Sort the list by WORD: 'name', 'size', 'files', 'files-miss' or 'date'.
 
 .SH FILE LIST OPTIONS
 .TP
@@ -104,9 +100,7 @@ List the missing files of the package (original - current). Use along with \fB-f
 to list all files (installed and missing).
 .TP
 \fB-s, --size\fR
-Print the size of each file. For installed files, print current size. 
-For missing files, print the size of the file when it was installed, if known,
-or zero otherwise.
+Print the size of each file.
 .TP
 \fB-y, --symlinks\fR
 Print the contents of symbolic links.

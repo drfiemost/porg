@@ -29,7 +29,6 @@ namespace Porg
 	bool Opt::s_all_pkgs = false;
 	bool Opt::s_exact_version = false;
 	bool Opt::s_print_sizes = false;
-	bool Opt::s_print_sizes_miss = false;
 	bool Opt::s_print_nfiles = false;
 	bool Opt::s_print_nfiles_miss = false;
 	bool Opt::s_list_files = false;
@@ -90,7 +89,6 @@ Opt::Opt(int argc, char* argv[])
 		OPT_LOG				= 'l',
 		OPT_FILES_MISS		= 'm',
 		OPT_NFILES_MISS		= 'M',
-		OPT_SIZE_MISS		= 'n',
 		OPT_CONF_OPTS		= 'o',
 		OPT_PACKAGE			= 'p',
 		OPT_LOG_MISSING		= 'j',
@@ -121,7 +119,6 @@ Opt::Opt(int argc, char* argv[])
 		{ "date", 				0, 0, OPT_DATE },
 		{ "sort", 				1, 0, OPT_SORT },
 		{ "size", 				0, 0, OPT_SIZE },
-		{ "size-miss", 			0, 0, OPT_SIZE_MISS },
 		{ "nfiles", 			0, 0, OPT_NFILES },
 		{ "nfiles-miss",		0, 0, OPT_NFILES_MISS },
 		{ "files", 				0, 0, OPT_FILES },
@@ -266,11 +263,6 @@ Opt::Opt(int argc, char* argv[])
 				s_print_nfiles_miss = true; 
 				break;
 
-			case OPT_SIZE_MISS:
-				check_mode(MODE_LIST_PKGS, c);
-				s_print_sizes_miss = true;
-				break;
-
 			case OPT_SYMLINKS:
 				check_mode(MODE_LIST_FILES, c);
 				s_print_symlinks = true;
@@ -356,15 +348,13 @@ Opt::Opt(int argc, char* argv[])
 
 			case OPT_NO_PACKAGE_NAME:
 				if (s_mode == MODE_LIST_PKGS) {
-					check_required(c, string(1, OPT_SIZE) + OPT_SIZE_MISS 
-					+ OPT_NFILES + OPT_NFILES_MISS + OPT_DATE + OPT_FILES
-					+ OPT_FILES_MISS);
+					check_required(c, string(1, OPT_SIZE) + OPT_NFILES 
+					+ OPT_NFILES_MISS + OPT_DATE + OPT_FILES + OPT_FILES_MISS);
 				}
 				break;
 
 			case OPT_TOTAL:
-				check_required(c, string(1, OPT_SIZE) + OPT_SIZE_MISS 
-				+ OPT_NFILES + OPT_NFILES_MISS);
+				check_required(c, string(1, OPT_SIZE) + OPT_NFILES + OPT_NFILES_MISS);
 				break;
 
 		}
@@ -458,8 +448,6 @@ void Opt::set_sort_type(string const& s)
 {
 	if (!s.compare(0, s.size(), "size", s.size()))
 		s_sort_type = SORT_BY_SIZE;
-	else if (!s.compare(0, s.size(), "size-miss", s.size()))
-		s_sort_type = SORT_BY_SIZE_MISS;
 	else if (!s.compare(0, s.size(), "date", s.size()))
 		s_sort_type = SORT_BY_DATE;
 	else if (!s.compare(0, s.size(), "files", s.size()))
@@ -472,7 +460,6 @@ void Opt::set_sort_type(string const& s)
 		die_help("'" + s + "': Invalid argument for option '-S|--sort'");
 
 	switch (s_sort_type) {
-		case SORT_BY_SIZE_MISS:
 		case SORT_BY_DATE:
 		case SORT_BY_NFILES:
 		case SORT_BY_NFILES_MISS:
@@ -503,7 +490,6 @@ cout <<
 "Package list options:\n"
 "  -d, --date               Print the installation day (-dd prints the hour too).\n"
 "  -s, --size               Print the installed size of the package.\n"
-"  -n, --size-miss          Print the missing size of the package.\n"
 "  -F, --nfiles             Print the number of installed files.\n"
 "  -M, --nfiles-miss        Print the number of missing files.\n"
 "  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size', 'size-miss',\n"

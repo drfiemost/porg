@@ -30,7 +30,6 @@ BasePkg::BasePkg(string const& name_)
 	m_version(get_version(name_)),
 	m_date(time(0)),
 	m_size(0),
-	m_size_miss(0),
 	m_nfiles(0),
 	m_nfiles_miss(0),
 	m_icon_path(),
@@ -44,7 +43,7 @@ BasePkg::BasePkg(string const& name_)
 { }
 
 
-void BasePkg::read_log_header()
+void BasePkg::read_log()
 {
 	// read '#!porg' header or die
 	
@@ -84,6 +83,16 @@ void BasePkg::read_log_header()
 				break;
 		}
 	}
+
+	// Read list of logged files
+
+	if (f.eof() || buf[0] != '/')
+		return;
+
+	do {
+		add_file(buf);
+	}
+	while (getline(f, buf) && buf[0] == '/');
 }
 
 
@@ -97,39 +106,6 @@ void BasePkg::unlog() const
 {
 	if (unlink(m_log.c_str()) != 0 && errno != ENOENT)
 		throw Error("unlink(" + m_log + ")", errno);
-}
-
-
-void BasePkg::get_files()
-{
-	assert(m_files.empty());
-	if (!m_files.empty())
-		return;
-
-	FileStream<std::ifstream> f(m_log);
-	Rexp re("^(/.+)\\|([0-9]+)\\|(.*)$");
-	ulong fsize;
-
-	for (string buf; getline(f, buf); ) {
-		
-		assert(buf[0] == '/' || buf[0] == '#');
-		
-		if (re.exec(buf)) {
-			
-			fsize = str2num<ulong>(re.match(2));
-			File* file = new File(re.match(1), fsize, re.match(3));
-			m_files.push_back(file);
-			
-			if (file->is_installed()) {
-				m_size += file->size();
-				m_nfiles++;
-			}
-			else {
-				m_size_miss += file->size();
-				m_nfiles_miss++;
-			}
-		}
-	}
 }
 
 
@@ -188,7 +164,7 @@ void BasePkg::write_log() const
 	// write installed files
 	
 	for (const_iter f(m_files.begin()); f != m_files.end(); ++f)
-		of << (*f)->name() << '|' << (*f)->size() << '|' << (*f)->ln_name() << '\n';
+		of << (*f)->name() << '\n';
 }
 
 
@@ -197,7 +173,10 @@ void BasePkg::add_file(string const& path)
 	File* file = new File(path);
 	m_files.push_back(file);
 	m_size += file->size();
-	m_nfiles++;
+	if (file->is_installed())
+		m_nfiles++;
+	else
+		m_nfiles_miss++;
 }
 
 
@@ -254,7 +233,9 @@ string BasePkg::get_version(string const& name)
 template <typename T>	// T = {int,long,unsigned,...}
 T str2num(std::string const& s)
 {
-	std::istringstream is(s);
+	static std::istringstream is(s);
+	is.clear();
+	is.str(s);
 	T t;
 	is >> t;
 	return t;
