@@ -34,3 +34,11 @@ logme:
 	done && \
 	echo && porg -vvxfmsty porg-$(PACKAGE_VERSION)
 
+## Download SVN snapshot (Read Only)
+svn-ro:
+	svn checkout svn://svn.code.sf.net/p/porg/code/ porg-code
+
+## Download SVN snapshot (Read / Write)
+svn-rw:
+	svn checkout --username=davidrr svn+ssh://davidrr@svn.code.sf.net/p/porg/code/ porg-code
+

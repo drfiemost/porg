@@ -55,7 +55,7 @@ DB::DB()
 		try 
 		{	
 			Pkg* pkg = new Pkg(*d);
-			pkg->read_log_header();
+			pkg->read_log();
 			s_pkgs.push_back(pkg);
 			s_total_size += pkg->size();
 		}
