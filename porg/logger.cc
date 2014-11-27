@@ -130,14 +130,23 @@ void Logger::exec_command(string const& tmpfile) const
 		
 		for (uint i(0); i < Opt::args().size(); ++i)
 			command += Opt::args()[i] + " ";
-		
+
+#if defined(__APPLE__) && defined(__MACH__)
+		set_env("DYLD_INSERT_LIBRARIES", libporg);
+		set_env("DYLD_FORCE_FLAT_NAMESPACE", "1");
+#else
 		set_env("LD_PRELOAD", libporg);
+#endif
 		set_env("PORG_TMPFILE", tmpfile);
 		if (Out::debug())
 			set_env("PORG_DEBUG", "yes");
 
 		Out::dbg_title("settings");
+#if defined(__APPLE__) && defined(__MACH__)
+		Out::dbg("DYLD_INSERT_LIBRARIES: " + libporg);
+#else
 		Out::dbg("LD_PRELOAD: " + libporg); 
+#endif
 		Out::dbg("INCLUDE:    " + Opt::include()); 
 		Out::dbg("EXCLUDE:    " + Opt::exclude()); 
 		Out::dbg("command:    " + command);
@@ -195,7 +204,11 @@ void Logger::filter_files()
 //
 static string search_libporg()
 {
+#if defined(__APPLE__) && defined(__MACH__)
+	string libpath(LIBDIR "/libporg-log.dylib");
+#else
 	string libpath(LIBDIR "/libporg-log.so");
+#endif
 	struct stat s;
 	
 	if (!stat(libpath.c_str(), &s))
@@ -204,7 +217,11 @@ static string search_libporg()
 	glob_t g;
 	memset(&g, 0, sizeof(g));
 	
+#if defined(__APPLE__) && defined(__MACH__)
+	if (!glob(LIBDIR "/libporg-log.dylib.[0-9]*", 0, 0, &g) && g.gl_pathc)
+#else
 	if (!glob(LIBDIR "/libporg-log.so.[0-9]*", 0, 0, &g) && g.gl_pathc)
+#endif
 		libpath = g.gl_pathv[0];
 	
 	globfree(&g);

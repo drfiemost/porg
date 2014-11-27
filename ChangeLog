@@ -1,6 +1,9 @@
 SVN
 ---
 
+	+ Added support for MacOS, and perhaps MacOS X (thanks Masahiro 
+	  Kasahara).
+
 	Changes in porg:
 
 	+ Support for missing files.
