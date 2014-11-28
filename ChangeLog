@@ -6,7 +6,7 @@ SVN
 
 	Changes in porg:
 
-	+ Support for missing files.
+	+ Support for missing files. New options -m and -M (see man page).
 	+ Better option requirement checking.
 
 	Changes in scripts:
