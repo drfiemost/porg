@@ -18,7 +18,6 @@ class File
 {
 	public:
 
-	File(std::string const& name_, ulong size_, std::string const& ln_name_ = "");
 	File(std::string const& name_);
 
 	ulong size() const					{ return m_size; }

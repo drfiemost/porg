@@ -13,26 +13,6 @@
 using std::string;
 
 
-//
-// Ctor used when reading the logs of the packages from the database.
-// File name, size and eventual symlink destination are known.
-//
-Porg::File::File(string const& name_, ulong size_, string const& ln_name_ /* = "" */)
-:
-	m_name(name_),
-	m_size(size_),
-	m_installed(),
-	m_ln_name(ln_name_)
-{
-	struct stat s;
-	m_installed = !lstat(m_name.c_str(), &s);
-}
-
-
-//
-// Ctor used when logging package installations.
-// Only the name of the file is known.
-//
 Porg::File::File(string const& name_)
 :
 	m_name(name_),

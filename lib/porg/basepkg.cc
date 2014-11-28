@@ -191,7 +191,7 @@ bool BasePkg::find_file(File* file)
 
 bool BasePkg::find_file(string const& path)
 {
-	File file(path, 0);
+	File file(path);
 	return find_file(&file);
 }
 
