@@ -57,7 +57,7 @@ void BasePkg::read_log()
 	// Each line in the header has the form '#<char>:<value>', where <char> is
 	// a single character defining the info field, and <value> is its value.
 	//
-	
+
 	while (getline(f, buf) && buf[0] == '#') {
 
 		if (buf.size() < 3) {
@@ -89,9 +89,7 @@ void BasePkg::read_log()
 	if (f.eof() || buf[0] != '/')
 		return;
 
-	do {
-		add_file(buf);
-	}
+	do { add_file(buf); }
 	while (getline(f, buf) && buf[0] == '/');
 }
 
