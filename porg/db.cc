@@ -163,21 +163,23 @@ void DB::print_conf_opts() const
 
 void DB::query()
 {
-	g_exit_status = EXIT_FAILURE;
-
 	for (uint i(0); i < Opt::args().size(); ++i) {
 		
+		bool found = false;
 		string path(clear_path(Opt::args()[i]));
 		cout << path << ':';
 		
 		for (const_iterator p(begin()); p != end(); ++p) {
 			if ((*p)->find_file(path)) {
-				g_exit_status = EXIT_SUCCESS;
+				found = true;
 				cout << "  " << (*p)->name();
 			}
 		}
 		
 		cout << '\n';
+
+		if (!found)
+			g_exit_status = EXIT_FAILURE;
 	}
 }
 
