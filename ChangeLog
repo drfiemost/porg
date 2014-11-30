@@ -10,6 +10,10 @@ SVN
 	+ When calculating total sizes of packages, sizes of hardlinks to
 	  installed files are counted only once (thanks Kardakov Slava).
 
+	Changes in grop:
+
+	+ Added column for missing files count in the list of packages.
+
 	Changes in scripts:
 
 	+ porgball: Support logging of tarballs from outside of current working
