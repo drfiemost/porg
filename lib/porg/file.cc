@@ -18,6 +18,7 @@ Porg::File::File(string const& name_)
 	m_name(name_),
 	m_size(0),
 	m_installed(false),
+	m_inode(0),
 	m_ln_name()
 {
 	struct stat s;
@@ -34,6 +35,7 @@ Porg::File::File(string const& name_)
 		}
 	}
 
+	m_inode = s.st_ino;
 	m_installed = true;
 	m_size = s.st_size;
 }

@@ -103,6 +103,7 @@ AC_TYPE_SIZE_T
 
 AC_CHECK_TYPE([uint], [unsigned int])
 AC_CHECK_TYPE([ulong], [unsigned long])
+AC_CHECK_TYPE([ino_t], [unsigned long])
 
 
 #================

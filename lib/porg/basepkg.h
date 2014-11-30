@@ -13,6 +13,7 @@
 #include "common.h"
 #include <iosfwd>
 #include <vector>
+#include <set>
 
 
 namespace Porg {
@@ -83,6 +84,7 @@ class BasePkg
 	std::string description_str(bool debug = false) const;
 
 	std::vector<File*> m_files;
+	std::set<ino_t> m_inodes;
 	std::string const m_name;
 	std::string const m_log;
 	std::string const m_base_name;

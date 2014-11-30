@@ -68,6 +68,8 @@ Reverse order while sorting.
 .TP
 \fB-t, --total\fR
 Print totals at the bottom of the list, when appliable.
+When printing total sizes, the sizes of hardlinks to installed files are counted
+only once.
 .TP
 \fB-z, --no-package-name\fR
 Do not print the name of the package when listing. Useful for scripts.
@@ -75,7 +77,8 @@ Do not print the name of the package when listing. Useful for scripts.
 .SH PACKAGE LIST OPTIONS
 .TP
 \fB-s, --size\fR
-Print the currently installed size of the package.
+Print the currently installed size of the package. Sizes of hardlinks to installed 
+files are counted only once.
 .TP
 \fB-F, --nfiles\fR
 Print the number of currently installed files.

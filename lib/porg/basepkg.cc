@@ -24,6 +24,7 @@ template<typename T> static T str2num(string const&);
 BasePkg::BasePkg(string const& name_)
 :
 	m_files(),
+	m_inodes(),
 	m_name(name_),
 	m_log(BaseOpt::logdir() + "/" + name_),
 	m_base_name(get_base(name_)),
@@ -170,9 +171,14 @@ void BasePkg::add_file(string const& path)
 {
 	File* file = new File(path);
 	m_files.push_back(file);
-	m_size += file->size();
-	if (file->is_installed())
+
+	if (file->is_installed()) {
 		m_nfiles++;
+		if (m_inodes.find(file->inode()) == m_inodes.end()) {
+			m_inodes.insert(file->inode());
+			m_size += file->size();
+		}
+	}
 	else
 		m_nfiles_miss++;
 }

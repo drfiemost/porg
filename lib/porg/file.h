@@ -12,6 +12,7 @@
 #include "config.h"
 #include <string>
 
+
 namespace Porg {
 
 class File
@@ -23,6 +24,7 @@ class File
 	ulong size() const					{ return m_size; }
 	std::string const& name() const		{ return m_name; }
 	std::string const& ln_name() const	{ return m_ln_name; }
+	ino_t inode() const					{ return m_inode; }
 	bool is_symlink() const				{ return !m_ln_name.empty(); }
 	bool is_installed() const			{ return m_installed; }
 
@@ -31,6 +33,7 @@ class File
 	std::string const m_name;
 	ulong m_size;
 	bool m_installed;
+	ino_t m_inode;
 	
 	// if the file is a symlink, name of the file it refers to,
 	// or an empty string otherwise
