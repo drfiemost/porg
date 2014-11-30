@@ -102,7 +102,7 @@ for paco_log in $(find $paco_dir -maxdepth 1 -type f); do
 		continue
 	fi
 
-	porg_log=$porg_dir/$pkg
+	porg_log=$porg_dir/$(echo $pkg | tr "[:upper:]" "[:lower:]")
 
 	if [ -z "$opt_force" -a -e $porg_log ]; then
 		sayf "\n"
