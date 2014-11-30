@@ -14,23 +14,28 @@ a quite simple fashion.
 
 When installing a package from sources, porg wraps the install command (e.g.
 "make install"), and saves installation information into a text database.
+
 The following sequence of commands exemplify a typical installation of a
 package named foo-1.3:
 
-    ./configure
-    make
-    sudo porg -lp foo-1.3 "make install"
+    $ tar xvf foo-1.3.tar.gz
+    $ cd foo-1.3
+    $ ./configure
+    $ make
+    $ sudo porg -lp foo-1.3 "make install"
 
 After the above commands, and provided that everything went fine, the program
 foo-1.3 will be installed into the system, and registered into the porg
 database. One can check it by simply typing the following command, which would
 list the files installed by the package:
 
-    porg -f foo-1.3
+    $ porg -f foo-1.3
 
 Porg also provides options for listing packages, sizes, file counts, missing
 files, removing packages or printing package information. For more information
-just download it.
+just
+
+[DOWNLOAD_IT!]
 
 
 * Changes from the last version of paco *
