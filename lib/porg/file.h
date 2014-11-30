@@ -33,6 +33,8 @@ class File
 	std::string const m_name;
 	ulong m_size;
 	bool m_installed;
+
+	// inode of file. Used to detect hardlinks.
 	ino_t m_inode;
 	
 	// if the file is a symlink, name of the file it refers to,
