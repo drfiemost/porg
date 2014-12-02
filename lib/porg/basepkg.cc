@@ -53,6 +53,8 @@ void BasePkg::read_log()
 	if (!(getline(f, buf) && buf.find("#!porg") == 0))
 		throw Error(m_log + ": '#!porg' header missing");
 
+	int db_version = str2num<int>(buf.substr(7, 1));
+
 	//
 	// Read info header.
 	// Each line in the header has the form '#<char>:<value>', where <char> is
@@ -90,8 +92,19 @@ void BasePkg::read_log()
 	if (f.eof() || buf[0] != '/')
 		return;
 
-	do { add_file(buf); }
-	while (getline(f, buf) && buf[0] == '/');
+	if (db_version == 0) { 	// old format
+		string::size_type p;
+		do { 
+			if ((p = buf.find("|")) != string::npos)
+				buf.erase(p);
+			add_file(buf);
+		}
+		while (getline(f, buf) && buf[0] == '/');
+	}
+	else {
+		do { add_file(buf); }
+		while (getline(f, buf) && buf[0] == '/');
+	}
 }
 
 
