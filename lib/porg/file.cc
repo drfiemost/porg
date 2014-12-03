@@ -8,7 +8,6 @@
 
 #include "config.h"
 #include "file.h"
-#include "common.h"
 
 using std::string;
 
