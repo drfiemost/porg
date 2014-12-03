@@ -187,6 +187,7 @@ void BasePkg::add_file(string const& path)
 
 	if (file->is_installed()) {
 		m_nfiles++;
+		// detect hardlinks to installed files, to count their size only once
 		if (m_inodes.find(file->inode()) == m_inodes.end()) {
 			m_inodes.insert(file->inode());
 			m_size += file->size();
