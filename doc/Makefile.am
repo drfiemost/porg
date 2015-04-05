@@ -48,11 +48,11 @@ grop_iconsdir = \
 	$(DESTDIR)$(datadir)/pixmaps
 
 logme_files += \
-	$(DESTDIR)$(grop_appsdir)/grop.desktop \
-	$(DESTDIR)$(grop_iconsdir)/grop.png
+	$(grop_appsdir)/grop.desktop \
+	$(grop_iconsdir)/grop.png
 
 porg_icon_path = \
-	$(DESTDIR)$(grop_iconsdir)/grop.png
+	$(grop_iconsdir)/grop.png
 
 else
 
@@ -71,7 +71,7 @@ install-data-local: porgrc
 
 logme:
 	ls $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION) && \
-	sed -i "s|^#i:.*|#i:$(porg_icon_path)|" $(logdir)/porg-$(PACKAGE_VERSION)
+	$(SED) -i "s|^#i:.*|#i:$(porg_icon_path)|" $(logdir)/porg-$(PACKAGE_VERSION)
 
 web: index.html
 	scp $< davidrr,porg@web.sourceforge.net:htdocs/

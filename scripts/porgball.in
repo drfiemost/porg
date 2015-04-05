@@ -9,10 +9,12 @@
 
 me=$(basename $0)
 
+sed_cmd=@SED@
+
 warn()			{ echo "$me: $*" >&2; exit_status=1; }
 die()			{ warn "$*"; exit 1; }
 say()			{ [ "$opt_verb" ] && echo "$*"; }
-do_version() 	{ porg -V | sed "s/^porg/$me/"; exit 0; }
+do_version() 	{ porg -V | $sed_cmd "s/^porg/$me/"; exit 0; }
 
 
 do_help()
@@ -155,14 +157,16 @@ opt_prog=gzip
 opt_level=-9
 porg_suffix=".porg"
 
+# Get default log directory
 for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
 	if [ -f $dir/porgrc ]; then
-		def_logdir=$(sed -n '/^LOGDIR=/ s///p' $dir/porgrc 2>/dev/null)
+		def_logdir=$($sed_cmd -n '/^LOGDIR=/ s///p' $dir/porgrc 2>/dev/null)
 		break;
 	fi
 done
 def_logdir=${def_logdir:-/var/log/porg}
 logdir=$def_logdir
+
 pkg=${pkg##*/}
 
 

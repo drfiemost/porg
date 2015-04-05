@@ -24,6 +24,8 @@ AC_CONFIG_FILES([ \
 	porg/Makefile \
 	grop/Makefile \
 	scripts/Makefile \
+	scripts/paco2porg \
+	scripts/porgball \
 	doc/Makefile \
 	doc/porgrc \
 	doc/porgrc.5 \
@@ -74,6 +76,7 @@ AM_CONDITIONAL([ENABLE_GROP], [test "$enable_grop" = yes])
 
 AM_PROG_AR
 LT_INIT
+#AC_PROG_SED
 AC_PROG_CC
 AC_PROG_CXX
 

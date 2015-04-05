@@ -218,7 +218,11 @@ static string search_libporg()
 	memset(&g, 0, sizeof(g));
 	
 #if defined(__APPLE__) && defined(__MACH__)
+	//XXX fix this:
+	// version 1 (Masahiro K.)
 	if (!glob(LIBDIR "/libporg-log.dylib.[0-9]*", 0, 0, &g) && g.gl_pathc)
+	// version 2 (Bertin)
+	//if (!glob(LIBDIR "/libporg-log.[0-9]*.dylib", 0, 0, &g) && g.gl_pathc)
 #else
 	if (!glob(LIBDIR "/libporg-log.so.[0-9]*", 0, 0, &g) && g.gl_pathc)
 #endif

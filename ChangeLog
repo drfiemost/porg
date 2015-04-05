@@ -1,12 +1,15 @@
 SVN
 ---
+	General changes:
+
+	+ Fixed "double DESTDIR" bug (thanks R.J.V. Bertin).
+	+ Added support for MacOS, and perhaps MacOS X (thanks Masahiro Kasahara).
 
 	Changes in porg:
 
 	+ New options -m and -M, for listing and counting of missing files (see man
 	  page).
 	+ Better option requirement checking.
-	+ Added support for MacOS, and perhaps MacOS X (thanks Masahiro Kasahara).
 	+ When calculating total sizes of packages, sizes of hardlinks to installed
 	  files are counted only once (thanks Kardakov Slava).
 	+ Sizes of files are not saved into the database anymore. Now they're

@@ -9,8 +9,8 @@
 
 me=$(basename $0)
 
-sed_cmd=/bin/sed
-porg_version=1.0-svn
+sed_cmd=@SED@
+porg_version=@PACKAGE_VERSION@
 
 die()	{ echo "$me: $*"; exit 1; }
 sayf()	{ [ "$opt_verb" ] && printf "$*"; }

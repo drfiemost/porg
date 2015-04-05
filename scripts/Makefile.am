@@ -2,9 +2,7 @@
 	logme
 
 EXTRA_DIST = \
-	porg_bash_completion \
-	paco2porg \
-	porgball
+	porg_bash_completion
 
 bin_SCRIPTS = \
 	paco2porg \
