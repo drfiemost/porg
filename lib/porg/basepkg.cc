@@ -105,6 +105,8 @@ void BasePkg::read_log()
 		do { add_file(buf); }
 		while (getline(f, buf) && buf[0] == '/');
 	}
+
+	sort_files();
 }
 
 
