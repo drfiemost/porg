@@ -2,7 +2,7 @@
 // mainwindow.cc
 //-----------------------------------------------------------------------
 // This file is part of the package porg
-// Copyright (C) 2014 David Ricart
+// Copyright (C) 2015 David Ricart
 // For more information visit http://porg.sourceforge.net
 //=======================================================================
 
@@ -220,7 +220,7 @@ void MainWindow::on_about()
 	dialog.set_comments("Graphic interface of porg,\na source code package organizer");
 	dialog.set_authors(std::vector<Glib::ustring>(1, "David Ricart"));
 	dialog.set_website(PACKAGE_BUGREPORT);
-	dialog.set_copyright("Copyright (C) 2014 David Ricart");
+	dialog.set_copyright("Copyright (C) 2015 David Ricart");
 	dialog.set_license("This program is free software; you can redistribute it and/or "
 		"modify it under the terms of the GNU General Public License as published by the "
 		"Free Software Foundation; either version 2 of the License, or (at your option) "
