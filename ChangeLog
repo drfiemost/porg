@@ -4,7 +4,7 @@ SVN
 
 	+ Fixed "double DESTDIR" bug (thanks R.J.V. Bertin).
 	+ Added support for MacOS, and perhaps MacOS X (thanks Masahiro Kasahara
-	  and R.J.V. Bertin).
+	  and Rene J.V. Bertin).
 
 	Changes in porg:
 
