@@ -76,6 +76,7 @@ Opt::Opt(int argc, char* argv[])
 		OPT_SKIP			= 'e',
 		OPT_NFILES			= 'F',
 		OPT_FILES			= 'f',
+		OPT_MISS			= 'm',
 		OPT_HELP 			= 'h',
 		OPT_INCLUDE			= 'I',
 		OPT_INFO			= 'i',
@@ -112,6 +113,7 @@ Opt::Opt(int argc, char* argv[])
 		{ "size", 				0, 0, OPT_SIZE },
 		{ "nfiles", 			0, 0, OPT_NFILES },
 		{ "files", 				0, 0, OPT_FILES },
+		{ "miss", 				0, 0, OPT_MISS },
 		{ "reverse", 			0, 0, OPT_REVERSE },
 		{ "total", 				0, 0, OPT_TOTAL },
 		{ "symlinks", 			0, 0, OPT_SYMLINKS },
@@ -171,6 +173,7 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_CONF_OPTS:			set_mode(MODE_CONF_OPTS, c); break;
 			case OPT_QUERY: 			set_mode(MODE_QUERY, c); break;
 			case OPT_FILES: 			set_mode(MODE_LIST_FILES, c); break;
+			case OPT_MISS:	 			set_mode(MODE_LIST_MISS, c); break;
 			case OPT_LOG: 				set_mode(MODE_LOG, c); break;
 			case OPT_REMOVE:			set_mode(MODE_REMOVE, c); break;
 
@@ -223,8 +226,8 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_EXACT_VERSION:
 				check_mode(MODE_REMOVE, c);
 			case OPT_ALL:
-				check_mode(MODE_LIST_PKGS | MODE_LIST_FILES | MODE_INFO 
-					| MODE_CONF_OPTS, c);
+				check_mode(MODE_LIST_PKGS | MODE_LIST_FILES | MODE_LIST_MISS
+					| MODE_INFO | MODE_CONF_OPTS, c);
 				break;
 
 			case OPT_SORT:
@@ -232,7 +235,7 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_TOTAL:
 			case OPT_NO_PACKAGE_NAME:
 			case OPT_SIZE:
-				check_mode(MODE_LIST_PKGS | MODE_LIST_FILES, c);
+				check_mode(MODE_LIST_PKGS | MODE_LIST_FILES | MODE_LIST_MISS, c);
 				break;
 
 			case OPT_DATE:
@@ -241,7 +244,7 @@ Opt::Opt(int argc, char* argv[])
 				break;
 
 			case OPT_SYMLINKS:
-				check_mode(MODE_LIST_FILES, c);
+				check_mode(MODE_LIST_FILES | MODE_LIST_MISS, c);
 				break;
 
 			case OPT_SKIP:
@@ -270,7 +273,7 @@ Opt::Opt(int argc, char* argv[])
 		switch (c) {
 
 			case OPT_SYMLINKS:
-				check_required(c, string(1, OPT_FILES));
+				check_required(c, string(1, OPT_FILES) + OPT_MISS);
 				break;
 
 			case OPT_SKIP:
@@ -295,7 +298,7 @@ Opt::Opt(int argc, char* argv[])
 			case OPT_NO_PACKAGE_NAME:
 				if (s_mode == MODE_DEFAULT) {
 					check_required(c, string(1, OPT_SIZE) + OPT_NFILES 
-						+ OPT_DATE + OPT_FILES);
+						+ OPT_DATE + OPT_FILES + OPT_MISS);
 				}
 				break;
 
@@ -429,6 +432,7 @@ cout <<
 "  -S, --sort=WORD          Sort by WORD: 'name', 'date', 'size' or 'files'.\n\n"
 "File list options:\n"
 "  -f, --files              List the files installed by the package.\n"
+"  -m, --missing-files      List the missing files of the package.\n"
 "  -s, --size               Print the size of each file.\n"
 "  -y, --symlinks           Print the contents of symbolic links.\n"
 "  -S, --sort=WORD          Sort by WORD: 'name' or 'size'.\n\n"
