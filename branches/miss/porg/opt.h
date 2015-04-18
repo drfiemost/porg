@@ -22,11 +22,12 @@ enum {
 	MODE_DEFAULT	= 1 << 0,	// alias for MODE_LIST_PKGS
    	MODE_LIST_PKGS	= 1 << 0,
    	MODE_LIST_FILES = 1 << 1,
-   	MODE_QUERY 		= 1 << 2,
-   	MODE_INFO 		= 1 << 3,
-   	MODE_CONF_OPTS 	= 1 << 4,
-   	MODE_LOG 		= 1 << 5,
-   	MODE_REMOVE 	= 1 << 6
+   	MODE_LIST_MISS	= 1 << 2,
+   	MODE_QUERY 		= 1 << 3,
+   	MODE_INFO 		= 1 << 4,
+   	MODE_CONF_OPTS 	= 1 << 5,
+   	MODE_LOG 		= 1 << 6,
+   	MODE_REMOVE 	= 1 << 7
 };
 
 
