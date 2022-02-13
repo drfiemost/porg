@@ -139,6 +139,7 @@ AC_SUBST([MY_CFLAGS])
 AC_CHECK_FUNCS_ONCE([ \
 	openat \
 	renameat \
+	renameat2 \
 	linkat \
 	symlinkat \
 	open64 \

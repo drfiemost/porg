@@ -48,6 +48,10 @@ static FILE*(*libc_freopen64)	(const char*, const char*, FILE*);
 static int	(*libc_openat64)	(int, const char*, int, ...);
 #endif
 
+#if HAVE_RENAMEAT2
+static int	(*libc_renameat2)	(int, const char*, int, const char *, unsigned int);
+#endif
+
 static char* porg_tmpfile;
 static char* porg_debug;
 
@@ -170,6 +174,10 @@ static void porg_init()
 
 #if HAVE_OPENAT64
 	libc_openat64 	= porg_dlsym("openat64");
+#endif
+
+#if HAVE_RENAMEAT2
+	libc_renameat2 	= porg_dlsym("renameat2");
 #endif
 }
 
@@ -552,3 +560,25 @@ int openat64(int fd, const char* path, int flags, ...)
 
 #endif	/* HAVE_OPENAT64 */
 
+#if HAVE_RENAMEAT2
+
+int renameat2(int oldfd, const char* oldpath,
+              int newfd, const char* newpath,
+              unsigned int flags)
+{
+	int ret;
+	static char old_abs_path[PORG_BUFSIZE];
+	static char new_abs_path[PORG_BUFSIZE];
+	
+	porg_init();
+
+	if ((ret = libc_renameat2(oldfd, oldpath, newfd, newpath, flags)) != -1) {
+		porg_get_absolute_path(oldfd, oldpath, old_abs_path);
+		porg_get_absolute_path(newfd, newpath, new_abs_path);
+		porg_log_rename(old_abs_path, new_abs_path);
+	}
+
+	return ret;
+}
+
+#endif /* Have_RENAMEAT2 */
