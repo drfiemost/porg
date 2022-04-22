@@ -69,6 +69,9 @@ install-data-local: porgrc
 	( test -f $$rc_file || $(INSTALL_DATA) porgrc $$rc_file ); \
 	touch $$rc_file
 
+uninstall-local:
+	$(RM) $(DESTDIR)$(sysconfdir)/porgrc
+
 logme:
 	ls $(logme_files) | porg -lp+ porg-$(PACKAGE_VERSION) && \
 	$(SED) -i "s|^#i:.*|#i:$(porg_icon_path)|" $(logdir)/porg-$(PACKAGE_VERSION)
