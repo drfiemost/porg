@@ -1,16 +1,15 @@
 .PHONY: \
 	logme
 
-EXTRA_DIST = \
-	porg_bash_completion
-
 bin_SCRIPTS = \
 	paco2porg \
 	porgball
 
-install-exec-local:
-		$(mkinstalldirs) $(DESTDIR)$(sysconfdir)/bash_completion.d && \
-		$(INSTALL_DATA) porg_bash_completion $(DESTDIR)$(sysconfdir)/bash_completion.d
+completiondir = \
+	$(sysconfdir)/bash_completion.d
+
+dist_completion_DATA = \
+	porg_bash_completion
 
 logme_files = \
 	$(DESTDIR)$(sysconfdir)/bash_completion.d/porg_bash_completion \
