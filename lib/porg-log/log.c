@@ -102,12 +102,14 @@ static void porg_get_absolute_path(int fd, const char* path, char* abs_path)
 	/* relative to CWD */
 	else if (fd < 0) {
 		strncpy(abs_path, cwd, PORG_BUFSIZE - 1);
+		abs_path[PORG_BUFSIZE - 1] = 0;
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
 		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
 	}
 	/* relative to directory fd */
 	else if (fchdir(fd) == 0 && getcwd(aux, PORG_BUFSIZE) && chdir(cwd) == 0) {
 		strncpy(abs_path, aux, PORG_BUFSIZE - 1);
+		abs_path[PORG_BUFSIZE - 1] = 0;
 		strncat(abs_path, "/", PORG_BUFSIZE - strlen(abs_path) - 1);
 		strncat(abs_path, path, PORG_BUFSIZE - strlen(abs_path) - 1);
 	}
