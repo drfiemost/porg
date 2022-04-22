@@ -21,7 +21,7 @@ jobs:
     - name: bootstrap
       run: autoreconf -vfi
     - name: configure
-      run: ./configure --enable_grop
+      run: ./configure
     - name: make
       run: make
     - name: make distcheck
