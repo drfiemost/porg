@@ -46,7 +46,7 @@ grop_CXXFLAGS = \
 
 grop_LDADD = \
 	$(GTKMM_LIBS) \
-	$(top_srcdir)/lib/porg/libporg.a
+	$(top_builddir)/lib/porg/libporg.a
 
 logme_files = \
     $(DESTDIR)$(bindir)/grop
