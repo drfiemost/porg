@@ -6,7 +6,7 @@ bin_SCRIPTS = \
 	porgball
 
 completiondir = \
-	$(sysconfdir)/bash_completion.d
+	$(datarootdir)/bash-completion/completions
 
 dist_completion_DATA = \
 	porg_bash_completion
