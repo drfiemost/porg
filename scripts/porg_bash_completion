@@ -40,8 +40,7 @@
 #-------------------------------------------------------------------------------
 
 
-have porg &&
-_porg()
+_comp_cmd_porg()
 {
 	local prev cur pkgs longopts longopts_eq shortopts sorts vars vars_complete var
 
@@ -258,5 +257,5 @@ _porg()
 
 	return 0
 }
-[ "$have" ] && complete -F _porg porg
+complete -F _comp_cmd_porg porg
 
