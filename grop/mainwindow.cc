@@ -115,7 +115,7 @@ void MainWindow::build_menu_bar()
 	m_action_group->add(Action::create("MenuPackage", "_Package"));
 	m_action_group->add(m_action_properties, mem_fun(this, &MainWindow::on_properties));
 	m_action_group->add(m_action_porgball, mem_fun(this, &MainWindow::on_porgball));
-	m_action_group->add(m_action_remove, mem_fun(this, &MainWindow::on_remove));
+	m_action_group->add(m_action_remove, mem_fun(this, &MainWindow::on_remove_pkg));
 	m_action_group->add(m_action_unlog, mem_fun(*this, &MainWindow::on_unlog));
 
 	m_action_group->add(Action::create("MenuHelp", "_Help"));
@@ -288,7 +288,7 @@ void MainWindow::on_unlog()
 }
 
 
-void MainWindow::on_remove()
+void MainWindow::on_remove_pkg()
 {
 	g_return_if_fail(Opt::logdir_writable() && m_selected_pkg != NULL);
 
