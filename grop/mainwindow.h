@@ -38,7 +38,7 @@ class MainWindow : public Gtk::Window
 	void on_pkg_menu();
 	void on_properties();
 	void on_unlog();
-	void on_remove();
+	void on_remove_pkg();
 	void on_porgball();
 	void on_popup_menu(GdkEventButton*);
 	void on_2button_press(GdkEventButton*);
