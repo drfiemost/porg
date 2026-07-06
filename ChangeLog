@@ -1,3 +1,94 @@
+0.11.1 / 2026-07-06
+==================
+  * Modify the INSTALL file due to missing instructions.
+
+
+0.11.0 / 2026-07-06
+==================
+
+  * Bump actions/checkout from 6 to 7
+  * Potential fix for code scanning alert no. 1: Workflow does not contain permissions
+  * Bump actions/checkout from 3 to 6
+  * Bump github/codeql-action from 3 to 4
+  * Configure Dependabot for GitHub Actions updates
+  * Fix workflows
+  * Update workflow
+  * Add .gitignore file
+  * Rename function (fixes #4)
+  * Bash completion updates (#3)
+  * uninstall porgrc file
+  * Change porg-logdir
+  * Use standard automake way of installing data
+  * Fix lib path
+  * null terminate string after strncpy
+  * Update build.yml
+  * Create build.yml
+  * Create codeql-analysis.yml
+  * Fix "porg does not handle mv event"
+  * Added break statement on switch, to fix compilation errors
+  * Added flag '-Wno-nonnull-compare' to gcc as well
+  * Added flag '-Wno-nonnull-compare' to C++ compiler, to avoid  unnecessary warnings
+  * Function get_digits(): Return 1 when input number is 0
+  * Undone change in r184
+  * Added SVN revision number to version of development snapshots
+  * grop: ask for confirmation when cancelling porgball creation process
+  * Removed ChangeLog.paco from the distribution
+  * Make gzip dist tarballs by default (was xz)
+  * Removed faq.txt. Improved porg(8) man page
+  * added sudo to logme-really commands
+  * back to svn
+  * Release of 0.10
+  * Fixed svn related tags in Makefile
+  * back to svn
+  * VERSION 0.9
+  * grop: fixed porgball hang bug
+  * Added cxxflags to fix compilation errors with latest versions of glibmm and gtkmm
+  * document the case-insensitiveness of variable names in porgrc and porg man pages
+  * changed g++ flags
+  * Replace mode_t by int when calling va_arg() so that the code compiles in OSX 10.6 (thanks Tomoaki Nishiyama)
+  * libporg-log: explicitly #define RTLD_NEXT for systems that do not recognize it
+  * removed spurious comment
+  * cleanup
+  * Added #include <csignal>
+  * Do not allow running multiple grop instances at the same time
+  * cleanup
+  * grop:bugfix: When running grop as root, save config file in directory '/root/.config/grop' (it was saved in the ordinary user home dir)
+  * Call return instead of exit() in main func of porg, so that destructors of static objects are called
+  * Allow lowercase'd variables in porgrc (like 'include')
+  * code cleanup
+  * Removed /mnt, /media and /cdrom from the default EXCLUDE
+  * code cleanup
+  * Removed uneeded fmt_size(ulong)
+  * code cleanup
+  * code cleanup
+  * code cleanup
+  * code cleanup
+  * Fixed minor bug in grop (opening tmp files when creating porgballs)
+  * Code cleanup
+  * Code cleanup in paco2porg.in
+  * Fixed typo in porgball.in
+  * code cleanup
+  * Removed BaseOpt::check_logdir()
+  * Minor fixes
+  * Use endl instead of '\n' for printing
+  * Fixed bug (-x option compatibility)
+  * code cleanup
+  * Merged last changes from branch 'miss'
+  * Merged last changes from branch 'miss'
+  * code cleanup
+  * Properly log /etc/porgrc when logging the own porg install
+  * Removed 'make logme' (no longer required)
+  * minor fixes
+  * back to svn
+  * VERSION 0.8
+  * minor fixes
+  * Use sscanf instead of Rexp to read the logs (much faster)
+  * small fixes
+  * Added assert() to check that logged files have inode > 0
+  * Removed 'missing files' features (kept on branch 'missing')
+  * Added file doc/grop.svg
+  * Created trunk branch
+  * foo
 SVN
 ---
 
